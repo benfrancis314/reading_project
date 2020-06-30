@@ -1,5 +1,5 @@
 .highlighted {
-	font-weight: bolder;
+	/* font-weight: bolder; */
 	/* background-color:#FFFF00; */
 	color: #017f92;
 }
@@ -7,12 +7,9 @@
 mark{
     /* background: orange;
 	color: black; */
-	font-weight: bolder;
-	/* background-color:#FFFF00; */
-	color: #017f92;
-	background: none;
-}
-
-.readContainer {
-	color: "pink";
+	/* font-weight: bolder; */
+	background-color:#d4b500;
+	/* color: #017f92 !important; */
+	/* background: none !important; */
+	/* background-color: none !important; */
 }
