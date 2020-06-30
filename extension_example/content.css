@@ -1,0 +1,18 @@
+.highlighted {
+	font-weight: bolder;
+	/* background-color:#FFFF00; */
+	color: #017f92;
+}
+
+mark{
+    /* background: orange;
+	color: black; */
+	font-weight: bolder;
+	/* background-color:#FFFF00; */
+	color: #017f92;
+	background: none;
+}
+
+.readContainer {
+	color: "pink";
+}

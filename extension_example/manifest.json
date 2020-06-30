@@ -4,7 +4,8 @@
     "description": "Reading project extension. ",
     "permissions": ["activeTab", "declarativeContent", "storage"],
     "background": {
-        "scripts": ["background.js"], 
+        "scripts": ["third_party/jquery-3.5.1.min.js", 
+          "background.js"], 
         "persistent": false
     },
     "page_action": {
@@ -26,7 +27,12 @@
     "content_scripts": [
         {
           "matches": ["<all_urls>"],
-          "js": ["content_script.js"]
+          "js":["third_party/jquery-3.5.1.min.js", 
+            "third_party/jquery.mark-8.11.1.min.js",
+            "content_script.js"],
+          "css": [
+            "content.css"
+          ]
         }
         ],
     "manifest_version": 2
