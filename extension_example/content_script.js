@@ -21,7 +21,11 @@ function setupClickListener() {
 		$("#" + domId).click(function () {
 			container = $(this);
 			start = 0;
-			end = container.text().indexOf(". ", start);
+			let txt = container.text();
+			end = txt.indexOf(". ", start);
+			if (end < 0) {
+				end = txt.length;
+			}
 			highlight(container, start, end);
 			init = 1;
 		});
