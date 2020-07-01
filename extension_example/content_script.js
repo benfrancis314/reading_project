@@ -27,41 +27,43 @@ function moveUp() {
 	end = start -2;
 	rev = container.text().split("").reverse().join("");
 	if (rev.indexOf(" .", len-end) > 0) {
-		start = len - rev.indexOf(" .", len-end)
+		start = len - rev.indexOf(" .", len-end);
 	} else { 
-		start = 0 
+		start = 0;
 	};
 	if (start < 0) {start = 0};
     if (end < 0) {
-		container = container.prev()
-		len = container.text().length
-		end = len
-		rev = container.text().split("").reverse().join("")
+		container = container.prev();
+		len = container.text().length;
+		end = len;
+		rev = container.text().split("").reverse().join("");
 		if (rev.indexOf(" .", len-end) > 0) {
-			start = len - rev.indexOf(" .", len-end)
+			start = len - rev.indexOf(" .", len-end);
 		} else { 
-			start = 0 
+			start = 0;
 		};
-    } ;
+    };
     highlight(container, start, end);
 }
 
 function moveDown() {
 	velocity = 1;
 	if (scrollType == "manual_mode") {
-		moveDownManual()
+		moveDownManual();
 	} else {
-		if (!timer) {timer = setInterval(moveDownManual, 500)}
+		moveDownManual()
+		// if (!timer) {
+		// 	timer = setInterval(moveDownManual, 500);
+		// }
 	};
 }
 
 function moveDownManual() {
-	console.log("moveDownManual")
 	if (init == 0) { 
-		container = $("p:first")
-		end = container.text().indexOf(". ", start)
-		highlight(container, start, end)
-		init = 1
+		container = $("p:first");
+		end = container.text().indexOf(". ", start);
+		highlight(container, start, end);
+		init = 1;
 	};
 	len = container.text().length;
     start = end + 2;
@@ -113,8 +115,8 @@ function readListener() {
 				speed -= 2;
 			// S (Slow velocity)
 			case 83: 
-			// T (toggle scroll type)
 				speed += 2;
+			// T (toggle scroll type)
 			case 84:
 				if (scrollType == "velocity_mode") { scrollType == "manual_mode" }
 				else if (scrollType == "manual_mode") { scrollType == "velocity_mode" };
