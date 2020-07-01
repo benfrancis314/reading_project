@@ -1,119 +1,116 @@
 var container = $("p:first");
 var start = 0;
 var end = 0;
-// var velocity = 1;
 var timer = 0;
-var speed = 10;
+var speed = 10; // Base speed, not accounting for sentence length; adjustable w/ D/S
+var speed_adjusted = 0;
 var init = 0;
-var scrollType = "velocity_mode";
-var firstMove = 1;
+var firstMove = 1; // Is this the first time it has been moved?
+var tracker_len = 0;
+/*
+To do:
+1. Make necessary comments
+2. Modularize where able
 
-// Click on a paragraph to higlight its beginning sentence
-$(function () {
+Functions: 
+1. Click to highlight beginning of sentence
+2. Move (up/down fed as argument)
+3. Move up one sentence
+5. Move down one sentence
+6. Find end of one chunk (sentence OR semicolon OR ... )
+7. Tracker length (also sets the boundary)
+8. Read listener
+*/ 
+
+
+// Click on a paragraph to highlight its beginning sentence
+$(function clickSection() {
     $("p").click(function () {
 		container = $(this);
-		start = 0;
-		end = container.text().indexOf(". ", start);
+		start = 0; // Set to beginning of section
+		// trackerLen();
+		containerText = container.text();
+		end = containerText.indexOf(". ", start);
 		highlight(container, start, end);
 		init = 1;
 	});
 });
 
-// This should be used elsewhere
-function initContentScript() {
-    end = container.text().indexOf(". ", start);
-	highlight(container, start, end);
-};
-function moveUp() {
-	// velocity = 1;
-	if (firstMove == 1) {
-		moveUpOne();
+function move(type) { // Note: I have combined the "moveUp" and "moveDown" functions here
+	if (firstMove == 1) { // First time the button is clicked
+		if (type == "up") { moveUpOne(); }
+		else if (type == "down") { moveDownOne();}
 		firstMove = 0;
-	} else {
+	} else {  // If the button is held down
 		if (!timer) {
-			timer = setInterval(moveUpOne, speed*50);
+			(function repeat() { // Allows speed to be updated WHILE moving
+				if (type == "up") { moveUpOne(); }
+				else if (type == "down") { moveDownOne();}
+				timer = setTimeout(repeat, speed_adj);
+			})();
 		}
 	};
 }
 
-function moveUpOne() {
-	len = container.text().length;
-	end = start -2;
-	rev = container.text().split("").reverse().join("");
-	if (rev.indexOf(" .", len-end) > 0) {
-		start = len - rev.indexOf(" .", len-end);
-	} else { 
-		start = 0;
+// Will probably combine these two functions in future
+function moveUpOne() { // Sets start and end
+	tracker_len = trackerLen("up");
+	highlight(container, start, end);
+	speed_adj = speed * (tracker_len);
+}
+
+function moveDownOne() { // Sets start and end
+	tracker_len = trackerLen("down");
+	highlight(container, start, end);
+	speed_adj = speed * (tracker_len);
+};
+//// 
+
+function trackerLen(type) {
+	if (init == 0) { // If no section selected yet, selects first paragraph
+		container = $("p:first");
+		trackerLen();
+		highlight(container, start, end);
+		init = 1;
 	};
-	if (start < 0) {start = 0};
-    if (end < 0) {
-		container = container.prev();
+	if (type == "down") { // Run for DOWN movement: Finds START and END
+		containerText = container.text();
+		len = containerText.length;
+		start = end + 2; // Compensate for the ". " at the end of sentence
+		end = containerText.indexOf(". ", start);
+		if (end < 0) { end = len };
+		if (start >= len) {
+			container = container.next();
+			containerText = container.text();
+			start = 0;
+			end = containerText.indexOf(". ", start);
+			if (end < 0) { end = containerText.length};
+		};
+	}
+	else if (type == "up") { // Run for UP movement: Find START and END
 		len = container.text().length;
-		end = len;
+		end = start - 2; // Compensate for the ". " at the end of sentence
 		rev = container.text().split("").reverse().join("");
 		if (rev.indexOf(" .", len-end) > 0) {
 			start = len - rev.indexOf(" .", len-end);
 		} else { 
 			start = 0;
 		};
-    };
-    highlight(container, start, end);
-}
-
-function moveDown() {
-	velocity = 1;
-	if (firstMove == 1) {
-		moveDownOne();
-		firstMove = 0;
-	} else {
-		if (!timer) {
-			tracker_len = trackerLen();
-			speed = tracker_len/15;
-			console.log(speed);
-			timer = setInterval(moveDownOne, speed*50);
-		}
-	};
-}
-
-function findEndChunk(containerText, start) {
-	possibleEnds = [0,0,0];
-	min = containerText.toString().length;
-	possibleEnds[0] = containerText.toString().indexOf(". ", start);
-	possibleEnds[1] = containerText.toString().indexOf("; ", start);
-	possibleEnds[2] = containerText.toString().indexOf(".[", start);
-	for (i in possibleEnds) { 
-		if ((possibleEnds[i] < min) & (possibleEnds[i] > 0)) { 
-			min = possibleEnds[i];
+		if (start < 0) {start = 0};
+		if (end < 0) {
+			container = container.prev();
+			len = container.text().length;
+			end = len;
+			rev = container.text().split("").reverse().join("");
+			if (rev.indexOf(" .", len-end) > 0) {
+				start = len - rev.indexOf(" .", len-end);
+			} else { 
+				start = 0;
+			};
 		};
-	};
-	return min;
-}
-
-function trackerLen() {
-	if (init == 0) { 
-		container = $("p:first");
-		end = findEndChunk(container, start);
-		highlight(container, start, end);
-		init = 1;
-	};
-	containerText = container.text();
-	len = containerText.length;
-	start = end + 2;
-	end = findEndChunk(containerText, start +2);
-	if (end < 0) { end = len };
-    if (start >= len) {
-		container = container.next();
-		conatinerText = container.text();
-        start = 0;
-		end = findEndChunk(containerText, start+2);
-		if (end < 0) { end = containerText.length};
-	};
+	}
 	return tracker_len = end - start;
 }
-
-function moveDownOne() {
-    highlight(container, start, end);
-};
 
 /**
 Highlight a portion container.text(), from start_off to end_off (exclusive).
@@ -121,7 +118,7 @@ Highlight a portion container.text(), from start_off to end_off (exclusive).
 function highlight(container, start_off, end_off) {
 	$(".marked").unmark();
 	$(".marked").removeClass("marked");
-	// Append the class "highlighted" to the html corresponding to the interval
+	// Append the "mark" class (?) to the html corresponding to the interval
 	// The interval indices are w.r.t to the raw text.
 	// mark.js is smart enough to preserve the original html, and even provide
 	// multiple consecutive spans to cover embedded htmls
@@ -133,17 +130,17 @@ function highlight(container, start_off, end_off) {
 	});
 };
 
-function readListener() {
+function readListener() { // General listener for read project
 	document.addEventListener('keydown', function(evt) {
 		if (!document.hasFocus()) {
-		  return true;
+		  return true; // Ensure this is the doc you're looking at
 		}
 		switch (evt.keyCode) {
 			case 37:	// Up
-                moveUp();
+                move("up");
                 break;
 			case 39:	// Down
-                moveDown();
+                move("down");
 				break;
 			case 68:	// D (Increase velocity)
 				// speed = speed - 2;
@@ -161,12 +158,64 @@ function readListener() {
 		if (!document.hasFocus()) {
 		  return true;
 		}
-		if (velocity == 1) { 
-			clearInterval(timer);
-			timer = 0;
-			firstMove = 1;
-		}
+		clearTimeout(timer); // If using interval in diff version, change to "clearInterval"
+		timer = 0;
+		firstMove = 1;
     }, false);
 };
 
-readListener();
+
+
+readListener(); // Listen
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ==================================================
+
+// IN-PROGRESS FUNCTIONS: 
+
+// ==================================================
+
+
+
+
+
+
+
+
+
+// FIND END OF CHUNK ******************************************
+
+
+/* NOT USING YET; saving code for implementation. 
+	Used to identify end points other than periods. */
+
+// function findEndChunk(containerText, start) {
+// 	possibleEnds = [0,0,0];
+// 	min = containerText.toString().length;
+// 	possibleEnds[0] = containerText.toString().indexOf(". ", start);
+// 	possibleEnds[1] = containerText.toString().indexOf("; ", start);
+// 	possibleEnds[2] = containerText.toString().indexOf(".[", start);
+// 	for (i in possibleEnds) { 
+// 		if ((possibleEnds[i] < min) & (possibleEnds[i] > 0)) { 
+// 			min = possibleEnds[i];
+// 		};
+// 	};
+// 	return min;
+// }
+
+// ************************************************************
