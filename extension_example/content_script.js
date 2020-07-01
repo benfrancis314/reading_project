@@ -28,11 +28,6 @@ function setupClickListener() {
 	}
 }
 
-// This should be used elsewhere
-function initContentScript() {
-    end = container.text().indexOf(". ", start);
-	highlight(container, start, end);
-};
 function moveUp() {
 	// velocity = 1;
 	if (firstMove == 1) {
@@ -176,7 +171,6 @@ Attach IDs to all elements in document.
 Populate the global variable readableDomIds.
 */
 function parseDocument() {
-	console.log("start setupReadability!");
 	// Get all direct + indirect descendants of body that are visible.
 	// Generate unique id for each one, if doesn't exist before.
 	// This makes sure that after readability.js mutates the clone, we can
@@ -210,7 +204,6 @@ function parseDocument() {
 		el.css({ "background-color": colors[i % colors.length], "opacity": ".20" });
 	}
 */
-	console.log("done setupReadability?!");
 }
 
 parseDocument();
