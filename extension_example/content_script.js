@@ -2,12 +2,14 @@
 "use strict";
 var start = 0;
 var end = 0;
-var velocity = 1;
-var timer = 0;
+
+// Whether or not there is a timer that triggers movement of tracker.
+// null means tracker is static. Non-null means there is a scheduled timer that
+// keeps moving the tracker around.
+var timer = null;
 var speed = 10;
 var init = 0;
 var scrollType = "velocity_mode";
-var firstMove = 1;
 
 // List of dom IDs that contain readable content.
 // Sorted in order of reading progression. 
@@ -46,15 +48,10 @@ function setupClickListener() {
 }
 
 function moveUp() {
-	// velocity = 1;
-	if (firstMove == 1) {
+	if (!timer) {
 		moveUpOne();
-		firstMove = 0;
-	} else {
-		if (!timer) {
-			timer = setInterval(moveUpOne, speed*50);
-		}
-	};
+		timer = setInterval(moveUpOne, speed*50);
+	}
 }
 
 function moveUpOne() {
@@ -90,15 +87,10 @@ function moveUpOne() {
 }
 
 function moveDown() {
-	velocity = 1;
-	if (firstMove == 1) {
+	if (!timer) {
 		moveDownOne();
-		firstMove = 0;
-	} else {
-		if (!timer) {
-			timer = setInterval(moveDownOne, speed*50);
-		}
-	};
+		timer = setInterval(moveDownOne, speed*50);
+	}
 }
 
 function findEndChunk(containerText, start) {
@@ -165,6 +157,17 @@ function highlight(container, start_off, end_off) {
 	});
 };
 
+// If a tracker is currently moving, turn it off.
+function stopTracker() {
+	if (!document.hasFocus()) {
+	  return true;
+	}
+	if (timer) { 
+		clearInterval(timer);
+		timer = null;
+	}
+}
+
 function readListener() {
 	document.addEventListener('keydown', function(evt) {
 		if (!document.hasFocus()) {
@@ -183,6 +186,15 @@ function readListener() {
 			case 'KeyS':	// Slow velocity
 				speed += 2;
 				break;
+                moveDown();
+				break;
+			case 'AltLeft':
+				if (timer) {
+					stopTracker();
+				} else {
+					moveDown();
+				}
+				break;
 			default:
                 break;
 		}
@@ -192,14 +204,7 @@ function readListener() {
 		switch (evt.code) {
 			case 'ArrowLeft':
 			case 'ArrowRight':
-				if (!document.hasFocus()) {
-				  return true;
-				}
-				if (velocity == 1) { 
-					clearInterval(timer);
-					timer = 0;
-					firstMove = 1;
-				}
+				stopTracker();
 				break;
 		}
     }, false);
