@@ -1,22 +1,12 @@
 .highlighted {
-	/* font-weight: bolder; */
-	/* background-color:#FFFF00; */
 	color: #017f92;
 }
 
-mark{
-    /* background: orange;
-	color: black; */
-	/* font-weight: bolder; */
+mark {
 	background-color:#c9daf8 !important;
 	background: #c9daf8 !important;
-	/* transition: all 0.5s  */
-	/* color: #017f92 !important; */
-	/* background: none !important; */
-	/* background-color: none !important; */
 	transition: all 0.5s ease 0.5s !important;
 }
 .marked {
-	/* /* background: #c9daf800 !important; */
-	transition: all 0.5s ease 0.5s !important;
+	background: #c9daf8 !important;
 }
