@@ -1,7 +1,10 @@
+// Prevent the usage of undeclared variables.
+"use strict";
+
 var container = $("p:first");
 var start = 0;
 var end = 0;
-// var velocity = 1;
+var velocity = 1;
 var timer = 0;
 var speed = 10;
 var init = 0;
@@ -12,7 +15,7 @@ var firstMove = 1;
 // Sorted in order of reading progression. 
 // E.g. $("#" + readableDomIds[0]) gets you the jQuery element to the first readable content.
 // Populated by parseDocument()
-var readableDomIds = []
+var readableDomIds = [];
 
 // Each readable item
 // Assumes that readableDomId is already populated
@@ -45,9 +48,9 @@ function moveUp() {
 }
 
 function moveUpOne() {
-	len = container.text().length;
+	let len = container.text().length;
 	end = start -2;
-	rev = container.text().split("").reverse().join("");
+	let rev = container.text().split("").reverse().join("");
 	if (rev.indexOf(" .", len-end) > 0) {
 		start = len - rev.indexOf(" .", len-end);
 	} else { 
@@ -81,12 +84,12 @@ function moveDown() {
 }
 
 function findEndChunk(containerText, start) {
-	possibleEnds = [0,0,0];
-	min = containerText.toString().length;
+	let possibleEnds = [0,0,0];
+	let min = containerText.toString().length;
 	possibleEnds[0] = containerText.toString().indexOf(". ", start);
 	possibleEnds[1] = containerText.toString().indexOf("; ", start);
 	possibleEnds[2] = containerText.toString().indexOf(".[", start);
-	for (i in possibleEnds) { 
+	for (let i in possibleEnds) { 
 		if ((possibleEnds[i] < min) & (possibleEnds[i] > 0)) { 
 			min = possibleEnds[i];
 		};
@@ -102,7 +105,7 @@ function moveDownOne() {
 		init = 1;
 	};
 	let containerText = container.text();
-	len = containerText.length;
+	let len = containerText.length;
 	start = end + 2;
 	end = findEndChunk(containerText, start +2);
 	if (end < 0) { end = len };
