@@ -164,12 +164,7 @@ function readListener() { // General listener for read project
     }, false);
 };
 
-
-
 readListener(); // Listen
-
-
-
 
 
 
