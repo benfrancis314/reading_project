@@ -101,14 +101,14 @@ function moveDownOne() {
 		highlight(container, start, end);
 		init = 1;
 	};
-	containerText = container.text();
+	let containerText = container.text();
 	len = containerText.length;
 	start = end + 2;
 	end = findEndChunk(containerText, start +2);
 	if (end < 0) { end = len };
     if (start >= len) {
 		container = container.next();
-		conatinerText = container.text();
+		containerText = container.text();
         start = 0;
 		end = findEndChunk(containerText, start+2);
 		if (end < 0) { end = containerText.length};
