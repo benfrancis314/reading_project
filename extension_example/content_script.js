@@ -1,12 +1,13 @@
 var container = $("p:first");
 var start = 0;
 var end = 0;
-var velocity_mode = 1;
+// var velocity = 1;
 var timer = 0;
 var speed = 10;
 var init = 0;
 var scrollType = "velocity_mode";
 
+// Click on a paragraph to higlight its beginning sentence
 $(function () {
     $("p").click(function () {
 		container = $(this);
@@ -47,14 +48,13 @@ function moveUp() {
 }
 
 function moveDown() {
-	velocity = 1;
+	// velocity = 1;
 	if (scrollType == "manual_mode") {
 		moveDownManual();
 	} else {
-		moveDownManual()
-		// if (!timer) {
-		// 	timer = setInterval(moveDownManual, 500);
-		// }
+		if (!timer) {
+			timer = setInterval(moveDownManual, 500);
+		}
 	};
 }
 
@@ -102,24 +102,20 @@ function readListener() {
 		  return true;
 		}
 		switch (evt.keyCode) {
-            // Up
-			case 37:
+            
+			case 37:	// Up
                 moveUp();
                 break;
-            // Down
-			case 39:
+			case 39:	// Down
                 moveDown();
 				break;
-			// D (Increase velocity)
-			case 68:
+			case 68:	// D (Increase velocity)
 				speed -= 2;
-			// S (Slow velocity)
-			case 83: 
+			case 83:	// S (Slow velocity)
 				speed += 2;
-			// T (toggle scroll type)
-			case 84:
-				if (scrollType == "velocity_mode") { scrollType == "manual_mode" }
-				else if (scrollType == "manual_mode") { scrollType == "velocity_mode" };
+			case 84:	// T (toggle scroll type)
+				if (scrollType == "velocity_mode") { scrollType = "manual_mode" }
+				else if (scrollType == "manual_mode") { scrollType = "velocity_mode" };
 				break;
 			default:
                 break;
@@ -130,9 +126,10 @@ function readListener() {
 		if (!document.hasFocus()) {
 		  return true;
 		}
-		if (velocity == 1) { 
-			clearInterval(timer)
-		}
+		// if (velocity == 1) { 
+		clearInterval(timer);
+		timer = 0;
+		// }
     }, false);
 };
 
