@@ -170,18 +170,17 @@ function readListener() {
 		if (!document.hasFocus()) {
 		  return true;
 		}
-		switch (evt.keyCode) {
-			case 37:	// Up
+		switch (evt.code) {
+			case 'ArrowLeft': // Move back
                 moveUp();
                 break;
-			case 39:	// Down
+			case 'ArrowRight': // Move forward
                 moveDown();
 				break;
-			case 68:	// D (Increase velocity)
-				// speed = speed - 2;
+			case 'KeyD':	// Increase velocity
 				speed -= 2;
 				break;
-			case 83:	// S (Slow velocity)
+			case 'KeyS':	// Slow velocity
 				speed += 2;
 				break;
 			default:
@@ -190,13 +189,18 @@ function readListener() {
 		return true;
 	}, false);
 	document.addEventListener('keyup', function(evt) {
-		if (!document.hasFocus()) {
-		  return true;
-		}
-		if (velocity == 1) { 
-			clearInterval(timer);
-			timer = 0;
-			firstMove = 1;
+		switch (evt.code) {
+			case 'ArrowLeft':
+			case 'ArrowRight':
+				if (!document.hasFocus()) {
+				  return true;
+				}
+				if (velocity == 1) { 
+					clearInterval(timer);
+					timer = 0;
+					firstMove = 1;
+				}
+				break;
 		}
     }, false);
 };
