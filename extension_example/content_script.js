@@ -67,6 +67,9 @@ function moveDown() {
 		firstMove = 0;
 	} else {
 		if (!timer) {
+			tracker_len = trackerLen();
+			speed = tracker_len/15;
+			console.log(speed);
 			timer = setInterval(moveDownOne, speed*50);
 		}
 	};
@@ -86,7 +89,7 @@ function findEndChunk(containerText, start) {
 	return min;
 }
 
-function moveDownOne() {
+function trackerLen() {
 	if (init == 0) { 
 		container = $("p:first");
 		end = findEndChunk(container, start);
@@ -105,6 +108,10 @@ function moveDownOne() {
 		end = findEndChunk(containerText, start+2);
 		if (end < 0) { end = containerText.length};
 	};
+	return tracker_len = end - start;
+}
+
+function moveDownOne() {
     highlight(container, start, end);
 };
 
