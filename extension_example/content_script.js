@@ -19,6 +19,8 @@ var readableDomIds = [];
 // Pointer to an element in readableDomIds. The current container the tracker is in.
 // Will always be in [0, readableDomIds.length)
 var containerId = 0;
+// If the screen is currently scrolling. If it is, pause the tracker.
+var isScrolling = false;
 
 // Get the jquery container from readableDomIds corresponding to containerId.
 function getContainer(containerId) {
@@ -108,6 +110,10 @@ function findEndChunk(containerText, start) {
 }
 
 function moveDownOne() {
+	// Wait for scrolling to finish before moving down.
+	if (isScrolling) {
+		return;
+	}
 	if (init == 0) { 
 		containerId = 0;
 		let container = getContainer(containerId);
@@ -137,6 +143,23 @@ function moveDownOne() {
 		if (end < 0) { end = containerText.length};
 	};
     highlight(container, start, end);
+
+
+	// Autoscroll if too far ahead.
+	// Number of pixels from top of window to top of current container.
+	let markedTopAbsoluteOffset = $(".marked").offset().top;
+	let markedTopRelativeOffset = markedTopAbsoluteOffset - $(window).scrollTop();
+	if (markedTopRelativeOffset > 500) {
+		isScrolling = true;
+		$('html, body').animate(
+			// Leave some vertical margin before the container.
+			{scrollTop: (markedTopAbsoluteOffset - 50)},
+			500, /* duration(ms) */
+			function() {
+				isScrolling = false;
+			}
+		);
+	}
 };
 
 /**
@@ -250,6 +273,15 @@ function parseDocument() {
 	}
 */
 }
+
+// Uncomment this if you want to see the relative y offsets of current container
+// so you can tweak the auto-scroll feature.
+/*
+$(window).scroll(function() {
+	console.log(`Window container's top Y = ${getContainer(containerId).offset().top
+		- $(window).scrollTop()}`);
+});
+*/
 
 parseDocument();
 setupClickListener();
