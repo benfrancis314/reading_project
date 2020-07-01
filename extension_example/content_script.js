@@ -6,6 +6,7 @@ var timer = 0;
 var speed = 10;
 var init = 0;
 var scrollType = "velocity_mode";
+var firstMove = 1;
 
 // List of dom IDs that contain readable content.
 // Sorted in order of reading progression. 
@@ -33,6 +34,18 @@ function initContentScript() {
 	highlight(container, start, end);
 };
 function moveUp() {
+	// velocity = 1;
+	if (firstMove == 1) {
+		moveUpOne();
+		firstMove = 0;
+	} else {
+		if (!timer) {
+			timer = setInterval(moveUpOne, speed*50);
+		}
+	};
+}
+
+function moveUpOne() {
 	len = container.text().length;
 	end = start -2;
 	rev = container.text().split("").reverse().join("");
@@ -57,33 +70,50 @@ function moveUp() {
 }
 
 function moveDown() {
-	// velocity = 1;
-	if (scrollType == "manual_mode") {
-		moveDownManual();
+	velocity = 1;
+	if (firstMove == 1) {
+		moveDownOne();
+		firstMove = 0;
 	} else {
 		if (!timer) {
-			timer = setInterval(moveDownManual, 500);
+			timer = setInterval(moveDownOne, speed*50);
 		}
 	};
 }
 
-function moveDownManual() {
+function findEndChunk(containerText, start) {
+	possibleEnds = [0,0,0];
+	min = containerText.toString().length;
+	possibleEnds[0] = containerText.toString().indexOf(". ", start);
+	possibleEnds[1] = containerText.toString().indexOf("; ", start);
+	possibleEnds[2] = containerText.toString().indexOf(".[", start);
+	for (i in possibleEnds) { 
+		if ((possibleEnds[i] < min) & (possibleEnds[i] > 0)) { 
+			min = possibleEnds[i];
+		};
+	};
+	return min;
+}
+
+function moveDownOne() {
 	if (init == 0) { 
 		container = $("p:first");
-		end = container.text().indexOf(". ", start);
+		end = findEndChunk(container, start);
 		highlight(container, start, end);
 		init = 1;
 	};
-	len = container.text().length;
-    start = end + 2;
-    end = container.text().indexOf(". ", start+2);
+	containerText = container.text();
+	len = containerText.length;
+	start = end + 2;
+	end = findEndChunk(containerText, start +2);
 	if (end < 0) { end = len };
     if (start >= len) {
-		container = container.next()
-        start = 0
-		end = container.text().indexOf(". ", start+2)
-		if (end < 0) { end = container.text().length}
-    } ;
+		container = container.next();
+		conatinerText = container.text();
+        start = 0;
+		end = findEndChunk(containerText, start+2);
+		if (end < 0) { end = containerText.length};
+	};
     highlight(container, start, end);
 };
 
@@ -111,7 +141,6 @@ function readListener() {
 		  return true;
 		}
 		switch (evt.keyCode) {
-            
 			case 37:	// Up
                 moveUp();
                 break;
@@ -119,12 +148,11 @@ function readListener() {
                 moveDown();
 				break;
 			case 68:	// D (Increase velocity)
+				// speed = speed - 2;
 				speed -= 2;
+				break;
 			case 83:	// S (Slow velocity)
 				speed += 2;
-			case 84:	// T (toggle scroll type)
-				if (scrollType == "velocity_mode") { scrollType = "manual_mode" }
-				else if (scrollType == "manual_mode") { scrollType = "velocity_mode" };
 				break;
 			default:
                 break;
@@ -135,10 +163,11 @@ function readListener() {
 		if (!document.hasFocus()) {
 		  return true;
 		}
-		// if (velocity == 1) { 
-		clearInterval(timer);
-		timer = 0;
-		// }
+		if (velocity == 1) { 
+			clearInterval(timer);
+			timer = 0;
+			firstMove = 1;
+		}
     }, false);
 };
 
