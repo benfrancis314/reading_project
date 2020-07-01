@@ -1,7 +1,5 @@
 // Prevent the usage of undeclared variables.
 "use strict";
-
-var container = $("p:first");
 var start = 0;
 var end = 0;
 var velocity = 1;
@@ -16,13 +14,25 @@ var firstMove = 1;
 // E.g. $("#" + readableDomIds[0]) gets you the jQuery element to the first readable content.
 // Populated by parseDocument()
 var readableDomIds = [];
+// Pointer to an element in readableDomIds. The current container the tracker is in.
+// Will always be in [0, readableDomIds.length)
+var containerId = 0;
+
+// Get the jquery container from readableDomIds corresponding to containerId.
+function getContainer(containerId) {
+	if (containerId < 0 || containerId >= readableDomIds.length) {
+		throw `Invalid ${containerId}, should be [0, ${readableDomIds.length})`;
+	}
+	return $("#" + readableDomIds[containerId]);
+}
 
 // Each readable item
 // Assumes that readableDomId is already populated
 function setupClickListener() {
-	for (const domId of readableDomIds) {
-		$("#" + domId).click(function () {
-			container = $(this);
+	for (let i = 0; i < readableDomIds.length; i++) {
+		getContainer(i).click(function () {
+			containerId = i;
+			let container = getContainer(containerId);
 			start = 0;
 			let txt = container.text();
 			end = txt.indexOf(". ", start);
@@ -48,9 +58,11 @@ function moveUp() {
 }
 
 function moveUpOne() {
-	let len = container.text().length;
+	let container = getContainer(containerId);
+	let text = container.text();
+	let len = text.length;
 	end = start -2;
-	let rev = container.text().split("").reverse().join("");
+	let rev = text.split("").reverse().join("");
 	if (rev.indexOf(" .", len-end) > 0) {
 		start = len - rev.indexOf(" .", len-end);
 	} else { 
@@ -58,10 +70,16 @@ function moveUpOne() {
 	};
 	if (start < 0) {start = 0};
     if (end < 0) {
-		container = container.prev();
-		len = container.text().length;
+    	if (containerId == 0) {
+    		// Can't go back anymore.
+			return;	
+    	}
+		containerId--;
+		container = getContainer(containerId);
+		text = container.text();
+		len = text.length;
 		end = len;
-		rev = container.text().split("").reverse().join("");
+		rev = text.split("").reverse().join("");
 		if (rev.indexOf(" .", len-end) > 0) {
 			start = len - rev.indexOf(" .", len-end);
 		} else { 
@@ -99,20 +117,30 @@ function findEndChunk(containerText, start) {
 
 function moveDownOne() {
 	if (init == 0) { 
-		container = $("p:first");
+		containerId = 0;
+		let container = getContainer(containerId);
+        start = 0;
 		end = findEndChunk(container, start);
 		highlight(container, start, end);
 		init = 1;
+		return;
 	};
+
+	let container = getContainer(containerId);
 	let containerText = container.text();
 	let len = containerText.length;
 	start = end + 2;
 	end = findEndChunk(containerText, start +2);
 	if (end < 0) { end = len };
     if (start >= len) {
-		container = container.next();
+    	if (containerId >= readableDomIds.length - 1) {
+    		// Reached the end, no more container.
+    		return;
+    	}
+    	containerId++;
+		container = getContainer(containerId);
 		containerText = container.text();
-        start = 0;
+		start = 0;
 		end = findEndChunk(containerText, start+2);
 		if (end < 0) { end = containerText.length};
 	};
@@ -189,6 +217,7 @@ function parseDocument() {
 	readableDomIds = [];
 	// Pass clone of document because readability mutates the document.
 	let docClone = document.cloneNode(/* deep= */true);
+	// TODO: Handle readability failures.
 	let article = new Readability(docClone).parse();
 	// Readability.js converts all readable elements into <p>
 	$(article.content).find("p").each(function() {
@@ -197,7 +226,7 @@ function parseDocument() {
 		// are re-included as-is, but otherwise are not considered readable text.
 		// Sometimes I see ads being re-included with undefined ids, so it's probably
 		// a good thing to skip these. 
-		if (id !== undefined) {
+		if (id !== undefined && $(`#${id}`).is(":visible")) {
 			readableDomIds.push(id);
 		}
 	})
