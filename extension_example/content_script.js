@@ -7,16 +7,25 @@ var speed = 10;
 var init = 0;
 var scrollType = "velocity_mode";
 
-// Click on a paragraph to higlight its beginning sentence
-$(function () {
-    $("p").click(function () {
-		container = $(this);
-		start = 0;
-		end = container.text().indexOf(". ", start);
-		highlight(container, start, end);
-		init = 1;
-	});
-});
+// List of dom IDs that contain readable content.
+// Sorted in order of reading progression. 
+// E.g. $("#" + readableDomIds[0]) gets you the jQuery element to the first readable content.
+// Populated by parseDocument()
+var readableDomIds = []
+
+// Each readable item
+// Assumes that readableDomId is already populated
+function setupClickListener() {
+	for (const domId of readableDomIds) {
+		$("#" + domId).click(function () {
+			container = $(this);
+			start = 0;
+			end = container.text().indexOf(". ", start);
+			highlight(container, start, end);
+			init = 1;
+		});
+	}
+}
 
 // This should be used elsewhere
 function initContentScript() {
@@ -133,4 +142,48 @@ function readListener() {
     }, false);
 };
 
+/*
+Attach IDs to all elements in document.
+Populate the global variable readableDomIds.
+*/
+function parseDocument() {
+	console.log("start setupReadability!");
+	// Get all direct + indirect descendants of body that are visible.
+	// Generate unique id for each one, if doesn't exist before.
+	// This makes sure that after readability.js mutates the clone, we can
+	// recover the pointers to the original elements.
+	$("body *").filter(":visible").each(function() {
+		$(this).uniqueId();
+	});
+
+	readableDomIds = [];
+	// Pass clone of document because readability mutates the document.
+	let docClone = document.cloneNode(/* deep= */true);
+	let article = new Readability(docClone).parse();
+	// Readability.js converts all readable elements into <p>
+	$(article.content).find("p").each(function() {
+		let id = $(this).attr('id');
+		// The unidentified ids seem to be images / iframe snippets that
+		// are re-included as-is, but otherwise are not considered readable text.
+		// Sometimes I see ads being re-included with undefined ids, so it's probably
+		// a good thing to skip these. 
+		if (id !== undefined) {
+			readableDomIds.push(id);
+		}
+	})
+
+// Uncomment this if you want to see the readable partitions.
+/*
+	let colors = ['yellow', 'blue'];
+	for (let i = 0; i < readableDomIds.length; i++) {
+		let el = $("#" + readableDomIds[i]);
+		console.log((i + 1) + ". " + el.html());
+		el.css({ "background-color": colors[i % colors.length], "opacity": ".20" });
+	}
+*/
+	console.log("done setupReadability?!");
+}
+
+parseDocument();
+setupClickListener();
 readListener();
