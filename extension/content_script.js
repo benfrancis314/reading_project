@@ -5,6 +5,7 @@ var start = 0;
 var end = 0;
 var timer = 0;
 var speed = 10; // Base speed, not accounting for sentence length; adjustable w/ D/S
+var speed_bias = 500; // Minimum amount of speed (Set to half of a second)
 var speed_adj = 0;
 var init = 0;
 var firstMove = 1; // Is this the first time it has been moved?
@@ -87,13 +88,15 @@ function move(type) { // Note: I have combined the "moveUp" and "moveDown" funct
 	} else {  // If the button is held down
 		if (!timer) {
 			(function repeat() { // Allows speed to be updated WHILE moving
+				timer = setTimeout(repeat, speed_adj);
 				if (type == "up") { moveUpOne(); }
 				else if (type == "down") { moveDownOne();}
-				timer = setTimeout(repeat, speed_adj);
+				
 			})();
-		}
+		};
 	};
 }
+
 
 // Will probably combine these two functions in future
 function moveUpOne() { // Sets start and end
@@ -105,7 +108,7 @@ function moveUpOne() { // Sets start and end
 function moveDownOne() { // Sets start and end
 	tracker_len = trackerLen("down");
 	highlight(container, start, end);
-	speed_adj = speed * (tracker_len);
+	speed_adj = speed * (tracker_len) + speed_bias;
 };
 //// 
 
