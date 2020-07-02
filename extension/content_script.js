@@ -1,12 +1,17 @@
-var container = $("p:first");
+// Prevent the usage of undeclared variables.
+"use strict"
+var container = null;
 var start = 0;
 var end = 0;
 var timer = 0;
 var speed = 10; // Base speed, not accounting for sentence length; adjustable w/ D/S
-var speed_adjusted = 0;
+var speed_adj = 0;
 var init = 0;
 var firstMove = 1; // Is this the first time it has been moved?
 var tracker_len = 0;
+var containerText = "";
+var startReading = 1;
+
 /*
 To do:
 1. Make necessary comments
@@ -22,21 +27,59 @@ Functions:
 8. Read listener
 */ 
 
+// List of dom IDs that contain readable content.
+// Sorted in order of reading progression. 
+// E.g. $("#" + readableDomIds[0]) gets you the jQuery element to the first readable content.
+// Populated by parseDocument()
+var readableDomIds = [];
+// Pointer to an element in readableDomIds. The current container the tracker is in.
+// Will always be in [0, readableDomIds.length)
+var containerId = 0;
 
-// Click on a paragraph to highlight its beginning sentence
-$(function clickSection() {
-    $("p").click(function () {
-		container = $(this);
-		start = 0; // Set to beginning of section
-		// trackerLen();
-		containerText = container.text();
-		end = containerText.indexOf(". ", start);
-		highlight(container, start, end);
-		init = 1;
-	});
-});
+// Get the jquery container from readableDomIds corresponding to containerId.
+function getContainer(containerId) {
+	if (containerId < 0 || containerId >= readableDomIds.length) {
+		throw `Invalid ${containerId}, should be [0, ${readableDomIds.length})`;
+	}
+	return $("#" + readableDomIds[containerId]);
+}
+
+// Each readable item
+// Assumes that readableDomId is already populated
+function setupClickListener() {
+	for (let i = 0; i < readableDomIds.length; i++) {
+		getContainer(i).click(function () {
+			console.log("click")
+			containerId = i;
+			let container = getContainer(containerId);
+			start = 0;
+			let txt = container.text();
+			end = txt.indexOf(". ", start);
+			if (end < 0) {
+				end = txt.length;
+			}
+			highlight(container, start, end);
+			init = 1;
+			if (startReading) {startReading = 0};
+		});
+	}
+}
 
 function move(type) { // Note: I have combined the "moveUp" and "moveDown" functions here
+	if (startReading) {
+		console.log("startReading");
+		let container = getContainer(0);
+		start = 0;
+		let txt = container.text();
+		end = txt.indexOf(". ", start);
+		if (end < 0) {
+			end = txt.length;
+		}
+		highlight(container, start, end);
+		init = 1;
+		startReading = 0;
+		return 0;
+	}
 	if (firstMove == 1) { // First time the button is clicked
 		if (type == "up") { moveUpOne(); }
 		else if (type == "down") { moveDownOne();}
@@ -68,29 +111,39 @@ function moveDownOne() { // Sets start and end
 
 function trackerLen(type) {
 	if (init == 0) { // If no section selected yet, selects first paragraph
-		container = $("p:first");
+		containerId = 0;
+		let container = getContainer(containerId);
+		start = 0;
 		trackerLen();
 		highlight(container, start, end);
 		init = 1;
 	};
 	if (type == "down") { // Run for DOWN movement: Finds START and END
-		containerText = container.text();
-		len = containerText.length;
+		container = getContainer(containerId);
+		let text = container.text();
+		let len = text.length;
 		start = end + 2; // Compensate for the ". " at the end of sentence
-		end = containerText.indexOf(". ", start);
+		end = text.indexOf(". ", start);
 		if (end < 0) { end = len };
 		if (start >= len) {
-			container = container.next();
-			containerText = container.text();
+			if (containerId >=  readableDomIds.length - 1) {
+				// Reached the end, no more container.
+				return;
+			}
+			containerId++;
+			container = getContainer(containerId);
+			text = container.text();
 			start = 0;
-			end = containerText.indexOf(". ", start);
-			if (end < 0) { end = containerText.length};
+			end = text.indexOf(". ", start);
+			if (end < 0) { end = text.length};
 		};
 	}
 	else if (type == "up") { // Run for UP movement: Find START and END
-		len = container.text().length;
+		container = getContainer(containerId);
+		let text = container.text();
+		let len = text.length;
 		end = start - 2; // Compensate for the ". " at the end of sentence
-		rev = container.text().split("").reverse().join("");
+		let rev = text.split("").reverse().join("");
 		if (rev.indexOf(" .", len-end) > 0) {
 			start = len - rev.indexOf(" .", len-end);
 		} else { 
@@ -98,10 +151,16 @@ function trackerLen(type) {
 		};
 		if (start < 0) {start = 0};
 		if (end < 0) {
-			container = container.prev();
-			len = container.text().length;
+			if (containerId == 0) {
+				// Can't go back anymore. 
+				return;
+			}
+			containerId--;
+			container = getContainer(containerId);
+			text = container.text();
+			len = text.length;
 			end = len;
-			rev = container.text().split("").reverse().join("");
+			rev = text.split("").reverse().join("");
 			if (rev.indexOf(" .", len-end) > 0) {
 				start = len - rev.indexOf(" .", len-end);
 			} else { 
@@ -109,7 +168,8 @@ function trackerLen(type) {
 			};
 		};
 	}
-	return tracker_len = end - start;
+	let tracker_len = end - start;
+	return tracker_len;
 }
 
 /**
@@ -164,13 +224,50 @@ function readListener() { // General listener for read project
     }, false);
 };
 
-readListener(); // Listen
+/*
+Attach IDs to all elements in document.
+Populate the global variable readableDomIds.
+*/
+function parseDocument() {
+	// Get all direct + indirect descendants of body that are visible.
+	// Generate unique id for each one, if doesn't exist before.
+	// This makes sure that after readability.js mutates the clone, we can
+	// recover the pointers to the original elements.
+	$("body *").filter(":visible").each(function() {
+		$(this).uniqueId();
+	});
 
+	readableDomIds = [];
+	// Pass clone of document because readability mutates the document.
+	let docClone = document.cloneNode(/* deep= */true);
+	// TODO: Handle readability failures.
+	let article = new Readability(docClone).parse();
+	// Readability.js converts all readable elements into <p>
+	$(article.content).find("p").each(function() {
+		let id = $(this).attr('id');
+		// The unidentified ids seem to be images / iframe snippets that
+		// are re-included as-is, but otherwise are not considered readable text.
+		// Sometimes I see ads being re-included with undefined ids, so it's probably
+		// a good thing to skip these. 
+		if (id !== undefined && $(`#${id}`).is(":visible")) {
+			readableDomIds.push(id);
+		}
+	})
 
+// Uncomment this if you want to see the readable partitions.
+/*
+	let colors = ['yellow', 'blue'];
+	for (let i = 0; i < readableDomIds.length; i++) {
+		let el = $("#" + readableDomIds[i]);
+		console.log((i + 1) + ". " + el.html());
+		el.css({ "background-color": colors[i % colors.length], "opacity": ".20" });
+	}
+*/
+}
 
-
-
-
+parseDocument();
+setupClickListener();
+readListener();
 
 
 
