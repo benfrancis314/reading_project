@@ -1,17 +1,30 @@
 // Prevent the usage of undeclared variables.
-"use strict"
+"use strict";
+
 var container = null;
 var start = 0;
 var end = 0;
-var timer = 0;
+// Whether or not there is a timer that triggers movement of tracker.
+// null means tracker is static. Non-null means there is a scheduled timer that
+// keeps moving the tracker around.
+var timer = null;
 var speed = 10; // Base speed, not accounting for sentence length; adjustable w/ D/S
 var speed_bias = 500; // Minimum amount of speed (Set to half of a second)
 var speed_adj = 0;
 var init = 0;
 var firstMove = 1; // Is this the first time it has been moved?
 var tracker_len = 0;
-var containerText = "";
 var startReading = 1;
+// List of dom IDs that contain readable content.
+// Sorted in order of reading progression. 
+// E.g. $("#" + readableDomIds[0]) gets you the jQuery element to the first readable content.
+// Populated by parseDocument()
+var readableDomIds = [];
+// Pointer to an element in readableDomIds. The current container the tracker is in.
+// Will always be in [0, readableDomIds.length)
+var containerId = 0;
+// If the screen is currently scrolling. If it is, pause the tracker.
+var isScrolling = false;
 
 /*
 To do:
@@ -28,15 +41,6 @@ Functions:
 8. Read listener
 */ 
 
-// List of dom IDs that contain readable content.
-// Sorted in order of reading progression. 
-// E.g. $("#" + readableDomIds[0]) gets you the jQuery element to the first readable content.
-// Populated by parseDocument()
-var readableDomIds = [];
-// Pointer to an element in readableDomIds. The current container the tracker is in.
-// Will always be in [0, readableDomIds.length)
-var containerId = 0;
-
 // Get the jquery container from readableDomIds corresponding to containerId.
 function getContainer(containerId) {
 	if (containerId < 0 || containerId >= readableDomIds.length) {
@@ -50,7 +54,6 @@ function getContainer(containerId) {
 function setupClickListener() {
 	for (let i = 0; i < readableDomIds.length; i++) {
 		getContainer(i).click(function () {
-			console.log("click")
 			containerId = i;
 			let container = getContainer(containerId);
 			start = 0;
@@ -122,6 +125,10 @@ function trackerLen(type) {
 		init = 1;
 	};
 	if (type == "down") { // Run for DOWN movement: Finds START and END
+		// Wait for scrolling to finish before moving down.
+		if (isScrolling) {
+			return;
+		}
 		container = getContainer(containerId);
 		let text = container.text();
 		let len = text.length;
@@ -133,6 +140,7 @@ function trackerLen(type) {
 				// Reached the end, no more container.
 				return;
 			}
+
 			containerId++;
 			container = getContainer(containerId);
 			text = container.text();
@@ -140,6 +148,22 @@ function trackerLen(type) {
 			end = text.indexOf(". ", start);
 			if (end < 0) { end = text.length};
 		};
+
+		// Autoscroll if too far ahead.
+		// Number of pixels from top of window to top of current container.
+		let markedTopAbsoluteOffset = $(".marked").offset().top;
+		let markedTopRelativeOffset = markedTopAbsoluteOffset - $(window).scrollTop();
+		if (markedTopRelativeOffset > 500) {
+			isScrolling = true;
+			$('html, body').animate(
+				// Leave some vertical margin before the container.
+				{scrollTop: (markedTopAbsoluteOffset - 200)},
+				500, /* duration(ms) */
+				function() {
+					isScrolling = false;
+				}
+			);
+		}
 	}
 	else if (type == "up") { // Run for UP movement: Find START and END
 		container = getContainer(containerId);
@@ -193,24 +217,41 @@ function highlight(container, start_off, end_off) {
 	});
 };
 
-function readListener() { // General listener for read project
+// If a tracker is currently moving, turn it off.
+function stopTracker() {
+	if (!document.hasFocus()) {
+	  return true;
+	}
+	if (timer) { 
+		clearInterval(timer);
+		timer = null;
+	}
+}
+
+function readListener() {
 	document.addEventListener('keydown', function(evt) {
 		if (!document.hasFocus()) {
-		  return true; // Ensure this is the doc you're looking at
+		  return true;
 		}
-		switch (evt.keyCode) {
-			case 37:	// Up
+		switch (evt.code) {
+			case 'ArrowLeft': // Move back
                 move("up");
                 break;
-			case 39:	// Down
+			case 'ArrowRight': // Move forward
                 move("down");
 				break;
-			case 68:	// D (Increase velocity)
-				// speed = speed - 2;
+			case 'KeyD':	// Increase velocity
 				speed -= 2;
 				break;
-			case 83:	// S (Slow velocity)
+			case 'KeyS':	// Slow velocity
 				speed += 2;
+				break;
+			case 'AltLeft':
+				if (timer) {
+					stopTracker();
+				} else {
+					move("down");
+				}
 				break;
 			default:
                 break;
@@ -218,12 +259,12 @@ function readListener() { // General listener for read project
 		return true;
 	}, false);
 	document.addEventListener('keyup', function(evt) {
-		if (!document.hasFocus()) {
-		  return true;
+		switch (evt.code) {
+			case 'ArrowLeft':
+			case 'ArrowRight':
+				stopTracker();
+				break;
 		}
-		clearTimeout(timer); // If using interval in diff version, change to "clearInterval"
-		timer = 0;
-		firstMove = 1;
     }, false);
 };
 
@@ -255,29 +296,29 @@ function parseDocument() {
 		if (id !== undefined && $(`#${id}`).is(":visible")) {
 			readableDomIds.push(id);
 		}
-	})
-
-// Uncomment this if you want to see the readable partitions.
-/*
-	let colors = ['yellow', 'blue'];
-	for (let i = 0; i < readableDomIds.length; i++) {
-		let el = $("#" + readableDomIds[i]);
-		console.log((i + 1) + ". " + el.html());
-		el.css({ "background-color": colors[i % colors.length], "opacity": ".20" });
-	}
-*/
+	});
+	// Uncomment this if you want to see the readable partitions.
+	/*
+		let colors = ['yellow', 'blue'];
+		for (let i = 0; i < readableDomIds.length; i++) {
+			let el = $("#" + readableDomIds[i]);
+			console.log((i + 1) + ". " + el.html());
+			el.css({ "background-color": colors[i % colors.length], "opacity": ".20" });
+		}
+	*/
 }
 
 parseDocument();
 setupClickListener();
 readListener();
-
-
-
-
-
-
-
+// Uncomment this if you want to see the relative y offsets of current container
+// so you can tweak the auto-scroll feature.
+/*
+$(window).scroll(function() {
+	console.log(`Window container's top Y = ${getContainer(containerId).offset().top
+		- $(window).scrollTop()}`);
+});
+*/
 
 // ==================================================
 
