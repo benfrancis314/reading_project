@@ -159,7 +159,7 @@ function setTracker(type) {
 			end = text.indexOf(". ", start);
 			if (end < 0) { end = text.length};
 		};
-		scroll()
+		scroll();
 	}
 	else if (type == "up") { // Run for UP movement: Find START and END
 		end = start - 2; // Compensate for the ". " at the end of sentence
