@@ -91,7 +91,6 @@ function move(type) { // Note: I have combined the "moveUp" and "moveDown" funct
 	} else {  // When the button is held down
 		if (!timer) {
 			(function repeat() { // Allows speed to be updated WHILE moving
-				console.log(speed_adj);
 				if (type == "up") { moveUpOne(); }
 				else if (type == "down") { moveDownOne(); };
 				timer = setTimeout(repeat, speed_adj);
