@@ -1,9 +1,12 @@
-// Prevent the usage of undeclared variables.
-"use strict"
+"use strict" // Prevent the usage of undeclared variables.
 var container = null;
 var start = 0;
 var end = 0;
-var timer = 0;
+
+// Whether or not there is a timer that triggers movement of tracker.
+// null means tracker is static. Non-null means there is a scheduled timer that
+// keeps moving the tracker around.
+var timer = null;
 var speed = 10; // Base speed, not accounting for sentence length; adjustable w/ D/S
 var speed_bias = 500; // Minimum amount of speed (Set to half of a second)
 var speed_adj = 0;
