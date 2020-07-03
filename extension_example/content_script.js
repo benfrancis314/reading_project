@@ -153,7 +153,7 @@ function moveDownOne() {
 		isScrolling = true;
 		$('html, body').animate(
 			// Leave some vertical margin before the container.
-			{scrollTop: (markedTopAbsoluteOffset - 50)},
+			{scrollTop: (markedTopAbsoluteOffset - 200)},
 			500, /* duration(ms) */
 			function() {
 				isScrolling = false;
