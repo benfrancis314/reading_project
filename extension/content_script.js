@@ -91,10 +91,10 @@ function move(type) { // Note: I have combined the "moveUp" and "moveDown" funct
 	} else {  // When the button is held down
 		if (!timer) {
 			(function repeat() { // Allows speed to be updated WHILE moving
-				timer = setTimeout(repeat, speed_adj);
+				console.log(speed_adj);
 				if (type == "up") { moveUpOne(); }
-				else if (type == "down") { moveDownOne();}
-				
+				else if (type == "down") { moveDownOne(); };
+				timer = setTimeout(repeat, speed_adj);
 			})();
 		};
 	};
@@ -102,16 +102,36 @@ function move(type) { // Note: I have combined the "moveUp" and "moveDown" funct
 
 // Move one sentence up
 function moveUpOne() { // Sets start and end
-	tracker_len = setTracker("up");
+	tracker_len = setTracker("up"); 
 	highlight(container, start, end);
-	speed_adj = speed * (tracker_len);
+	speed_adj = (speed * tracker_len) + speed_bias;
 }
 // Move one sentence down
 function moveDownOne() { // Sets start and end
 	tracker_len = setTracker("down");
 	highlight(container, start, end);
-	speed_adj = speed * (tracker_len) + speed_bias;
+	speed_adj = (speed * tracker_len) + speed_bias;
 };
+
+function scroll() {
+	let scrollThreshold = 500;
+	let verticalMargin = 200;
+	// Autoscroll if too far ahead.
+	// Number of pixels from top of window to top of current container.
+	let markedTopAbsoluteOffset = $(".marked").offset().top;
+	let markedTopRelativeOffset = markedTopAbsoluteOffset - $(window).scrollTop();
+	if (markedTopRelativeOffset > scrollThreshold) {
+		isScrolling = true;
+		$('html, body').animate(
+			// Leave some vertical margin before the container.
+			{scrollTop: (markedTopAbsoluteOffset - verticalMargin)},
+			500, /* duration(ms) */
+			function() {
+				isScrolling = false;
+			}
+		);
+	}
+}
 
 // Find start and end of tracker
 function setTracker(type) {
@@ -140,55 +160,33 @@ function setTracker(type) {
 			end = text.indexOf(". ", start);
 			if (end < 0) { end = text.length};
 		};
-
-		// Autoscroll if too far ahead.
-		// Number of pixels from top of window to top of current container.
-		let markedTopAbsoluteOffset = $(".marked").offset().top;
-		let markedTopRelativeOffset = markedTopAbsoluteOffset - $(window).scrollTop();
-		if (markedTopRelativeOffset > 500) {
-			isScrolling = true;
-			$('html, body').animate(
-				// Leave some vertical margin before the container.
-				{scrollTop: (markedTopAbsoluteOffset - 200)},
-				500, /* duration(ms) */
-				function() {
-					isScrolling = false;
-				}
-			);
-		}
+		scroll()
 	}
 	else if (type == "up") { // Run for UP movement: Find START and END
 		end = start - 2; // Compensate for the ". " at the end of sentence
 		let rev = text.split("").reverse().join("");
 		if (rev.indexOf(" .", len-end) > 0) {
 			start = len - rev.indexOf(" .", len-end);
-		} else { 
-			start = 0;
-		};
+		} else { start = 0; };
 		if (start < 0) {start = 0};
 		if (end < 0) {
-			if (containerId == 0) {
-				// Can't go back anymore. 
-				return;
-			}
-			containerId--;
+			if (containerId == 0) { return; } // Can't go back anymore. 
+			containerId--; // Go to previous container
 			container = getContainer(containerId);
 			text = container.text();
 			len = text.length;
 			end = len;
 			rev = text.split("").reverse().join("");
-			if (rev.indexOf(" .", len-end) > 0) {
-				start = len - rev.indexOf(" .", len-end);
-			} else { 
-				start = 0;
-			};
+			if (rev.indexOf(" .", len-end) > 0) { // Make sure start is valid, i.e. not negative
+				start = len - rev.indexOf(" .", len-end); 
+			} else { start = 0; }; // Set to beginning of container
 		};
 	}
 	let tracker_len = end - start;
 	return tracker_len;
 }
 
-/**
+/*
 Highlight a portion container.text(), from start_off to end_off (exclusive).
 */
 function highlight(container, start_off, end_off) {
@@ -235,7 +233,7 @@ function readListener() {
 			case 'KeyS':	// Slow velocity
 				speed += 2;
 				break;
-			case 'AltLeft':
+			case 'AltLeft': // Switch to auto mode
 				if (timer) {
 					stopTracker();
 				} else {
