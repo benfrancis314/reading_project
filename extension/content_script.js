@@ -91,7 +91,6 @@ function move(type) { // Note: I have combined the "moveUp" and "moveDown" funct
 	} else {  // When the button is held down
 		if (!timer) {
 			(function repeat() { // Allows speed to be updated WHILE moving
-				console.log(speed_adj);
 				if (type == "up") { moveUpOne(); }
 				else if (type == "down") { moveDownOne(); };
 				timer = setTimeout(repeat, speed_adj);
@@ -160,7 +159,7 @@ function setTracker(type) {
 			end = text.indexOf(". ", start);
 			if (end < 0) { end = text.length};
 		};
-		scroll()
+		scroll();
 	}
 	else if (type == "up") { // Run for UP movement: Find START and END
 		end = start - 2; // Compensate for the ". " at the end of sentence
