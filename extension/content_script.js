@@ -1,7 +1,18 @@
 // Prevent the usage of undeclared variables.
 "use strict";
 
-var container = null; // Current container; will be jQuery element object
+// List of dom IDs that contain readable content.
+// Sorted in order of reading progression. 
+// E.g. $("#" + readableDomIds[0]) gets you the jQuery element to the first readable content.
+// Populated by parseDocument()
+var readableDomIds = [];
+// Pointer to an element in readableDomIds. The current container the tracker is in.
+// If there is no tracker yet, this value is null.
+// Otherwise, it will be in [0, readableDomIds.length)
+var containerId = null;
+// Current container; will be jQuery element object.
+// Must be in sync with containerId.
+var container = null; 
 var start = 0; // Start of currently tracked sentence, relative to container; 0 < start < len(container.text())
 var end = 0; // End of currently tracked sentence, relative to container; 0 < end < len(container.text())
 // Whether or not there is a timer that triggers movement of tracker.
@@ -11,18 +22,7 @@ var timer = null;
 var speed = 10; // Base speed, not accounting for sentence length; adjustable w/ D/S
 var speed_bias = 500; // Minimum amount of speed spent on each sentence (in milliseconds)
 var speed_adj = 0; // Speed after it has been adjusted by sentence length
-var containerInit = 0; // Has container been initialized? 0 -> NO, 1 -> YES
 var firstMove = true; // Is this the first time it has been moved? True until after first movement. 
-var tracker_len = 0; // Length of current tracker (length of sentence or smaller chunk); 0 <= tracker_len
-var startReading = false; // Has the user started reading?
-// List of dom IDs that contain readable content.
-// Sorted in order of reading progression. 
-// E.g. $("#" + readableDomIds[0]) gets you the jQuery element to the first readable content.
-// Populated by parseDocument()
-var readableDomIds = [];
-// Pointer to an element in readableDomIds. The current container the tracker is in.
-// Will always be in [0, readableDomIds.length)
-var containerId = 0;
 // If the screen is currently scrolling. If it is, pause the tracker.
 var isScrolling = false;
 
@@ -51,11 +51,12 @@ function getContainer(containerId) {
 
 // Each readable item
 // Assumes that readableDomId is already populated
+// TODO: Refactor this with setTracker().
 function setupClickListener() {
 	for (let i = 0; i < readableDomIds.length; i++) {
 		getContainer(i).click(function () {
 			containerId = i;
-			let container = getContainer(containerId);
+			container = getContainer(containerId);
 			start = 0;
 			let txt = container.text();
 			end = txt.indexOf(". ", start);
@@ -63,27 +64,12 @@ function setupClickListener() {
 				end = txt.length;
 			}
 			highlight(container, start, end);
-			containerInit = 1; // Container has now been initialized
-			if (!startReading) {startReading = true}; // We have now started reading
 		});
 	}
 }
 
 // Move tracker
 function move(type) { // Note: I have combined the "moveUp" and "moveDown" functions here
-	if (!startReading) { // If user has not started reading yet
-		let container = getContainer(0);
-		start = 0;
-		let txt = container.text();
-		end = txt.indexOf(". ", start);
-		if (end < 0) {
-			end = txt.length;
-		}
-		highlight(container, start, end);
-		containerInit = 1; // Container has now been initialized
-		startReading = true;
-		return 0;
-	}
 	if (firstMove) { // When button is first clicked
 		if (type == "up") { moveUpOne(); }
 		else if (type == "down") { moveDownOne();}
@@ -101,13 +87,13 @@ function move(type) { // Note: I have combined the "moveUp" and "moveDown" funct
 
 // Move one sentence up
 function moveUpOne() { // Sets start and end
-	tracker_len = setTracker("up"); 
+	let tracker_len = setTracker("up"); 
 	highlight(container, start, end);
 	speed_adj = (speed * tracker_len) + speed_bias;
 }
 // Move one sentence down
 function moveDownOne() { // Sets start and end
-	tracker_len = setTracker("down");
+	let tracker_len = setTracker("down");
 	highlight(container, start, end);
 	speed_adj = (speed * tracker_len) + speed_bias;
 };
@@ -132,19 +118,27 @@ function scroll() {
 	}
 }
 
-// Find start and end of tracker
+// Find start and end of tracker, depending on the type of movement.
+// This method ensures that the following global variables will have been updated:
+// [containerId, container, start, end]
+// Returns: Tracker length, the number of characters being highlighted.
 function setTracker(type) {
-	if (containerInit == 0) { // If no section selected yet, selects first paragraph as container
+	if (containerId === null) {
 		containerId = 0;
-		let container = getContainer(containerId);
+		container = getContainer(containerId);
 		start = 0;
-		setTracker();
-		highlight(container, start, end);
-		containerInit = 1; // Container has now been initialized
-	};
+		let txt = container.text();
+		end = txt.indexOf(". ", start);
+		if (end < 0) {
+			end = txt.length;
+		}
+		return end - start;
+	} 
+
 	container = getContainer(containerId);
 	let text = container.text();
 	let len = text.length;
+
 	if (type == "down") { // DOWN movement
 		if (isScrolling) { return; } // Wait for scrolling to finish before moving down.
 		start = end + 2; // Set START	// Compensate for the ". " at the end of sentence
@@ -181,8 +175,7 @@ function setTracker(type) {
 			} else { start = 0; }; // Set to beginning of container
 		};
 	}
-	let tracker_len = end - start;
-	return tracker_len;
+	return end - start;
 }
 
 /*
