@@ -1,4 +1,12 @@
 "use strict";
+(function(){
+var namespace = "lib/tracker.js";
+if (window[namespace] === true) {
+    return;
+} else {
+    window[namespace] = true;
+}
+
 /*
 Keeps track of the start and end position of the tracked text,
 along with the HTML element that houses the text.
@@ -183,3 +191,7 @@ class Tracker {
         return 0;
     }
 }
+
+// Expose to global.
+window.Tracker = Tracker;
+})(); // End of namespace
