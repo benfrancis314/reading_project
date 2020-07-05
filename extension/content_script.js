@@ -1,20 +1,8 @@
 // Prevent the usage of undeclared variables.
 "use strict";
 
-// List of dom IDs that contain readable content.
-// Sorted in order of reading progression. 
-// E.g. $("#" + readableDomIds[0]) gets you the jQuery element to the first readable content.
-// Populated by parseDocument()
-var readableDomIds = [];
-// Pointer to an element in readableDomIds. The current container the tracker is in.
-// If there is no tracker yet, this value is null.
-// Otherwise, it will be in [0, readableDomIds.length)
-var containerId = null;
-// Current container; will be jQuery element object.
-// Must be in sync with containerId.
-var container = null; 
-var start = 0; // Start of currently tracked sentence, relative to container; 0 < start < len(container.text())
-var end = 0; // End of currently tracked sentence, relative to container; 0 < end < len(container.text())
+// Keeps track of the pointed text. Initialized by end of script load.
+var tracker = null;
 // Whether or not there is a timer that triggers movement of tracker.
 // null means tracker is static. Non-null means there is a scheduled timer that
 // keeps moving the tracker around.
@@ -41,29 +29,18 @@ Functions:
 8. Read listener
 */ 
 
-// Get the jquery container from readableDomIds corresponding to containerId.
-function getContainer(containerId) {
-	if (containerId < 0 || containerId >= readableDomIds.length) {
-		throw `Invalid ${containerId}, should be [0, ${readableDomIds.length})`;
-	}
-	return $("#" + readableDomIds[containerId]);
-}
-
-// Each readable item
-// Assumes that readableDomId is already populated
-// TODO: Refactor this with setTracker().
-function setupClickListener() {
-	for (let i = 0; i < readableDomIds.length; i++) {
-		getContainer(i).click(function () {
-			containerId = i;
-			container = getContainer(containerId);
-			start = 0;
-			let txt = container.text();
-			end = txt.indexOf(". ", start);
-			if (end < 0) {
-				end = txt.length;
-			}
-			highlight(container, start, end);
+/*
+Handle click events for each readable item.
+Params:
+- tracker. The tracker to be updated when an item is clicked.
+*/
+// Handle click events for each readable item.
+function setupClickListener(tracker) {
+	for (let i = 0; i < tracker.readableDomIds.length; i++) {
+		let container = tracker.getContainer(i);
+		container.click(function () {
+			tracker.pointToContainer(i);
+			highlight(tracker);
 		});
 	}
 }
@@ -87,16 +64,22 @@ function move(type) { // Note: I have combined the "moveUp" and "moveDown" funct
 
 // Move one sentence up
 function moveUpOne() { // Sets start and end
-	let tracker_len = setTracker("up"); 
-	highlight(container, start, end);
-	speed_adj = (speed * tracker_len) + speed_bias;
+	tracker.movePrevious();
+	highlight(tracker);
+	speed_adj = (speed * tracker.getTrackerLen()) + speed_bias;
 }
+
 // Move one sentence down
 function moveDownOne() { // Sets start and end
-	let tracker_len = setTracker("down");
-	highlight(container, start, end);
-	speed_adj = (speed * tracker_len) + speed_bias;
-};
+	// Let scrolling finish before any movement.
+	if (isScrolling) {
+		return;
+	}
+	tracker.moveNext();
+	highlight(tracker);
+	scroll();
+	speed_adj = (speed * tracker.getTrackerLen()) + speed_bias;
+}
 
 function scroll() {
 	let scrollThreshold = 500;
@@ -118,79 +101,19 @@ function scroll() {
 	}
 }
 
-// Find start and end of tracker, depending on the type of movement.
-// This method ensures that the following global variables will have been updated:
-// [containerId, container, start, end]
-// Returns: Tracker length, the number of characters being highlighted.
-function setTracker(type) {
-	if (containerId === null) {
-		containerId = 0;
-		container = getContainer(containerId);
-		start = 0;
-		let txt = container.text();
-		end = txt.indexOf(". ", start);
-		if (end < 0) {
-			end = txt.length;
-		}
-		return end - start;
-	} 
-
-	container = getContainer(containerId);
-	let text = container.text();
-	let len = text.length;
-
-	if (type == "down") { // DOWN movement
-		if (isScrolling) { return; } // Wait for scrolling to finish before moving down.
-		start = end + 2; // Set START	// Compensate for the ". " at the end of sentence
-		end = text.indexOf(". ", start); // Set END
-		if (end < 0) { end = len }; // Edge case: "end" is past end of container -> set end to end of container
-		if (start >= len) { // Edge case: "start" is past end of container -> 
-			if (containerId >=  readableDomIds.length - 1) { return; } // Reached the end, no more container.
-			containerId++; // Next container
-			container = getContainer(containerId);
-			text = container.text();
-			start = 0;
-			end = text.indexOf(". ", start);
-			if (end < 0) { end = text.length};
-		};
-		scroll();
-	}
-	else if (type == "up") { // Run for UP movement: Find START and END
-		end = start - 2; // Compensate for the ". " at the end of sentence
-		let rev = text.split("").reverse().join("");
-		if (rev.indexOf(" .", len-end) > 0) {
-			start = len - rev.indexOf(" .", len-end);
-		} else { start = 0; };
-		if (start < 0) {start = 0};
-		if (end < 0) {
-			if (containerId == 0) { return; } // Can't go back anymore. 
-			containerId--; // Go to previous container
-			container = getContainer(containerId);
-			text = container.text();
-			len = text.length;
-			end = len;
-			rev = text.split("").reverse().join("");
-			if (rev.indexOf(" .", len-end) > 0) { // Make sure start is valid, i.e. not negative
-				start = len - rev.indexOf(" .", len-end); 
-			} else { start = 0; }; // Set to beginning of container
-		};
-	}
-	return end - start;
-}
-
 /*
-Highlight a portion container.text(), from start_off to end_off (exclusive).
+Highlight portion pointed to by tracker.
 */
-function highlight(container, start_off, end_off) {
+function highlight(tracker) {
 	$(".marked").unmark();
 	$(".marked").removeClass("marked");
 	// Append the "mark" class (?) to the html corresponding to the interval
 	// The interval indices are w.r.t to the raw text.
 	// mark.js is smart enough to preserve the original html, and even provide
 	// multiple consecutive spans to cover embedded htmls
-	container.markRanges([{
-    	start: start_off,
-    	length: end_off - start_off
+	tracker.getCurrentContainer().markRanges([{
+    	start: tracker.getStart(),
+    	length: tracker.getEnd() - tracker.getStart()
 	}], {
 		className: 'marked'
 	});
@@ -249,7 +172,8 @@ function readListener() {
 
 /*
 Attach IDs to all elements in document.
-Populate the global variable readableDomIds.
+Returns:
+- readableDomIds - Dom IDs of readable content to initialize the tracker with.
 */
 function parseDocument() {
 	// Get all direct + indirect descendants of body that are visible.
@@ -260,7 +184,7 @@ function parseDocument() {
 		$(this).uniqueId();
 	});
 
-	readableDomIds = [];
+	let readableDomIds = [];
 	// Pass clone of document because readability mutates the document.
 	let docClone = document.cloneNode(/* deep= */true);
 	// TODO: Handle readability failures.
@@ -276,6 +200,7 @@ function parseDocument() {
 			readableDomIds.push(id);
 		}
 	});
+	return readableDomIds;
 	// Uncomment this if you want to see the readable partitions.
 	/*
 		let colors = ['yellow', 'blue'];
@@ -287,8 +212,9 @@ function parseDocument() {
 	*/
 }
 
-parseDocument();
-setupClickListener();
+let readableDomIds = parseDocument();
+tracker = new Tracker(readableDomIds);
+setupClickListener(tracker);
 readListener();
 // Uncomment this if you want to see the relative y offsets of current container
 // so you can tweak the auto-scroll feature.
