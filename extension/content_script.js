@@ -1,6 +1,14 @@
 // Prevent the usage of undeclared variables.
 "use strict";
 
+(function(){
+var namespace = "content_script.js";
+if (window[namespace] === true) {
+	return;
+} else {
+	window[namespace] = true;
+}
+
 // Keeps track of the pointed text. Initialized by end of script load.
 var tracker = null;
 // Whether or not there is a timer that triggers movement of tracker.
@@ -235,6 +243,7 @@ let readableDomIds = parseDocument();
 tracker = new Tracker(readableDomIds);
 setupClickListener(tracker);
 readListener();
+
 // Uncomment this if you want to see the relative y offsets of current container
 // so you can tweak the auto-scroll feature.
 /*
@@ -279,3 +288,4 @@ $(window).scroll(function() {
 // }
 
 // ************************************************************
+})(); // End of namespace
