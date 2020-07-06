@@ -167,10 +167,12 @@ class Tracker {
     - end (int). Exclusive index to the end of the sentence within text that starts at 'start' 
     */
     getSentenceEnd(text, start) {
-        // let reEnd = /\../;
+        // REGEX EXPERIMENTATION FOR LATER DEALING WITH EDGE CASES
+        // let reEnd = /[(\..)]/;
         // let sentence_end = text.slice(start).search(reEnd);
-        // end = sentence_end + start;
+        // let end = sentence_end + start;
         let end = text.indexOf(". ", start);
+        console.log(end);
         if (end < 0) {
             end = text.length;
         }

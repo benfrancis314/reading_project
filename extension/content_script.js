@@ -254,39 +254,7 @@ $(window).scroll(function() {
 });
 */
 
-// ==================================================
-
-// IN-PROGRESS FUNCTIONS: 
-
-// ==================================================
 
 
 
-
-
-
-
-
-
-// FIND END OF CHUNK ******************************************
-
-
-/* NOT USING YET; saving code for implementation. 
-	Used to identify end points other than periods. */
-
-// function findEndChunk(containerText, start) {
-// 	possibleEnds = [0,0,0];
-// 	min = containerText.toString().length;
-// 	possibleEnds[0] = containerText.toString().indexOf(". ", start);
-// 	possibleEnds[1] = containerText.toString().indexOf("; ", start);
-// 	possibleEnds[2] = containerText.toString().indexOf(".[", start);
-// 	for (i in possibleEnds) { 
-// 		if ((possibleEnds[i] < min) & (possibleEnds[i] > 0)) { 
-// 			min = possibleEnds[i];
-// 		};
-// 	};
-// 	return min;
-// }
-
-// ************************************************************
 })(); // End of namespace

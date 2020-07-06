@@ -1,11 +1,17 @@
 mark {
 }
 .markedOne {
-	background-color:#c9daf8 !important;
-		/* background: #c9daf8 !important; */
+	/* Original "blue" highlight like seen when double click on a word in a browser */
+	background-color:#c9daf8 !important; 
 }
 .markedTwo {
+	/* Lighter shade of blue + box shadow */
 	background-color:#e6effd !important;
 	transition: all 0.5s ease 0.5s !important;
 	box-shadow: 0pt 0pt 1pt 1pt #00dcff;
+}
+.markedThree {
+	/* ACTIVE */
+	/* Lighter shade of blue */
+	background-color:#e6effd !important;
 }
