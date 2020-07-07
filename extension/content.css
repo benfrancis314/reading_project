@@ -1,13 +1,16 @@
-.highlighted {
-	color: #017f92;
-}
-
 mark {
-	background-color:#c9daf8 !important;
-	background: #c9daf8 !important;
-	transition: all 0.5s ease 0.5s !important;
 }
-.marked {
-	background: #c9daf8 !important;
-	background-color:#c9daf8 !important;
+.markedYellow {
+	background-color:yellow!important;
+}
+.markedBlue {
+	background-color:#c9daf8 !important; /* Same shade of blue as when normally highlight in browser */
+}
+.markedLightBlue {	
+	background-color:#e6effd !important; /* Lighter blue */
+}
+.markedBoxShadow {
+	/* ACTIVE */
+	background-color:#e6effd !important; /* Lighter blue */
+	box-shadow: 0pt 0pt 1pt 1pt #00dcff; /* Box shadow with vibrant blue */
 }

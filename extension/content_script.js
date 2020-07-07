@@ -21,6 +21,7 @@ var speed_bias = 500; // Minimum amount of speed spent on each sentence (in mill
 var speed_adj = 0; // Speed after it has been adjusted by sentence length
 // If the screen is currently scrolling. If it is, pause the tracker.
 var isScrolling = false;
+var currentStyle = "markedBoxShadow"; // TEMPORARY global variable, just for style experimentation. Will get rid of later
 
 /*
 To do:
@@ -124,7 +125,7 @@ function scroll() {
 	let verticalMargin = 200;
 	// Autoscroll if too far ahead.
 	// Number of pixels from top of window to top of current container.
-	let markedTopAbsoluteOffset = $(".marked").offset().top;
+	let markedTopAbsoluteOffset = $("."+currentStyle).offset().top;
 	let markedTopRelativeOffset = markedTopAbsoluteOffset - $(window).scrollTop();
 	if (markedTopRelativeOffset > scrollThreshold) {
 		isScrolling = true;
@@ -143,8 +144,8 @@ function scroll() {
 Highlight portion pointed to by tracker.
 */
 function highlight(tracker) {
-	$(".marked").unmark();
-	$(".marked").removeClass("marked");
+	$("."+currentStyle).unmark();
+	$("."+currentStyle).removeClass(currentStyle);
 	// Append the "mark" class (?) to the html corresponding to the interval
 	// The interval indices are w.r.t to the raw text.
 	// mark.js is smart enough to preserve the original html, and even provide
@@ -153,7 +154,7 @@ function highlight(tracker) {
     	start: tracker.getStart(),
     	length: tracker.getEnd() - tracker.getStart()
 	}], {
-		className: 'marked'
+		className: currentStyle
 	});
 };
 
@@ -253,39 +254,7 @@ $(window).scroll(function() {
 });
 */
 
-// ==================================================
-
-// IN-PROGRESS FUNCTIONS: 
-
-// ==================================================
 
 
 
-
-
-
-
-
-
-// FIND END OF CHUNK ******************************************
-
-
-/* NOT USING YET; saving code for implementation. 
-	Used to identify end points other than periods. */
-
-// function findEndChunk(containerText, start) {
-// 	possibleEnds = [0,0,0];
-// 	min = containerText.toString().length;
-// 	possibleEnds[0] = containerText.toString().indexOf(". ", start);
-// 	possibleEnds[1] = containerText.toString().indexOf("; ", start);
-// 	possibleEnds[2] = containerText.toString().indexOf(".[", start);
-// 	for (i in possibleEnds) { 
-// 		if ((possibleEnds[i] < min) & (possibleEnds[i] > 0)) { 
-// 			min = possibleEnds[i];
-// 		};
-// 	};
-// 	return min;
-// }
-
-// ************************************************************
 })(); // End of namespace
