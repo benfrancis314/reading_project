@@ -172,7 +172,6 @@ class Tracker {
         // let sentence_end = text.slice(start).search(reEnd);
         // let end = sentence_end + start;
         let end = text.indexOf(". ", start);
-        console.log(end);
         if (end < 0) {
             end = text.length;
         }

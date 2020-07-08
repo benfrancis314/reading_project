@@ -12,5 +12,5 @@ mark {
 .markedBoxShadow {
 	/* ACTIVE */
 	background-color:#e6effd !important; /* Lighter blue */
-	box-shadow: 0pt 0pt 1pt 1pt #00dcff; /* Box shadow with vibrant blue */
+	box-shadow: 0pt 0pt 3pt 1pt #00dcff; /* Box shadow with vibrant blue */
 }
