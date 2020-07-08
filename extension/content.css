@@ -1,11 +1,13 @@
+.highlighted {
+	color: #017f92;
+}
+
 mark {
-}
-.markedOne {
 	background-color:#c9daf8 !important;
-		/* background: #c9daf8 !important; */
-}
-.markedTwo {
-	background-color:#e6effd !important;
+	background: #c9daf8 !important;
 	transition: all 0.5s ease 0.5s !important;
-	box-shadow: 0pt 0pt 1pt 1pt #00dcff;
+}
+.marked {
+	background: #c9daf8 !important;
+	background-color:#c9daf8 !important;
 }
