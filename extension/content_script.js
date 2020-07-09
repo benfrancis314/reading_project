@@ -17,7 +17,7 @@ var display = null;
 // 1. null means tracker is static.
 // 2. Non-null means there is a scheduled timer that keeps moving the tracker around.
 var timer = null;
-var speed = 10; // Base speed, not accounting for sentence length; adjustable w/ D/S
+var speed = 20; // Base speed, not accounting for sentence length; adjustable w/ D/S
 var speed_bias = 500; // Minimum amount of speed spent on each sentence (in milliseconds)
 var speed_adj = 0; // Speed after it has been adjusted by sentence length
 // If the screen is currently scrolling. If it is, pause the tracker.
@@ -173,9 +173,11 @@ function readListener() {
 				break;
 			case 'KeyD':	// Increase velocity
 				speed -= 2;
+				display.updateSpeed(speed);
 				break;
 			case 'KeyS':	// Slow velocity
 				speed += 2;
+				display.updateSpeed(speed);
 				break;
 			// case 'KeyU':	// Update display -> FOR TESTING
 			// 	display.updateDisplay();
@@ -246,7 +248,7 @@ function parseDocument() {
 
 let readableDomIds = parseDocument();
 tracker = new Tracker(readableDomIds);
-display = new Display(readableDomIds);
+display = new Display(readableDomIds, speed);
 window.display = display;
 setupClickListener(tracker);
 readListener();

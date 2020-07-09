@@ -125,7 +125,7 @@ class Tracker {
                 return;
             }
             this.pointToContainer(this.containerId + 1); 
-            window.display.updateDisplay(this.readableDomIds, this.containerId);
+            window.display.updateTimer(this.readableDomIds, this.containerId);
         } else {
             // Still within container
             let new_end = this.getSentenceEnd(text, new_start);

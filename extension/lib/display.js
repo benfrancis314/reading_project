@@ -7,6 +7,10 @@ if (window[namespace] === true) {
     window[namespace] = true;
 }
 
+var avg_read_speed = 200; // WPM
+var avg_letters_per_word = 6; // 4.79; just from Quora, add a space after each word
+var avg_words_per_sentence = 25 // from http://www.hearle.nahoo.net/Academic/Maths/Sentence.html
+
 class Display {
     /*
     Initialize a display that [ -- is not tracking anything -- ].
@@ -15,11 +19,12 @@ class Display {
     - readableDomIds: string[]. List of dom IDs that contain readable content.
     */
 
+
     constructor(readableDomIds, speed) {
         this.readableDomIds = readableDomIds; // Used to calc initial reading time
         this.html = null;
-        this.time_remaining = this.calcInitTimer(readableDomIds);
-        this.reading_speed = 120;
+        this.time_remaining = this.initTimer(readableDomIds);
+        this.reading_speed = this.initSpeed(speed);
         this.end = null; 
 
         this.defineHtml();
@@ -47,16 +52,7 @@ class Display {
         document.getElementById(readableDomIds[0]).innerHTML = this.html;
         document.getElementById("displayContainer").style.opacity = 1;
     }
-
-    updateDisplay(readableDomIds, containerId) {
-        // STEP 1: Calc words remaining (or letters remaining)
-        // STEP 2: Current speed IN WPM
-        // document.getElementById("displayContainer").style.opacity = 1;
-        this.updateTimer(readableDomIds, containerId);
-        document.getElementById("timerNumber").innerHTML = this.time_remaining;
-        // document.getElementById("displayContainer").style.opacity = 1;
-    }
-    calcInitTimer(readableDomIds) {
+    initTimer(readableDomIds) {
         let total_char = 0;
         for (var section in readableDomIds) {
             let elem = document.getElementById(readableDomIds[section]);
@@ -76,11 +72,10 @@ class Display {
             let text_len = elem.innerText.length;
             total_char = total_char + text_len;
         }
-        const avg_letters_per_word = 6; // 4.79; just from Quora, add a space after each word
-        const avg_read_speed = 200; // wpm
         let total_words = total_char/avg_letters_per_word;
         let time_remaining = total_words/avg_read_speed; // in minutes
         this.time_remaining = Math.ceil(time_remaining);
+        document.getElementById("timerNumber").innerHTML = this.time_remaining;
     }
 
     getHtml() {
@@ -97,9 +92,16 @@ class Display {
         // USE READABLE DOM IDS passed in as param
         this.time_remaining = 1;
     }
-    updateSpeed() {
+    initSpeed(speed) {
+        console.log(speed);
+        return speed * 20
+            // Avg sentence has 25 words. -> 25 words/second -> 1500 WPM
+            // speed_adj is usually 20*125 + 500 -> 3000. So 25 words/3s -> ~400 WPM. (Note this is rampant with estimations)
+    }
+    updateSpeed(speed) {
         // Put reading time calculation here
-        this.reading_speed = 3;
+        this.reading_speed = 800 - (20*speed) // This is a completely fake equation; just for show for now
+        document.getElementById("speedNumber").innerHTML = this.reading_speed;
     }
 }
 
