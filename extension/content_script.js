@@ -11,6 +11,7 @@ if (window[namespace] === true) {
 
 // Keeps track of the pointed text. Initialized by end of script load.
 var tracker = null;
+var display = null;
 // Whether or not there is a timer that triggers movement of tracker.
 // There are only two movement-related states.
 // 1. null means tracker is static.
@@ -176,6 +177,9 @@ function readListener() {
 			case 'KeyS':	// Slow velocity
 				speed += 2;
 				break;
+			// case 'KeyU':	// Update display -> FOR TESTING
+			// 	display.updateDisplay();
+			// 	break;
 			case 'AltLeft': // Switch to auto mode
 				if (timer) {
 					stopMove();
@@ -242,6 +246,8 @@ function parseDocument() {
 
 let readableDomIds = parseDocument();
 tracker = new Tracker(readableDomIds);
+display = new Display(readableDomIds);
+window.display = display;
 setupClickListener(tracker);
 readListener();
 
