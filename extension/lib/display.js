@@ -19,7 +19,7 @@ class Display {
         this.readableDomIds = readableDomIds; // Used to calc initial reading time
         this.html = null;
         this.time_remaining = this.calcInitTimer(readableDomIds);
-        this.reading_speed = this.calculateSpeed(speed);
+        this.reading_speed = 120;
         this.end = null; 
 
         this.defineHtml();
