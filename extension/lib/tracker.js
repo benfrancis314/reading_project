@@ -168,7 +168,6 @@ class Tracker {
     */
     getSentenceEnd(text, start) {
         let end = text.indexOf(". ", start);
-        console.log(end);
         if (end < 0) {
             end = text.length;
         }
