@@ -1,16 +1,15 @@
-mark {
-}
 .markedYellow {
-	background-color:yellow!important;
+	background-color: yellow;
 }
 .markedBlue {
-	background-color:#c9daf8 !important; /* Same shade of blue as when normally highlight in browser */
+	/* Same shade of blue as when normally highlight in browser */
+	background-color: rgb(201, 218, 248);
 }
 .markedLightBlue {	
-	background-color:#e6effd !important; /* Lighter blue */
+	background-color: rgb(230, 239, 253); /* Lighter blue */
 }
 .markedBoxShadow {
 	/* ACTIVE */
-	background-color:#e6effd !important; /* Lighter blue */
+	background-color: rgb(230, 239, 253); /* Lighter blue */
 	box-shadow: 0pt 0pt 3pt 1pt #00dcff; /* Box shadow with vibrant blue */
 }
