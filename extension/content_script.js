@@ -126,7 +126,7 @@ function scroll() {
 	let verticalMargin = 200;
 	// Autoscroll if too far ahead.
 	// Number of pixels from top of window to top of current container.
-	let markedTopAbsoluteOffset = $("."+currentStyle).offset().top;
+	let markedTopAbsoluteOffset = $(".marked").offset().top;
 	let markedTopRelativeOffset = markedTopAbsoluteOffset - $(window).scrollTop();
 	if (markedTopRelativeOffset > scrollThreshold) {
 		isScrolling = true;
@@ -145,8 +145,8 @@ function scroll() {
 Highlight portion pointed to by tracker.
 */
 function highlight(tracker) {
-	$("."+currentStyle).unmark();
-	$("."+currentStyle).removeClass(currentStyle);
+	$(".marked").unmark();
+	$(".marked").removeClass("marked");
 	// Append the "mark" class (?) to the html corresponding to the interval
 	// The interval indices are w.r.t to the raw text.
 	// mark.js is smart enough to preserve the original html, and even provide
@@ -155,7 +155,7 @@ function highlight(tracker) {
     	start: tracker.getStart(),
     	length: tracker.getEnd() - tracker.getStart()
 	}], {
-		className: currentStyle
+		className: 'marked'
 	});
 };
 
