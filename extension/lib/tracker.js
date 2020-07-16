@@ -39,10 +39,8 @@ class Tracker {
         this.start = null;
         // End of currently tracked sentence, relative to container; 0 <= end < len(container.text())
         this.end = null; 
-        // Total number of words in document;
+        
         this.total_words = null; 
-
-        this.wordFreqMap(readableDomIds);
     }
 
     /*
@@ -206,34 +204,6 @@ class Tracker {
 
     getTotalWords() {
         return this.total_words;
-    }
-
-    wordFreqMap(readableDomIds) {
-        var dict = {};
-        var total_words = 0;
-        for (var section in readableDomIds) {
-            let text = this.getContainer(section).text();
-            let wordRegex = /\b\w+\b/g;
-            let wordList = text.match(wordRegex);
-            console.log(wordList);
-            for (var i in wordList) {
-                if (dict[wordList[i]]) { // Word is in dictionary
-                    dict[wordList[i]]++;
-                } else {
-                    dict[wordList[i]] = 1;
-                }
-            }
-            total_words += wordList.length;
-        }
-        this.total_words = total_words // Set total words for use elsewhere (like Display)
-        // console.log(dict);
-        for (var word in dict) {
-            dict[word] /= total_words;
-            if (dict[word] < 0.03) {
-                console.log(word);
-            }
-        }
-        // console.log(dict);
     }
 
 

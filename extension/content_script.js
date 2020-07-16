@@ -12,6 +12,8 @@ if (window[namespace] === true) {
 // Keeps track of the pointed text. Initialized by end of script load.
 var tracker = null;
 var display = null;
+// Represents document the user is reading
+var doc = null;
 // Whether or not there is a timer that triggers movement of tracker.
 // There are only two movement-related states.
 // 1. null means tracker is static.
@@ -151,12 +153,16 @@ function highlight(tracker) {
 	// The interval indices are w.r.t to the raw text.
 	// mark.js is smart enough to preserve the original html, and even provide
 	// multiple consecutive spans to cover embedded htmls
-	tracker.getCurrentContainer().markRanges([{
-    	start: tracker.getStart(),
-    	length: tracker.getEnd() - tracker.getStart()
+	let container = tracker.getCurrentContainer();
+	let start = tracker.getStart();
+	let end = tracker.getEnd();
+	container.markRanges([{
+    	start: start,
+    	length: end - start
 	}], {
 		className: currentStyle
 	});
+	doc.highlightKeyWord(container, start, end);
 };
 
 function readListener() {
@@ -247,10 +253,14 @@ function parseDocument() {
 }
 
 let readableDomIds = parseDocument();
+doc = new Doc(readableDomIds);
+window.doc = doc;
 tracker = new Tracker(readableDomIds);
 window.tracker = tracker; 
-display = new Display(readableDomIds, speed);
+display = new Display(readableDomIds, speed, doc.getTotalWords());
 window.display = display;
+
+
 
 setupClickListener(tracker);
 readListener();
