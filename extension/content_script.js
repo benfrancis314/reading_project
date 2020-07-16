@@ -12,7 +12,7 @@ if (window[namespace] === true) {
 // Keeps track of the pointed text. Initialized by end of script load.
 var tracker = null;
 var display = null;
-// Represents document the user is reading
+// Represents document the user is reading. Stores data about page, like keywords, total words, etc.
 var doc = null;
 // Whether or not there is a timer that triggers movement of tracker.
 // There are only two movement-related states.
@@ -162,7 +162,7 @@ function highlight(tracker) {
 	}], {
 		className: currentStyle
 	});
-	doc.highlightKeyWord(container, start, end);
+	doc.highlightKeyWords(container, start, end);
 };
 
 function readListener() {
@@ -254,7 +254,6 @@ function parseDocument() {
 
 let readableDomIds = parseDocument();
 doc = new Doc(readableDomIds);
-window.doc = doc;
 tracker = new Tracker(readableDomIds);
 window.tracker = tracker; 
 display = new Display(readableDomIds, speed, doc.getTotalWords());
@@ -264,6 +263,10 @@ window.display = display;
 
 setupClickListener(tracker);
 readListener();
+
+startMove(direction.FORWARD); // Start reader on the first line
+stopMove(); // Prevent from continuing to go forward
+
 
 // Uncomment this if you want to see the relative y offsets of current container
 // so you can tweak the auto-scroll feature.

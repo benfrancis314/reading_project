@@ -69,10 +69,8 @@ class Display {
     The total time remaining to read document, based on avg letters/word and lowball estimate of WPM (int)
     */
     initTimer(readableDomIds, total_words) {
-        console.log("init time start")
         let avg_read_speed = 200; // Low ball estimate, from Rayner (in WPM)
         let time_remaining = total_words/avg_read_speed; // in minutes
-        console.log("time_remain", time_remaining);
         return Math.ceil(time_remaining);
     };
     

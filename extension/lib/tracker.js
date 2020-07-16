@@ -39,8 +39,6 @@ class Tracker {
         this.start = null;
         // End of currently tracked sentence, relative to container; 0 <= end < len(container.text())
         this.end = null; 
-        
-        this.total_words = null; 
     }
 
     /*
@@ -201,11 +199,6 @@ class Tracker {
         } 
         return 0;
     }
-
-    getTotalWords() {
-        return this.total_words;
-    }
-
 
 }
 
