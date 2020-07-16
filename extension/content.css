@@ -14,6 +14,13 @@ mark {
 	background-color:#e6effd !important; /* Lighter blue */
 	box-shadow: 1pt 1pt 3pt 1pt #00dcff; /* Box shadow with vibrant blue */
 }
+.keyWord {
+	/* text-emphasis: filled blue;
+	-webkit-text-emphasis: filled blue; */
+	background-color:#fdff8f !important; /* Lighter blue */
+
+	/* background-color:#b4d1ff !important; */
+}
 #displayContainer {
 	position: fixed; 
 	top: 2%;
@@ -76,10 +83,7 @@ mark {
 
 }
 
-#keyWord {
-	font-style: bold; 
-	color: red !important;
-}
+
 
 
 

@@ -60,7 +60,7 @@ class Doc {
     setKeyWords(dict) { 
         // 1. Determine keywords
         let keywords = [];
-        let keywordFilter = 0.023; // Any word below this frequency is a keyword
+        let keywordFilter = 0.02; // Any word below this frequency is a keyword
         for (var word in dict) {
             dict[word] /= this.total_words; // Divide frequency by total words
             if (dict[word] < keywordFilter) {
@@ -73,8 +73,8 @@ class Doc {
     };
     highlightKeyWord(container, start, end) {
         let keywordStyle = "keyWord";
-        // $("."+keywordStyle).unmark();
-        // $("."+keywordStyle).removeClass(keywordStyle);
+        $("."+keywordStyle).unmark();
+        $("."+keywordStyle).removeClass(keywordStyle);
         // Append the keyword class to the html corresponding to the keywords
         // 1. Get list of words in interval
 
