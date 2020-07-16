@@ -21,7 +21,7 @@ class Display {
 
     Parameters:
     - readableDomIds: string[]. List of dom IDs that contain readable content.
-    - speeed: int. Value proportional to the speed of auto-read mode, before adjustment by sentence length. 
+    - speed: int. Value proportional to the speed of auto-read mode, before adjustment by sentence length. 
     */
     constructor(readableDomIds, speed) {
         this.readableDomIds = readableDomIds; // Used to calc initial reading time
@@ -58,7 +58,7 @@ class Display {
     Inserts display HTML into webpage. 
     */
     createDisplay(readableDomIds) {
-        document.getElementById(readableDomIds[0]).innerHTML = this.html;
+        document.getElementById(readableDomIds[0]).innerHTML += this.html;
         document.getElementById("displayContainer").style.opacity = 1; // For smoother transition
     }
 
@@ -69,15 +69,8 @@ class Display {
     The total time remaining to read document, based on avg letters/word and lowball estimate of WPM (int)
     */
     initTimer(readableDomIds) {
-        let total_char = 0;
-        let avg_letters_per_word = 6; // Actual is 4.79 (from Quora), add a space after each word to get 6. 
         let avg_read_speed = 200; // Low ball estimate, from Rayner (in WPM)
-        for (var section in readableDomIds) { // Get total_char of all containers in web page
-            let elem = document.getElementById(readableDomIds[section]);
-            let text_len = elem.innerText.length;
-            total_char = total_char + text_len;
-        }
-        let total_words = total_char/avg_letters_per_word;
+        let total_words = window.tracker.getTotalWords(); // USE wordFreqMap TO DO THIS MORE ACCURATELY IN FUTURE
         let time_remaining = total_words/avg_read_speed; // in minutes
         return Math.ceil(time_remaining);
     }
@@ -86,12 +79,13 @@ class Display {
     Updates reading timer based on containers after current tracker. 
     */
     updateTimer(readableDomIds, containerId) { // Call everytime you get to new paragraph
-        let total_char = 0;
+        let total_char = 0; 
         for (var section in readableDomIds.slice(containerId)) {
             let elem = document.getElementById(readableDomIds[section]);
             let text_len = elem.innerText.length;
             total_char = total_char + text_len;
         }
+        this.total_char = total_char;
         let total_words = total_char/avg_letters_per_word;
         let time_remaining = total_words/avg_read_speed; // in minutes
         this.time_remaining = Math.ceil(time_remaining);
@@ -110,7 +104,6 @@ class Display {
         Note this is rampant with estimations/is kinda bs. But good enough for hypothesis testing. 
         In part, trickiness comes from speed's dependcy on sentence length. 
         */
-        console.log(speed);
         return speed * 20
     }
 
