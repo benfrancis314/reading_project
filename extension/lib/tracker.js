@@ -58,7 +58,14 @@ class Tracker {
         // TODO: Does jquery cache the container text?
         this.end = this.getSentenceEnd(this.container.text(), this.start);
     }
-
+    // Returns: List of readable container IDs on web page
+    getReadableDomIds() {
+        return this.readableDomIds;
+    }
+    // Returns: Container ID of current container
+    getContainerId() {
+        return this.containerId;
+    }
     /*
     Returns:
     jQuery element - the currently pointed to container, or null if not tracking.
@@ -99,10 +106,6 @@ class Tracker {
         return $("#" + this.readableDomIds[containerId]);
     }
 
-    getFirstContainer() { // Added to access container ID
-        return this.readableDomIds[0];
-    }
-
     /*
     Move tracker to the next readable portion, moving across containers if necessary.
     If not currently tracking, will point to the first sentence.
@@ -125,7 +128,6 @@ class Tracker {
                 return;
             }
             this.pointToContainer(this.containerId + 1); 
-            window.display.updateTimer(this.readableDomIds, this.containerId);
         } else {
             // Still within container
             let new_end = this.getSentenceEnd(text, new_start);

@@ -21,7 +21,7 @@ class Display {
 
     Parameters:
     - readableDomIds: string[]. List of dom IDs that contain readable content.
-    - speeed: int. Value proportional to the speed of auto-read mode, before adjustment by sentence length. 
+    - speed: int. Value proportional to the speed of auto-read mode, before adjustment by sentence length. 
     */
     constructor(readableDomIds, speed) {
         this.readableDomIds = readableDomIds; // Used to calc initial reading time
@@ -58,8 +58,8 @@ class Display {
     Inserts display HTML into webpage. 
     */
     createDisplay(readableDomIds) {
-        document.getElementById(readableDomIds[0]).innerHTML = this.html;
-        document.getElementById("displayContainer").style.opacity = 1; // For smoother transition
+        document.getElementById(readableDomIds[0]).innerHTML += this.html;
+        document.getElementById("displayContainer").style.opacity = 0; // For smoother transition
     }
 
     /* 
@@ -69,7 +69,7 @@ class Display {
     The total time remaining to read document, based on avg letters/word and lowball estimate of WPM (int)
     */
     initTimer(readableDomIds) {
-        let total_char = 0;
+        let total_char = 0; // NEED TO REFACTOR TOTAL_CHAR CALCULATION
         let avg_letters_per_word = 6; // Actual is 4.79 (from Quora), add a space after each word to get 6. 
         let avg_read_speed = 200; // Low ball estimate, from Rayner (in WPM)
         for (var section in readableDomIds) { // Get total_char of all containers in web page
@@ -86,7 +86,7 @@ class Display {
     Updates reading timer based on containers after current tracker. 
     */
     updateTimer(readableDomIds, containerId) { // Call everytime you get to new paragraph
-        let total_char = 0;
+        let total_char = 0; // NEED TO REFACTOR TOTAL_CHAR CALCULATION
         for (var section in readableDomIds.slice(containerId)) {
             let elem = document.getElementById(readableDomIds[section]);
             let text_len = elem.innerText.length;
@@ -103,6 +103,7 @@ class Display {
     - Initial speed in WPM, based on speed parameter used by tracker (int)
     */
     initSpeed(speed) {
+    // TODO: Create better estimate for initial reading speed
     /* REASONING: 
         Avg sentence has 25 words, avg word has 5 letters -> avg letters per sentence ~ 125
         speed_adj is usually 20*125 + 500 -> 3000 ms [base_speed * avg_letters_per_sentence + speed_bias]
@@ -118,6 +119,7 @@ class Display {
     Update display speed after speed is changed by user
     */
     updateSpeed(speed) {
+        // TODO: Create real equation for updated reading speed
         this.reading_speed = 800 - (20*speed) // Completely made up eq, reasonable enough for testing though
         document.getElementById("speedNumber").innerHTML = this.reading_speed;
     }

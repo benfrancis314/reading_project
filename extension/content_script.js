@@ -11,6 +11,7 @@ if (window[namespace] === true) {
 
 // Keeps track of the pointed text. Initialized by end of script load.
 var tracker = null;
+// Creates display for time remaining and reading speed at top of page. Initialized by end of script load.
 var display = null;
 // Whether or not there is a timer that triggers movement of tracker.
 // There are only two movement-related states.
@@ -116,6 +117,9 @@ function moveDownOne() { // Sets start and end
 		return;
 	}
 	tracker.moveNext();
+	let readableDomIds = tracker.getReadableDomIds();
+	let containerId = tracker.getContainerId();
+	display.updateTimer(readableDomIds, containerId);
 	highlight(tracker);
 	scroll();
 	speed_adj = (speed * tracker.getTrackerLen()) + speed_bias;
