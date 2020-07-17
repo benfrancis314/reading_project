@@ -11,6 +11,7 @@ if (window[namespace] === true) {
 
 // Keeps track of the pointed text. Initialized by end of script load.
 var tracker = null;
+// Creates display for time remaining and reading speed at top of page. Initialized by end of script load.
 var display = null;
 // Represents document the user is reading. Stores data about page, like keywords, total words, etc.
 var doc = null;
@@ -118,6 +119,9 @@ function moveDownOne() { // Sets start and end
 		return;
 	}
 	tracker.moveNext();
+	let readableDomIds = tracker.getReadableDomIds();
+	let containerId = tracker.getContainerId();
+	display.updateTimer(readableDomIds, containerId);
 	highlight(tracker);
 	scroll();
 	speed_adj = (speed * tracker.getTrackerLen()) + speed_bias;
@@ -162,7 +166,39 @@ function highlight(tracker) {
 	}], {
 		className: currentStyle
 	});
-	doc.highlightKeyWords(container, start, end);
+	highlightKeyWords(container, start, end);
+};
+
+	/*
+    Params: Current container, start and end of tracker (jQuery element, int, int)
+    Highlights the keywords within the tracked sentence. 
+    */
+function highlightKeyWords(container, start, end) {
+	// TODO: Mark.js is actually built to do this; migrate functionality to mark.js
+	let keywordStyle = "keyWord";
+	$("."+keywordStyle).unmark(); // Remove previous sentence keyword styling
+	$("."+keywordStyle).removeClass(keywordStyle);
+	// Get list of words in interval
+	let containerText = container.text();
+	let sentenceText = containerText.slice(start,end);
+	let wordRegex = /\b\w+\b/g;
+	let wordList = sentenceText.match(wordRegex);
+	let keywords = doc.getKeyWords();
+	for (var i in wordList) { // Accentuate keywords
+		// TODO: This only gets the first occurence of each word in the sentence; should get all
+		let word = wordList[i];
+		if (keywords.includes(word.toLowerCase())) { // See if each word is a keyword
+			var word_start = containerText.indexOf(word, start);
+			var word_len = word.length;
+		};
+		// Normal mark.js procedure
+		container.markRanges([{ 
+			start: word_start,
+			length: word_len
+		}], {
+			className: keywordStyle
+		});
+	}
 };
 
 function readListener() {
@@ -252,9 +288,7 @@ function parseDocument() {
 let readableDomIds = parseDocument();
 doc = new Doc(readableDomIds);
 tracker = new Tracker(readableDomIds);
-window.tracker = tracker; 
 display = new Display(readableDomIds, speed, doc.getTotalWords());
-window.display = display;
 
 
 

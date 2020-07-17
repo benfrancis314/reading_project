@@ -22,6 +22,7 @@ class Display {
     Parameters:
     - readableDomIds: string[]. List of dom IDs that contain readable content.
     - speed: int. Value proportional to the speed of auto-read mode, before adjustment by sentence length. 
+    - total_words: int. Total number of words in readable containers on web page
     */
     constructor(readableDomIds, speed, total_words) {
         this.readableDomIds = readableDomIds; // Used to calc initial reading time
@@ -68,7 +69,7 @@ class Display {
     Return: 
     The total time remaining to read document, based on avg letters/word and lowball estimate of WPM (int)
     */
-    initTimer(readableDomIds, total_words) {
+    initTimer(total_words) {
         let avg_read_speed = 200; // Low ball estimate, from Rayner (in WPM)
         let time_remaining = total_words/avg_read_speed; // in minutes
         return Math.ceil(time_remaining);
@@ -78,6 +79,7 @@ class Display {
     Updates reading timer based on containers after current tracker. 
     */
     updateTimer(readableDomIds, containerId) { // Call everytime you get to new paragraph
+        // TODO: Should also update timer if a user is using the autoread mode. 
         let total_char = 0; 
         for (var section in readableDomIds.slice(containerId)) {
             let elem = document.getElementById(readableDomIds[section]);
