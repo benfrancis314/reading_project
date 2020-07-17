@@ -11,12 +11,14 @@ if (window[namespace] === true) {
 
 // Keeps track of the pointed text. Initialized by end of script load.
 var tracker = null;
+// Creates display for time remaining and reading speed at top of page. Initialized by end of script load.
+var display = null;
 // Whether or not there is a timer that triggers movement of tracker.
 // There are only two movement-related states.
 // 1. null means tracker is static.
 // 2. Non-null means there is a scheduled timer that keeps moving the tracker around.
 var timer = null;
-var speed = 10; // Base speed, not accounting for sentence length; adjustable w/ D/S
+var speed = 20; // Base speed, not accounting for sentence length; adjustable w/ D/S
 var speed_bias = 500; // Minimum amount of speed spent on each sentence (in milliseconds)
 var speed_adj = 0; // Speed after it has been adjusted by sentence length
 // If the screen is currently scrolling. If it is, pause the tracker.
@@ -115,6 +117,9 @@ function moveDownOne() { // Sets start and end
 		return;
 	}
 	tracker.moveNext();
+	let readableDomIds = tracker.getReadableDomIds();
+	let containerId = tracker.getContainerId();
+	display.updateTimer(readableDomIds, containerId);
 	highlight(tracker);
 	scroll();
 	speed_adj = (speed * tracker.getTrackerLen()) + speed_bias;
@@ -172,10 +177,15 @@ function readListener() {
 				break;
 			case 'KeyD':	// Increase velocity
 				speed -= 2;
+				display.updateSpeed(speed);
 				break;
 			case 'KeyS':	// Slow velocity
 				speed += 2;
+				display.updateSpeed(speed);
 				break;
+			// case 'KeyU':	// Update display -> FOR TESTING
+			// 	display.updateDisplay();
+			// 	break;
 			case 'AltLeft': // Switch to auto mode
 				if (timer) {
 					stopMove();
@@ -242,6 +252,7 @@ function parseDocument() {
 
 let readableDomIds = parseDocument();
 tracker = new Tracker(readableDomIds);
+display = new Display(readableDomIds, speed);
 setupClickListener(tracker);
 readListener();
 
