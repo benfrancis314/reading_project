@@ -31,7 +31,7 @@ class Doc {
         return this.keywords;
     }
 
-    // TO DO: REFACTOR
+    // TO DO: REFACTOR; redundant with an identical function in tracker.js
     // Returns: Container given container ID (jQuery element)
     getContainer(containerId) {
         if (containerId === null || containerId < 0 || containerId >= this.readableDomIds.length) {

@@ -16,9 +16,9 @@ mark {
 	box-shadow: 1pt 1pt 3pt 1pt rgb(0,220,255); /* Box shadow with vibrant blue */
 }
 .keyWord {
-	/* background-color:#abfca4 !important; */ /* Nancy personally chose this green color: */
+	background-color:#abfca4 !important; /* Nancy personally chose this green color: */
 	/* background-color:#e6effd !important; Normal blue color */
-	background-color: yellow !important;
+	/* background-color: yellow !important; */
 
 }
 #displayContainer {
