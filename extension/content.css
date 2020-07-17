@@ -4,23 +4,30 @@ mark {
 	background-color:yellow!important;
 }
 .markedBlue {
-	background-color:#c9daf8 !important; /* Same shade of blue as when normally highlight in browser */
+	background-color:rgb(201, 218, 248) !important; /* Same shade of blue as when normally highlight in browser */
 }
 .markedLightBlue {	
-	background-color:#e6effd !important; /* Lighter blue */
+	background-color:rgb(230, 239, 253) !important; /* Lighter blue */
 }
 .markedBoxShadow {
 	/* ACTIVE */
-	background-color:#e6effd !important; /* Lighter blue */
-	box-shadow: 1pt 1pt 3pt 1pt #00dcff; /* Box shadow with vibrant blue */
+	background-color:rgb(230, 239, 253) !important; /* Lighter blue */
+	/* box-shadow: 1pt 1pt 3pt 1pt yellow; */ /* Yellow box shadow  */
+	box-shadow: 1pt 1pt 3pt 1pt rgb(0,220,255); /* Box shadow with vibrant blue */
+}
+.keyWord {
+	background-color:#abfca4 !important; /* Nancy personally chose this green color: */
+	/* background-color:#e6effd !important; Normal blue color */
+	/* background-color: yellow !important; */
+
 }
 #displayContainer {
 	position: fixed; 
 	top: 2%;
 	left: 40%;
 	width: 20%;
-	opacity: 1 !important;
-	transition: all 0.5s ease 0s;
+	opacity: 0;
+	transition: all 2s ease 0s;
 	z-index: 1000;
 }
 #timerContainer {
@@ -69,18 +76,11 @@ mark {
 	letter-spacing: 1px;
 	font-size: 60%;
 	text-transform: uppercase;
-	/* font-family: 'Montserrat Subrayada', sans-serif; */
 	font-family: 'Montserrat', sans-serif;
 	font-weight: 400;
 	border-radius: 5px 5px 25% 25%;
 
 }
-
-
-
-
-
-
 
 /* CSS FONTS */
 

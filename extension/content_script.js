@@ -13,6 +13,8 @@ if (window[namespace] === true) {
 var tracker = null;
 // Creates display for time remaining and reading speed at top of page. Initialized by end of script load.
 var display = null;
+// Represents document the user is reading. Stores data about page, like keywords, total words, etc.
+var doc = null;
 // Whether or not there is a timer that triggers movement of tracker.
 // There are only two movement-related states.
 // 1. null means tracker is static.
@@ -130,7 +132,7 @@ function scroll() {
 	let verticalMargin = 200;
 	// Autoscroll if too far ahead.
 	// Number of pixels from top of window to top of current container.
-	let markedTopAbsoluteOffset = $(".marked").offset().top;
+	let markedTopAbsoluteOffset = $("."+currentStyle).offset().top;
 	let markedTopRelativeOffset = markedTopAbsoluteOffset - $(window).scrollTop();
 	if (markedTopRelativeOffset > scrollThreshold) {
 		isScrolling = true;
@@ -149,18 +151,55 @@ function scroll() {
 Highlight portion pointed to by tracker.
 */
 function highlight(tracker) {
-	$(".marked").unmark();
-	$(".marked").removeClass("marked");
+
+	$("."+currentStyle).unmark();
+	$("."+currentStyle).removeClass(currentStyle);
 	// Append the "mark" class (?) to the html corresponding to the interval
 	// The interval indices are w.r.t to the raw text.
 	// mark.js is smart enough to preserve the original html, and even provide
 	// multiple consecutive spans to cover embedded htmls
-	tracker.getCurrentContainer().markRanges([{
-    	start: tracker.getStart(),
-    	length: tracker.getEnd() - tracker.getStart()
+	let container = tracker.getCurrentContainer();
+	let start = tracker.getStart();
+	let end = tracker.getEnd();
+	container.markRanges([{
+    	start: start,
+    	length: end - start
 	}], {
-		className: 'marked'
+		className: currentStyle
 	});
+	highlightKeyWords(container, start, end);
+};
+
+	/*
+    Params: Current container, start and end of tracker (jQuery element, int, int)
+    Highlights the keywords within the tracked sentence. 
+    */
+function highlightKeyWords(container, start, end) {
+	// TODO: Mark.js is actually built to do this; migrate functionality to mark.js
+	let keywordStyle = "keyWord";
+	$("."+keywordStyle).unmark(); // Remove previous sentence keyword styling
+	$("."+keywordStyle).removeClass(keywordStyle);
+	// Get list of words in interval
+	let containerText = container.text();
+	let sentenceText = containerText.slice(start,end);
+	let wordRegex = /\b\w+\b/g;
+	let wordList = sentenceText.match(wordRegex);
+	let keywords = doc.getKeyWords();
+	for (var i in wordList) { // Accentuate keywords
+		// TODO: This only gets the first occurence of each word in the sentence; should get all
+		let word = wordList[i];
+		if (keywords.has(word.toLowerCase())) { // See if each word is a keyword
+			var word_start = containerText.indexOf(word, start);
+			var word_len = word.length;
+		};
+		// Normal mark.js procedure
+		container.markRanges([{ 
+			start: word_start,
+			length: word_len
+		}], {
+			className: keywordStyle
+		});
+	}
 };
 
 function readListener() {
@@ -251,10 +290,18 @@ function parseDocument() {
 }
 
 let readableDomIds = parseDocument();
+doc = new Doc(readableDomIds);
 tracker = new Tracker(readableDomIds);
-display = new Display(readableDomIds, speed);
+display = new Display(readableDomIds, speed, doc.getTotalWords());
+
+
+
 setupClickListener(tracker);
 readListener();
+
+startMove(direction.FORWARD); // Start reader on the first line
+stopMove(); // Prevent from continuing to go forward
+
 
 // Uncomment this if you want to see the relative y offsets of current container
 // so you can tweak the auto-scroll feature.

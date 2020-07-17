@@ -48,6 +48,15 @@ class Tracker {
         return this.containerId !== null;
     }
 
+    // Returns: List of readable container IDs on web page
+    getReadableDomIds() {
+        return this.readableDomIds;
+    }
+    // Returns: Container ID of current container
+    getContainerId() {
+        return this.containerId;
+    }
+
     /*
     Point to the first sentence within the given container.
     */
@@ -197,6 +206,7 @@ class Tracker {
         } 
         return 0;
     }
+
 }
 
 // Expose to global.
