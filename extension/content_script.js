@@ -118,6 +118,9 @@ function moveDownOne() { // Sets start and end
 		return;
 	}
 	tracker.moveNext();
+	let readableDomIds = tracker.getReadableDomIds();
+	let containerId = tracker.getContainerId();
+	display.updateTimer(readableDomIds, containerId);
 	highlight(tracker);
 	scroll();
 	speed_adj = (speed * tracker.getTrackerLen()) + speed_bias;
@@ -185,6 +188,9 @@ function readListener() {
 				speed += 2;
 				display.updateSpeed(speed);
 				break;
+			// case 'KeyU':	// Update display -> FOR TESTING
+			// 	display.updateDisplay();
+			// 	break;
 			case 'AltLeft': // Switch to auto mode
 				if (timer) {
 					stopMove();
