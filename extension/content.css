@@ -19,6 +19,7 @@ mark {
 	/* background-color:#abfca4 !important; */ /* Nancy personally chose this green color: */
 	/* background-color:#e6effd !important; Normal blue color */
 	background-color: yellow !important;
+
 }
 #displayContainer {
 	position: fixed; 
@@ -80,14 +81,6 @@ mark {
 	border-radius: 5px 5px 25% 25%;
 
 }
-
-
-
-
-
-
-
-
 
 /* CSS FONTS */
 

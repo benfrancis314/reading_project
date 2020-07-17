@@ -80,13 +80,12 @@ class Display {
     */
     updateTimer(readableDomIds, containerId) { // Call everytime you get to new paragraph
         // TODO: Should also update timer if a user is using the autoread mode. 
-        let total_char = 0; 
+        let total_char = 0; // TODO: REFACTOR TOTAL_CHAR CALCULATION
         for (var section in readableDomIds.slice(containerId)) {
             let elem = document.getElementById(readableDomIds[section]);
             let text_len = elem.innerText.length;
             total_char = total_char + text_len;
         }
-        this.total_char = total_char;
         let total_words = total_char/avg_letters_per_word;
         let time_remaining = total_words/avg_read_speed; // in minutes
         this.time_remaining = Math.ceil(time_remaining);
@@ -98,6 +97,7 @@ class Display {
     - Initial speed in WPM, based on speed parameter used by tracker (int)
     */
     initSpeed(speed) {
+    // TODO: Create better estimate for initial reading speed
     /* REASONING: 
         Avg sentence has 25 words, avg word has 5 letters -> avg letters per sentence ~ 125
         speed_adj is usually 20*125 + 500 -> 3000 ms [base_speed * avg_letters_per_sentence + speed_bias]
@@ -112,6 +112,7 @@ class Display {
     Update display speed after speed is changed by user
     */
     updateSpeed(speed) {
+        // TODO: Create real equation for updated reading speed
         this.reading_speed = 800 - (20*speed) // Completely made up eq, reasonable enough for testing though
         document.getElementById("speedNumber").innerHTML = this.reading_speed;
     }

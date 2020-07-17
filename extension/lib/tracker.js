@@ -67,7 +67,14 @@ class Tracker {
         // TODO: Does jquery cache the container text?
         this.end = this.getSentenceEnd(this.container.text(), this.start);
     }
-
+    // Returns: List of readable container IDs on web page
+    getReadableDomIds() {
+        return this.readableDomIds;
+    }
+    // Returns: Container ID of current container
+    getContainerId() {
+        return this.containerId;
+    }
     /*
     Returns:
     jQuery element - the currently pointed to container, or null if not tracking.
@@ -176,10 +183,6 @@ class Tracker {
     - end (int). Exclusive index to the end of the sentence within text that starts at 'start' 
     */
     getSentenceEnd(text, start) {
-        // REGEX EXPERIMENTATION FOR LATER DEALING WITH EDGE CASES
-        // let reEnd = /[(\..)]/;
-        // let sentence_end = text.slice(start).search(reEnd);
-        // let end = sentence_end + start;
         let end = text.indexOf(". ", start);
         if (end < 0) {
             end = text.length;
