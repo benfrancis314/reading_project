@@ -54,6 +54,7 @@ chrome.browserAction.onClicked.addListener(function (tab) {
             "third_party/readability-1.7.1.js",
             "lib/tracker.js",
             "lib/display.js",
+            "lib/doc.js",
             "content_script.js"
         )
         .then(s => s.injectCss("content.css"));
