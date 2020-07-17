@@ -188,7 +188,7 @@ function highlightKeyWords(container, start, end) {
 	for (var i in wordList) { // Accentuate keywords
 		// TODO: This only gets the first occurence of each word in the sentence; should get all
 		let word = wordList[i];
-		if (keywords.includes(word.toLowerCase())) { // See if each word is a keyword
+		if (keywords.has(word.toLowerCase())) { // See if each word is a keyword
 			var word_start = containerText.indexOf(word, start);
 			var word_len = word.length;
 		};
