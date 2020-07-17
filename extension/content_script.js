@@ -253,7 +253,6 @@ function parseDocument() {
 let readableDomIds = parseDocument();
 tracker = new Tracker(readableDomIds);
 display = new Display(readableDomIds, speed);
-window.display = display;
 setupClickListener(tracker);
 readListener();
 
