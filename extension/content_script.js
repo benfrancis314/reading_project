@@ -121,7 +121,6 @@ function moveUpOne() { // Sets start and end
 	}
 	tracker.movePrevious();
 	highlight(tracker);
-	speed_adj = (speed * tracker.getTrackerLen()) + speed_bias;
 	scrollUp();
 }
 
@@ -137,7 +136,6 @@ function moveDownOne() { // Sets start and end
 	display.updateTimer(readableDomIds, containerId);
 	highlight(tracker);
 	scrollDown();
-	speed_adj = (speed * tracker.getTrackerLen()) + speed_bias;
 }
 
 // Scroll up when tracker is above page
