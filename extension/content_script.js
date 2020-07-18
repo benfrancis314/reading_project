@@ -20,7 +20,13 @@ var doc = null;
 // 1. null means tracker is static.
 // 2. Non-null means there is a scheduled timer that keeps moving the tracker around.
 var timer = null;
-var speed = 20; // Base speed, not accounting for sentence length; adjustable w/ D/S
+// Persistent settings.
+let settings = window.settings;
+// How long to stay on each character, in ms.
+// Because of this definition, unintuitively, the smaller speed value,
+// the faster the actual reading speed is.
+// This will be read once from persistent settings during initialization. 
+let speed = null;
 var speed_bias = 500; // Minimum amount of speed spent on each sentence (in milliseconds)
 // If the screen is currently scrolling. If it is, pause the tracker.
 var isScrolling = false;
@@ -249,6 +255,15 @@ function fadeTracker() {
 	markEl.animate({ 'background-color': newRgba }, calculateTrackerLife());
 }
 
+/*
+Adjust current speed by speedDelta, and persist the setting.
+*/
+function adjustSpeed(speedDelta) {
+	speed += speedDelta;
+	settings.setSpeed(speed);
+	display.updateSpeed(speed);
+}
+
 function readListener() {
 
 	document.addEventListener('keydown', function(evt) {
@@ -269,12 +284,10 @@ function readListener() {
                 startMove(direction.FORWARD);
 				break;
 			case 'KeyD':	// Increase velocity
-				speed -= 2;
-				display.updateSpeed(speed);
+				adjustSpeed(-2);
 				break;
 			case 'KeyS':	// Slow velocity
-				speed += 2;
-				display.updateSpeed(speed);
+				adjustSpeed(+2);
 				break;
 			// case 'KeyU':	// Update display -> FOR TESTING
 			// 	display.updateDisplay();
@@ -301,20 +314,25 @@ function readListener() {
     
 };
 
+function init() {
+	// TODO: Refactor using promise logic so this is more readable.
+	// Load all the persistent settings, then render the UI.
+	settings.getSpeed(function(settingsSpeed) {
+		speed = settingsSpeed;
+		let readableDomIds = window.parseDocument();
+		doc = new Doc(readableDomIds);
+		tracker = new Tracker(readableDomIds);
+		display = new Display(readableDomIds, speed, doc.getTotalWords());
 
-let readableDomIds = window.parseDocument();
-doc = new Doc(readableDomIds);
-tracker = new Tracker(readableDomIds);
-display = new Display(readableDomIds, speed, doc.getTotalWords());
+		setupClickListener(tracker);
+		readListener();
 
+		startMove(direction.FORWARD); // Start reader on the first line
+		stopMove(); // Prevent from continuing to go forward
+	});
+}
 
-
-setupClickListener(tracker);
-readListener();
-
-startMove(direction.FORWARD); // Start reader on the first line
-stopMove(); // Prevent from continuing to go forward
-
+init();
 
 // Uncomment this if you want to see the relative y offsets of current container
 // so you can tweak the auto-scroll feature.
