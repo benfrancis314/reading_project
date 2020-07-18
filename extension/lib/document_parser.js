@@ -20,6 +20,12 @@ Returns:
 - readableDomEls - jquery dom elements of readable content to initialize the tracker with.
 */
 function parseDocument() {
+	let hostname = $(location).attr('hostname');
+	let hardcodedSiteSpecificReadables = getHardcodedSiteSpecificReadables(hostname);
+	if (hardcodedSiteSpecificReadables !== null) {
+		return hardcodedSiteSpecificReadables;
+	}
+
 	// Get all direct + indirect descendants of body that are visible.
 	// Generate unique id for each one, if doesn't exist before.
 	// This makes sure that after readability.js mutates the clone, we can
@@ -31,7 +37,7 @@ function parseDocument() {
 	let readableDomEls = [];
 	// Pass clone of document because readability mutates the document.
 	let docClone = document.cloneNode(/* deep= */true);
-	trimDocBasedOnSite(docClone);
+	trimDocBasedOnSite(docClone, hostname);
 
 	// TODO: Handle readability failures.
 	let article = new Readability(docClone).parse();
@@ -60,12 +66,29 @@ function parseDocument() {
 }
 
 /*
+Skip through readability parsing for special sites.
+E.g. twitlonger only has 1 long container, and for some reason readability
+  doesn't work on it.
+Parameter
+- hostname: string. E.g. www.wikipedia.org
+Returns:
+- $[] - jquery dom elements of readable content to initialize the tracker with.
+  Or null if there is no hardcoded logic.
+*/
+function getHardcodedSiteSpecificReadables(hostname) {
+	if (hostname.endsWith("twitlonger.com")) {
+		return [$("#posttext")];
+	}
+	return null;
+}
+
+/*
 Remove elements from doc that you don't want to include, based on site-specific logic.
 Parameter:
 - doc - document obj.
+- hostname: string. E.g. www.wikipedia.org
 */
-function trimDocBasedOnSite(doc) {
-	let hostname = $(location).attr('hostname');
+function trimDocBasedOnSite(doc, hostname) {
 	if (hostname.endsWith("wikipedia.org")) {
 		trimDocWikipedia(doc);
 		return;

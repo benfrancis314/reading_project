@@ -26,7 +26,6 @@
         });
     }
 
-
     function exeScript(tabId, path) {
         let info = { file : path, runAt: 'document_end' };
         return promiseTo(chrome.tabs.executeScript, tabId, info);
@@ -54,10 +53,13 @@ chrome.browserAction.onClicked.addListener(function (tab) {
     // they only run once per page. 
     new ScriptExecution(tab.id)
         .executeScripts(
+            "third_party/lodash-4.17.15.js",
             "third_party/jquery-3.5.1.min.js",
             "third_party/jquery.mark-8.11.1.min.js",
             "third_party/jquery-ui.1.12.1.min.js",
             "third_party/readability-1.7.1.js",
+            "third_party/tokenize-text.js",
+            "third_party/tokenize-english.js",
             "lib/settings_wrapper.js",
             "lib/document_parser.js",
             "lib/tracker.js",
