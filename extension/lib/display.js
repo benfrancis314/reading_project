@@ -27,7 +27,7 @@ class Display {
     constructor(readableDomIds, speed, total_words) {
         this.readableDomIds = readableDomIds; // Used to calc initial reading time
         this.html = null;
-        this.time_remaining = this.initTimer(readableDomIds, total_words);
+        this.time_remaining = this.initTimer(total_words);
         this.reading_speed = this.initSpeed(speed);
         this.end = null; 
 
@@ -70,7 +70,6 @@ class Display {
     The total time remaining to read document, based on avg letters/word and lowball estimate of WPM (int)
     */
     initTimer(total_words) {
-        let avg_read_speed = 200; // Low ball estimate, from Rayner (in WPM)
         let time_remaining = total_words/avg_read_speed; // in minutes
         return Math.ceil(time_remaining);
     };
@@ -80,13 +79,14 @@ class Display {
     */
     updateTimer(readableDomIds, containerId) { // Call everytime you get to new paragraph
         // TODO: Should also update timer if a user is using the autoread mode. 
-        let total_char = 0; // TODO: REFACTOR TOTAL_CHAR CALCULATION
-        for (var section in readableDomIds.slice(containerId)) {
-            let elem = document.getElementById(readableDomIds[section]);
-            let text_len = elem.innerText.length;
-            total_char = total_char + text_len;
+        let total_words = 0;
+        let remainingContainers = readableDomIds.slice(containerId); // Need to store as own new list, so for loop indexes through this, not old list
+        for (var section in remainingContainers) {    // Calc total words
+            let text = $("#" + remainingContainers[section]).text();
+            let wordRegex = /\b[^\d\W]+\b/gi; // Checks for words that don't include numbers or non-letters
+            let wordList = text.match(wordRegex);
+            total_words += wordList.length;
         }
-        let total_words = total_char/avg_letters_per_word;
         let time_remaining = total_words/avg_read_speed; // in minutes
         this.time_remaining = Math.ceil(time_remaining);
         document.getElementById("timerNumber").innerHTML = this.time_remaining;
