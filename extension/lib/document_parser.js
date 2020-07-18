@@ -16,10 +16,6 @@ How:
 - Attach unique ids to all visible elements.
 - Run Readability to filter for the good elements.
 - Return back the leftover unique ids.
-=======
-/*
-Attach IDs to all elements in document.
->>>>>>> 1da442be001743136055dc52575fd496a62a054c
 Returns:
 - readableDomIds - Dom IDs of readable content to initialize the tracker with.
 */
