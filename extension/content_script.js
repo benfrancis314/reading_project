@@ -267,7 +267,7 @@ function parseDocument() {
 	// TODO: Handle readability failures.
 	let article = new Readability(docClone).parse();
 	// Readability.js converts all readable elements into <p>
-	$(article.content).find("p").each(function() {
+	$(article.content).find("p,h1,h2,h3,li").each(function() {
 		let id = $(this).attr('id');
 		// The unidentified ids seem to be images / iframe snippets that
 		// are re-included as-is, but otherwise are not considered readable text.
