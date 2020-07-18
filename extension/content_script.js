@@ -11,12 +11,16 @@ if (window[namespace] === true) {
 
 // Keeps track of the pointed text. Initialized by end of script load.
 var tracker = null;
+// Creates display for time remaining and reading speed at top of page. Initialized by end of script load.
+var display = null;
+// Represents document the user is reading. Stores data about page, like keywords, total words, etc.
+var doc = null;
 // Whether or not there is a timer that triggers movement of tracker.
 // There are only two movement-related states.
 // 1. null means tracker is static.
 // 2. Non-null means there is a scheduled timer that keeps moving the tracker around.
 var timer = null;
-var speed = 10; // Base speed, not accounting for sentence length; adjustable w/ D/S
+var speed = 20; // Base speed, not accounting for sentence length; adjustable w/ D/S
 var speed_bias = 500; // Minimum amount of speed spent on each sentence (in milliseconds)
 // If the screen is currently scrolling. If it is, pause the tracker.
 var isScrolling = false;
@@ -122,6 +126,9 @@ function moveDownOne() { // Sets start and end
 		return;
 	}
 	tracker.moveNext();
+	let readableDomIds = tracker.getReadableDomIds();
+	let containerId = tracker.getContainerId();
+	display.updateTimer(readableDomIds, containerId);
 	highlight(tracker);
 	scroll();
 }
@@ -131,7 +138,7 @@ function scroll() {
 	let verticalMargin = 200;
 	// Autoscroll if too far ahead.
 	// Number of pixels from top of window to top of current container.
-	let markedTopAbsoluteOffset = $("mark").offset().top;
+	let markedTopAbsoluteOffset = $("."+currentStyle).offset().top;
 	let markedTopRelativeOffset = markedTopAbsoluteOffset - $(window).scrollTop();
 	if (markedTopRelativeOffset > scrollThreshold) {
 		isScrolling = true;
@@ -150,19 +157,55 @@ function scroll() {
 Highlight portion pointed to by tracker.
 */
 function highlight(tracker) {
-	let markEl = $("mark");
+	let markEl = $("."+currentStyle);
 	markEl.unmark();
 	markEl.removeClass(currentStyle);
 	// Append the "mark" class (?) to the html corresponding to the interval
 	// The interval indices are w.r.t to the raw text.
 	// mark.js is smart enough to preserve the original html, and even provide
 	// multiple consecutive spans to cover embedded htmls
-	tracker.getCurrentContainer().markRanges([{
-    	start: tracker.getStart(),
-    	length: tracker.getEnd() - tracker.getStart()
+	let container = tracker.getCurrentContainer();
+	let start = tracker.getStart();
+	let end = tracker.getEnd();
+	container.markRanges([{
+    	start: start,
+    	length: end - start
 	}], {
 		className: currentStyle
 	});
+	highlightKeyWords(container, start, end);
+};
+
+	/*
+    Params: Current container, start and end of tracker (jQuery element, int, int)
+    Highlights the keywords within the tracked sentence. 
+    */
+function highlightKeyWords(container, start, end) {
+	// TODO: Mark.js is actually built to do this; migrate functionality to mark.js
+	let keywordStyle = "keyWord";
+	$("."+keywordStyle).unmark(); // Remove previous sentence keyword styling
+	$("."+keywordStyle).removeClass(keywordStyle);
+	// Get list of words in interval
+	let containerText = container.text();
+	let sentenceText = containerText.slice(start,end);
+	let wordRegex = /\b\w+\b/g;
+	let wordList = sentenceText.match(wordRegex);
+	let keywords = doc.getKeyWords();
+	for (var i in wordList) { // Accentuate keywords
+		// TODO: This only gets the first occurence of each word in the sentence; should get all
+		let word = wordList[i];
+		if (keywords.has(word.toLowerCase())) { // See if each word is a keyword
+			var word_start = containerText.indexOf(word, start);
+			var word_len = word.length;
+		};
+		// Normal mark.js procedure
+		container.markRanges([{ 
+			start: word_start,
+			length: word_len
+		}], {
+			className: keywordStyle
+		});
+	}
 };
 
 /*
@@ -194,10 +237,15 @@ function readListener() {
 				break;
 			case 'KeyD':	// Increase velocity
 				speed -= 2;
+				display.updateSpeed(speed);
 				break;
 			case 'KeyS':	// Slow velocity
 				speed += 2;
+				display.updateSpeed(speed);
 				break;
+			// case 'KeyU':	// Update display -> FOR TESTING
+			// 	display.updateDisplay();
+			// 	break;
 			case 'AltLeft': // Switch to auto mode
 				if (timer) {
 					stopMove();
@@ -240,7 +288,7 @@ function parseDocument() {
 	// TODO: Handle readability failures.
 	let article = new Readability(docClone).parse();
 	// Readability.js converts all readable elements into <p>
-	$(article.content).find("p").each(function() {
+	$(article.content).find("p,h1,h2,h3,li").each(function() {
 		let id = $(this).attr('id');
 		// The unidentified ids seem to be images / iframe snippets that
 		// are re-included as-is, but otherwise are not considered readable text.
@@ -263,9 +311,18 @@ function parseDocument() {
 }
 
 let readableDomIds = parseDocument();
+doc = new Doc(readableDomIds);
 tracker = new Tracker(readableDomIds);
+display = new Display(readableDomIds, speed, doc.getTotalWords());
+
+
+
 setupClickListener(tracker);
 readListener();
+
+startMove(direction.FORWARD); // Start reader on the first line
+stopMove(); // Prevent from continuing to go forward
+
 
 // Uncomment this if you want to see the relative y offsets of current container
 // so you can tweak the auto-scroll feature.

@@ -53,6 +53,8 @@ chrome.browserAction.onClicked.addListener(function (tab) {
             "third_party/jquery-ui.1.12.1.min.js",
             "third_party/readability-1.7.1.js",
             "lib/tracker.js",
+            "lib/display.js",
+            "lib/doc.js",
             "content_script.js"
         )
         .then(s => s.injectCss("content.css"));
