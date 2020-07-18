@@ -1,0 +1,110 @@
+mark {
+	color: inherit !important;
+}
+.markedYellow {
+	background-color: yellow;
+}
+.markedBlue {
+	background-color:rgb(201, 218, 248) !important; /* Same shade of blue as when normally highlight in browser */
+}
+.markedLightBlue {	
+	background-color:rgb(230, 239, 253) !important; /* Lighter blue */
+}
+.markedBoxShadow {
+	/* ACTIVE */
+	background-color:rgb(230, 239, 253) !important; /* Lighter blue */
+	/* box-shadow: 1pt 1pt 3pt 1pt yellow; */ /* Yellow box shadow  */
+	box-shadow: 1pt 1pt 3pt 1pt rgb(0,220,255); /* Box shadow with vibrant blue */
+}
+.keyWord {
+	background-color:#abfca4 !important; /* Nancy personally chose this green color: */
+	/* background-color:#e6effd !important; Normal blue color */
+	/* background-color: yellow !important; */
+
+}
+#displayContainer {
+	position: fixed; 
+	top: 2%;
+	left: 40%;
+	width: 20%;
+	opacity: 0;
+	transition: all 2s ease 0s;
+	z-index: 1000;
+}
+#timerContainer {
+	width: 100%;
+	border: 1px solid rgba(0, 220, 255, 0.5);
+	box-shadow: 0 0 1pt 1pt rgba(0, 220, 255, 0.5);
+	background-color: rgba(15, 19, 28, 0.9);
+	border-radius: 5px 5px 15% 15%;
+}
+#speedContainer {
+	margin: 0 auto;
+	margin-top: 2%;
+	width: 50%;
+	border: 1px solid rgb(0,220,255,0.5);
+	border-radius: 5px 5px 25% 25%;
+	/* box-shadow: 0 0 1pt 1pt rgba(0, 220, 255, 0.5); */
+	background-color: rgba(255, 255, 255, 0.8);
+}
+#timerInsideContainer {
+	width: 100%;
+	background-color: rgba(0, 220, 255, 0.25);
+	color: #00dcff;
+	text-align: center;
+	letter-spacing: 1px;
+	font-size: 90%;
+	text-transform: uppercase;
+	/* font-family: 'Montserrat Subrayada', sans-serif; */
+	font-family: 'Montserrat', sans-serif;
+	/* font-weight: 700; */
+	border-radius: 5px 5px 15% 15%;
+}
+#timerNumber {
+	font-size: 125%;
+	transition: all 0.5s ease 0s;
+}
+#speedNumber {
+	transition: all 0.5s ease 0s;
+}
+#speedInsideContainer {
+	padding: 2px 0px;
+	margin: 0 auto;
+	width: 100%;
+	background-color: rgba(0, 220, 255, 0.25);
+	color: #0f131c;
+	text-align: center;
+	letter-spacing: 1px;
+	font-size: 60%;
+	text-transform: uppercase;
+	font-family: 'Montserrat', sans-serif;
+	font-weight: 400;
+	border-radius: 5px 5px 25% 25%;
+}
+
+/* CSS FONTS */
+
+@font-face {
+	font-family: 'Montserrat Subrayada';
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: local('MontserratSubrayada-Regular'), url(https://fonts.gstatic.com/s/montserratsubrayada/v9/U9MD6c-o9H7PgjlTHThBnNHGVUORwteQQH8MaOY8q3T_.woff2) format('woff2');
+	unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+	font-family: 'Montserrat';
+	font-style: normal;
+	font-weight: 700;
+	font-display: swap;
+	src: local('Montserrat Bold'), local('Montserrat-Bold'), url(https://fonts.gstatic.com/s/montserrat/v14/JTURjIg1_i6t8kCHKm45_dJE3gnD_vx3rCs.woff2) format('woff2');
+	unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+	font-family: 'Montserrat';
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: local('Montserrat Regular'), local('Montserrat-Regular'), url(https://fonts.gstatic.com/s/montserrat/v14/JTUSjIg1_i6t8kCHKm459WlhyyTh89Y.woff2) format('woff2');
+	unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
