@@ -30,7 +30,7 @@ let speed = null;
 var speed_bias = 500; // Minimum amount of speed spent on each sentence (in milliseconds)
 // If the screen is currently scrolling. If it is, pause the tracker.
 var isScrolling = false;
-var currentStyle = "markedYellow"; // TEMPORARY global variable, just for style experimentation. Will get rid of later
+var currentStyle = "markedBoxShadow"; // TEMPORARY global variable, just for style experimentation. Will get rid of later
 
 /*
 To do:
