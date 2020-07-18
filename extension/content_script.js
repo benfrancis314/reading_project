@@ -22,10 +22,9 @@ var doc = null;
 var timer = null;
 var speed = 20; // Base speed, not accounting for sentence length; adjustable w/ D/S
 var speed_bias = 500; // Minimum amount of speed spent on each sentence (in milliseconds)
-var speed_adj = 0; // Speed after it has been adjusted by sentence length
 // If the screen is currently scrolling. If it is, pause the tracker.
 var isScrolling = false;
-var currentStyle = "markedBoxShadow"; // TEMPORARY global variable, just for style experimentation. Will get rid of later
+var currentStyle = "markedYellow"; // TEMPORARY global variable, just for style experimentation. Will get rid of later
 
 /*
 To do:
@@ -68,7 +67,9 @@ If a tracker is currently moving, stop it.
 See startMove()
 */
 function stopMove() {
-	if (timer) { 
+	if (timer) {
+		// Stop fading animation.
+		$("mark").stop();
 		clearInterval(timer);
 		timer = null;
 	}	
@@ -101,8 +102,15 @@ function startMove(dir) { // Note: I have combined the "moveUp" and "moveDown" f
 		// TODO: Consider returning boolean to see if there is any movement left
 		// If false, stop moving.
 		moveFn();
-		timer = setTimeout(repeat, speed_adj);
+		timer = setTimeout(repeat, calculateTrackerLife());
+		// Immediately fade current tracker.
+		fadeTracker();
 	})();
+}
+
+// Calculate lingering time for current tracker in ms.
+function calculateTrackerLife() {
+	return (speed * tracker.getTrackerLen()) + speed_bias;
 }
 
 // Move one sentence up
@@ -177,9 +185,9 @@ function scrollDown() {
 Highlight portion pointed to by tracker.
 */
 function highlight(tracker) {
-
-	$("."+currentStyle).unmark();
-	$("."+currentStyle).removeClass(currentStyle);
+	let markEl = $("."+currentStyle);
+	markEl.unmark();
+	markEl.removeClass(currentStyle);
 	// Append the "mark" class (?) to the html corresponding to the interval
 	// The interval indices are w.r.t to the raw text.
 	// mark.js is smart enough to preserve the original html, and even provide
@@ -227,6 +235,21 @@ function highlightKeyWords(container, start, end) {
 		});
 	}
 };
+
+/*
+Fade the current tracker indicator according to the calculated speed.
+*/
+function fadeTracker() {
+	let markEl = $("mark");
+	// Some async issue. If marker already gets deleted but not initialized.
+	if (!markEl) {
+		return;
+	}
+	let rgb = jQuery.Color(markEl.css('backgroundColor'));
+	// Set alpha to 0, and animate towards this, to simulate bg fade of same color.
+	let newRgba = `rgba(${rgb.red()}, ${rgb.green()}, ${rgb.blue()}, 0)`
+	markEl.animate({ 'background-color': newRgba }, calculateTrackerLife());
+}
 
 function readListener() {
 	document.addEventListener('keydown', function(evt) {
