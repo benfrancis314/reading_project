@@ -52,6 +52,7 @@ chrome.browserAction.onClicked.addListener(function (tab) {
             "third_party/jquery.mark-8.11.1.min.js",
             "third_party/jquery-ui.1.12.1.min.js",
             "third_party/readability-1.7.1.js",
+            "lib/settings_wrapper.js",
             "lib/tracker.js",
             "lib/display.js",
             "lib/doc.js",
