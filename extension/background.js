@@ -57,5 +57,5 @@ chrome.browserAction.onClicked.addListener(function (tab) {
             "lib/doc.js",
             "content_script.js"
         )
-        .then(s => s.injectCss("content.css"));
+        .then(s => s.injectCss("content.css", "gear.svg"));
 });

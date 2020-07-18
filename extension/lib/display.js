@@ -51,6 +51,7 @@ class Display {
                         <span id="speedNumber">${this.reading_speed}</span> WPM
                     </div>
                 </div>
+                <div id="optionButton">x</div>
             </div>
             `;      
     }
