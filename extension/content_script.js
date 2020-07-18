@@ -20,7 +20,7 @@ var doc = null;
 // 1. null means tracker is static.
 // 2. Non-null means there is a scheduled timer that keeps moving the tracker around.
 var timer = null;
-var speed = 400; // Base speed, not accounting for sentence length; adjustable w/ D/S
+var speed = 400; // WPM, Base speed, not accounting for sentence length; adjustable w/ D/S
 var speed_bias = 500; // Minimum amount of speed spent on each sentence (in milliseconds)
 // If the screen is currently scrolling. If it is, pause the tracker.
 var isScrolling = false;
@@ -112,19 +112,31 @@ function startMove(dir) { // Note: I have combined the "moveUp" and "moveDown" f
 }
 
 // Calculate lingering time for current tracker in ms.
+// TODO: Why does this get called twice?
 function calculateTrackerLife() {
-	let sentence_words = tracker.getTrackerLen()
-	console.log("Sentence words: " + sentence_words);
-	let total_words = doc.getTotalWords();
-	console.log("Total words: "+total_words);
-	let time_remain = total_words/speed; // in min
-	console.log(time_remain);
+	/* Methodology of calculating tracker life: 
+		Each sentence has a minimum amount of time to stay on; i.e., a bias. 
+		The user specifies the WPM they want, and this calculates a time remaining. 
+		This function then distributes the remaining time to each sentence according
+		to ratio of the sentence_words:total_words. 
+	*/
+	const speed_bias = 500; // Half of a second; is this too long?
+	let containerId = tracker.getContainerId();
+	// This is an array that has the number of sentences in each container. The 1st container has the 1st element in this array, and so on.  
+	let container_sentences_map = doc.getContainerSentencesMap().slice(containerId); // Don't include containers before current container
+	let sentences_remaining = 0; // This will be sentences remaining on page
+	// Sum up sentences in array
+	for (var i = 0; i < container_sentences_map.length; i++) {
+		sentences_remaining += container_sentences_map[i]; 
+	}
+	let sentence_words = tracker.getTrackerLen() // Words in current sentence
+	let total_words = doc.getTotalWords(); // Total words on page
+	let base_time = sentences_remaining * speed_bias /1000; // Time from just speed_bias on each sentence. In seconds
+	let desired_time = display.getTimeRemaining() * 60; // Time we need to finish in
+	let distributable_time = desired_time - base_time; // Time left to distribute to sentences
 	let word_ratio = sentence_words/total_words;
-	let linger_time = time_remain * word_ratio * 60000; // in ms
-	linger_time = time_remain*(sentence_words/total_words) *60000
-	console.log("Linger time: "+linger_time);	
+	let linger_time = distributable_time*(word_ratio)*1000 + speed_bias; // convert from s to ms
 	return (linger_time);
-	// return (speed/20 + tracker.getTrackerLen()) + speed_bias;
 }
 
 // Move one sentence up
@@ -289,8 +301,10 @@ function readListener() {
 			case 'AltLeft': // Switch to auto mode
 				if (timer) {
 					stopMove();
+					display.updateTimer(readableDomIds, tracker.getContainerId());
 				} else {
 					startMove(direction.FORWARD);
+					display.updateTimer(readableDomIds, tracker.getContainerId());
 				}
 				break;
 			default:

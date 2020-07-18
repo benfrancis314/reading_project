@@ -36,6 +36,11 @@ class Display {
         this.createDisplay(readableDomIds);
     }
 
+    // Returns time remaining
+    getTimeRemaining() {
+        return this.time_remaining;
+    }
+
     /*
     Defines html code for display to be inserted into web page. 
     */
@@ -110,7 +115,7 @@ class Display {
     Update display speed after speed is changed by user
     */
     updateSpeed(speed) {
-        // TODO: Create real equation for updated reading speed
+        // TODO: There should be an upper limit to this; because we have a speed bias, it cannot get infinitely fast. 
         this.reading_speed = speed // Completely made up eq, reasonable enough for testing though
         document.getElementById("speedNumber").innerHTML = this.reading_speed;
     }
