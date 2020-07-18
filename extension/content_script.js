@@ -115,8 +115,14 @@ function calculateTrackerLife() {
 
 // Move one sentence up
 function moveUpOne() { // Sets start and end
+	// Let scrolling finish before any movement.
+	if (isScrolling) {
+		return;
+	}
 	tracker.movePrevious();
 	highlight(tracker);
+	speed_adj = (speed * tracker.getTrackerLen()) + speed_bias;
+	scrollUp();
 }
 
 // Move one sentence down
@@ -130,10 +136,32 @@ function moveDownOne() { // Sets start and end
 	let containerId = tracker.getContainerId();
 	display.updateTimer(readableDomIds, containerId);
 	highlight(tracker);
-	scroll();
+	scrollDown();
+	speed_adj = (speed * tracker.getTrackerLen()) + speed_bias;
 }
 
-function scroll() {
+// Scroll up when tracker is above page
+function scrollUp() {
+	let verticalMargin = 200;
+	// Autoscroll if tracker is above top of page.
+	// Number of pixels from top of window to top of current container.
+	let markedTopAbsoluteOffset = $("."+currentStyle).offset().top;
+	let markedTopRelativeOffset = markedTopAbsoluteOffset - $(window).scrollTop();
+	if (markedTopRelativeOffset < 0) {
+		isScrolling = true;
+		$('html, body').animate(
+			// Leave some vertical margin before the container.
+			{scrollTop: (markedTopAbsoluteOffset - verticalMargin)},
+			500, /* duration(ms) */
+			function() {
+				isScrolling = false;
+			}
+		);
+	}
+}
+
+// Scroll down when tracker is below a certain point
+function scrollDown() {
 	let scrollThreshold = 500;
 	let verticalMargin = 200;
 	// Autoscroll if too far ahead.
