@@ -256,10 +256,17 @@ function fadeElement(el) {
 }
 
 function readListener() {
+
 	document.addEventListener('keydown', function(evt) {
 		if (!document.hasFocus()) {
 		  return true;
 		}
+
+		// Disable browser's default behavior of page-downing on space.
+		if (evt.code == 'Space' && evt.target == document.body) {
+		    evt.preventDefault();
+		}
+
 		switch (evt.code) {
 			case 'ArrowLeft': // Move back
                 startMove(direction.BACKWARD);
@@ -278,13 +285,12 @@ function readListener() {
 			// case 'KeyU':	// Update display -> FOR TESTING
 			// 	display.updateDisplay();
 			// 	break;
-			case 'AltLeft': // Switch to auto mode
+			case 'Space': // Switch to auto mode
 				if (timer) {
 					stopMove();
 				} else {
 					startMove(direction.FORWARD);
 				}
-				break;
 			default:
                 break;
 		}
@@ -298,6 +304,7 @@ function readListener() {
 				break;
 		}
     }, false);
+    
 };
 
 

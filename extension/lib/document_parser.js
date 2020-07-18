@@ -7,8 +7,15 @@ if (window[namespace] === true) {
     window[namespace] = true;
 }
 
+// Expose to global the function parseDocument()
+
+
 /*
-Attach IDs to all elements in document.
+Identify the readable HTML elements in the document.
+How:
+- Attach unique ids to all visible elements.
+- Run Readability to filter for the good elements.
+- Return back the leftover unique ids.
 Returns:
 - readableDomIds - Dom IDs of readable content to initialize the tracker with.
 */
@@ -24,6 +31,8 @@ function parseDocument() {
 	let readableDomIds = [];
 	// Pass clone of document because readability mutates the document.
 	let docClone = document.cloneNode(/* deep= */true);
+	trimDocBasedOnSite(docClone);
+
 	// TODO: Handle readability failures.
 	let article = new Readability(docClone).parse();
 	// Readability.js converts all readable elements into <p>
@@ -49,6 +58,32 @@ function parseDocument() {
 		}
 	*/
 }
+
+/*
+Remove elements from doc that you don't want to include, based on site-specific logic.
+Parameter:
+- doc - document obj.
+*/
+function trimDocBasedOnSite(doc) {
+	let hostname = $(location).attr('hostname');
+	if (hostname.endsWith("wikipedia.org")) {
+		trimDocWikipedia(doc);
+		return;
+	}
+}
+
+/*
+trimDocBasedOnSite() for wikipedia.
+*/
+function trimDocWikipedia(doc) {
+	let jdoc = $(doc);
+	// Remove everything including and after "See also".
+	// This includes references, citations, and small notes.
+	jdoc.find("#See_also").parent().prev().nextAll().remove();
+	// Remove all infoboxes.
+	jdoc.find("table.infobox").remove();
+}
+
 // Expose to global.
 window.parseDocument = parseDocument;
 })(); // End of namespace
