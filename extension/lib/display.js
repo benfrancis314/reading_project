@@ -83,9 +83,9 @@ class Display {
         let remainingContainers = readableDomIds.slice(containerId); // Need to store as own new list, so for loop indexes through this, not old list
         for (var section in remainingContainers) {    // Calc total words
             let text = $("#" + remainingContainers[section]).text();
-            let wordRegex = /\b[^\d\W]+\b/gi; // Checks for words that don't include numbers or non-letters
+            let wordRegex = /\b\w+\b/g; // Checks for words that don't include numbers or non-letters
             let wordList = text.match(wordRegex);
-            total_words += wordList.length;
+            if (wordList) { total_words += wordList.length; }
         }
         let time_remaining = total_words/avg_read_speed; // in minutes
         this.time_remaining = Math.ceil(time_remaining);
