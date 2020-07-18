@@ -71,7 +71,6 @@ class Display {
     */
     initTimer(total_words) {
         let time_remaining = total_words/avg_read_speed; // in minutes
-        // console.log(total_words);
         return Math.ceil(time_remaining);
     };
     
