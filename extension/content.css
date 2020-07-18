@@ -1,4 +1,5 @@
 mark {
+	color: inherit !important;
 }
 .markedYellow {
 	background-color:yellow!important;
