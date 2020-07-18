@@ -26,6 +26,9 @@ var speed_bias = 500; // Minimum amount of speed spent on each sentence (in mill
 var isScrolling = false;
 var currentStyle = "markedBoxShadow"; // TEMPORARY global variable, just for style experimentation. Will get rid of later
 
+// Classname for keyword highlights.
+let keywordStyle = "keyWord";
+
 /*
 To do:
 1. Make necessary comments
@@ -208,7 +211,6 @@ function highlight(tracker) {
     */
 function highlightKeyWords(container, start, end) {
 	// TODO: Mark.js is actually built to do this; migrate functionality to mark.js
-	let keywordStyle = "keyWord";
 	$("."+keywordStyle).unmark(); // Remove previous sentence keyword styling
 	$("."+keywordStyle).removeClass(keywordStyle);
 	// Get list of words in interval
@@ -238,15 +240,19 @@ function highlightKeyWords(container, start, end) {
 Fade the current tracker indicator according to the calculated speed.
 */
 function fadeTracker() {
-	let markEl = $("mark");
+	fadeElement($("mark"));
+	fadeElement($("." + keywordStyle));
+}
+
+function fadeElement(el) {
 	// Some async issue. If marker already gets deleted but not initialized.
-	if (!markEl) {
+	if (!el) {
 		return;
 	}
-	let rgb = jQuery.Color(markEl.css('backgroundColor'));
+	let rgb = jQuery.Color(el.css('backgroundColor'));
 	// Set alpha to 0, and animate towards this, to simulate bg fade of same color.
 	let newRgba = `rgba(${rgb.red()}, ${rgb.green()}, ${rgb.blue()}, 0)`
-	markEl.animate({ 'background-color': newRgba }, calculateTrackerLife());
+	el.animate({ 'background-color': newRgba }, calculateTrackerLife());
 }
 
 function readListener() {
