@@ -59,7 +59,7 @@ class Display {
     Inserts display HTML into webpage. 
     */
     createDisplay(readableDomIds) {
-        document.getElementById(readableDomIds[0]).innerHTML += this.html;
+        document.getElementById(readableDomIds[0]).insertAdjacentHTML("beforebegin", this.html);
         document.getElementById("displayContainer").style.opacity = 1; // For smoother transition
     }
 

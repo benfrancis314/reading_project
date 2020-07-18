@@ -1,7 +1,8 @@
 mark {
+	color: inherit !important;
 }
 .markedYellow {
-	background-color:yellow!important;
+	background-color: yellow;
 }
 .markedBlue {
 	background-color:rgb(201, 218, 248) !important; /* Same shade of blue as when normally highlight in browser */
