@@ -131,6 +131,8 @@ function moveDownOne() { // Sets start and end
 	scrollDown();
 	speed_adj = (speed * tracker.getTrackerLen()) + speed_bias;
 }
+
+// Scroll up when tracker is above page
 function scrollUp() {
 	let verticalMargin = 200;
 	// Autoscroll if tracker is above top of page.
@@ -149,6 +151,8 @@ function scrollUp() {
 		);
 	}
 }
+
+// Scroll down when tracker is below a certain point
 function scrollDown() {
 	let scrollThreshold = 500;
 	let verticalMargin = 200;
