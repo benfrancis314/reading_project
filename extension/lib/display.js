@@ -7,7 +7,7 @@ if (window[namespace] === true) {
     window[namespace] = true;
 }
 
-const avg_read_speed = 200; // WPM
+const avg_read_speed = 260; // WPM
 const avg_letters_per_word = 6; // 4.79; just from Quora, add a space after each word
 
 /*
@@ -80,7 +80,7 @@ class Display {
     updateTimer(readableDomIds, containerId) { // Call everytime you get to new paragraph
         // TODO: Should also update timer if a user is using the autoread mode. 
         let total_words = 0;
-        let currentSpeed = null;
+        let currentSpeed = this.reading_speed;
         let remainingContainers = readableDomIds.slice(containerId); // Need to store as own new list, so for loop indexes through this, not old list
         for (var section in remainingContainers) {    // Calc total words
             let text = $("#" + remainingContainers[section]).text();
@@ -89,7 +89,7 @@ class Display {
             let wordList = text.match(wordRegex);
             if (wordList) { total_words += wordList.length; }
         };
-        if (this.auto_mode) { currentSpeed = this.reading_speed } else { currentSpeed = avg_read_speed };
+        // if (this.auto_mode) { currentSpeed = this.reading_speed } else { currentSpeed = avg_read_speed };
         let time_remaining = total_words/currentSpeed; // in minutes
         this.time_remaining = Math.ceil(time_remaining);
         document.getElementById("timerNumber").innerHTML = this.time_remaining;

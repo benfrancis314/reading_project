@@ -102,9 +102,9 @@ class Tracker {
         let text = this.container.text().slice(this.start, this.end);
         let wordRegex = /\b\w+\b/g; // Checks for words
         let wordList = text.match(wordRegex);
+        if (!wordList) { return 0; };
         let total_words = wordList.length;
         return total_words;
-        // return this.end - this.start; // This is for CHARACTERS. Leaving in case we want to revert back. 
     }
     
     /*

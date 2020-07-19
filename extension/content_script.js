@@ -20,7 +20,7 @@ var doc = null;
 // 1. null means tracker is static.
 // 2. Non-null means there is a scheduled timer that keeps moving the tracker around.
 var timer = null;
-var speed = 400; // WPM, Base speed, not accounting for sentence length; adjustable w/ D/S
+var speed = 260; // WPM, Base speed, not accounting for sentence length; adjustable w/ D/S
 var speed_bias = 500; // Minimum amount of speed spent on each sentence (in milliseconds)
 // If the screen is currently scrolling. If it is, pause the tracker.
 var isScrolling = false;
@@ -87,6 +87,8 @@ If we are in a moving state and startMove is called, nothing happens.
 Parameters:
 - dir. See direction enum.
 */
+
+// TODO: Maybe refactor so it doesn't when turn on automode?
 function startMove(dir) { // Note: I have combined the "moveUp" and "moveDown" functions here
 	if (timer) {
 		return;
@@ -120,7 +122,7 @@ function calculateTrackerLife() {
 		This function then distributes the remaining time to each sentence according
 		to ratio of the sentence_words:total_words. 
 	*/
-	const speed_bias = 500; // Half of a second; is this too long?
+	const speed_bias_ms = 500; // Half of a second; is this too long?
 	let containerId = tracker.getContainerId();
 	// This is an array that has the number of sentences in each container. The 1st container has the 1st element in this array, and so on.  
 	let container_sentences_map = doc.getContainerSentencesMap().slice(containerId); // Don't include containers before current container
@@ -130,13 +132,15 @@ function calculateTrackerLife() {
 		sentences_remaining += container_sentences_map[i]; 
 	}
 	let sentence_words = tracker.getTrackerLen() // Words in current sentence
+	// TODO: This should be total_words_REMAINING
 	let total_words = doc.getTotalWords(); // Total words on page
-	let base_time = sentences_remaining * speed_bias /1000; // Time from just speed_bias on each sentence. In seconds
-	let desired_time = display.getTimeRemaining() * 60; // Time we need to finish in
-	let distributable_time = desired_time - base_time; // Time left to distribute to sentences
+	let base_time_s = sentences_remaining * speed_bias_ms/1000; // Time from just speed_bias on each sentence. In seconds
+	let desired_time_s = display.getTimeRemaining() * 60; // Time we need to finish in
+	let distributable_time = desired_time_s - base_time_s; // Time left to distribute to sentences
 	let word_ratio = sentence_words/total_words;
-	let linger_time = distributable_time*(word_ratio)*1000 + speed_bias; // convert from s to ms
-	return (linger_time);
+	let linger_time_ms = distributable_time*(word_ratio)*1000 + speed_bias_ms; // convert from s to ms
+	return (linger_time_ms); 
+	// TODO: Use Moment.js
 }
 
 // Move one sentence up

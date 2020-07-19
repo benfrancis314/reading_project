@@ -19,7 +19,7 @@ class Doc {
         this.termFreq = null; // { str : int } , Frequency of terms in document. Set in calcTotalWords function
         this.total_words = this.calcTotalWords(readableDomIds); // int; Total number of words in document;
         this.keywords = this.setKeyWords(this.termFreq); // string[] keywords of document
-        this.container_sentences_map = null; // This is set by calcTotalSentences()
+        this.container_sentences_map = null; // int[], Index[i] is # of sentneces in ith container, This is set by calcTotalSentences()
         this.total_sentences = this.calcTotalSentences(readableDomIds);
     };
 
@@ -88,8 +88,8 @@ class Doc {
             let start = 0;
             let end = 0;
             var container_sentences = 0;
-            while (end > -1) {
-                end = text.indexOf(". ", start);
+            while (end > -1) { 
+                end = text.indexOf(". ", start); // TODO: Refactor sentence boundary with tracker.js
                 total_sentences++;
                 container_sentences++;
                 start = end+2;
