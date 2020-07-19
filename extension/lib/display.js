@@ -34,6 +34,7 @@ class Display {
 
         this.defineHtml();
         this.createDisplay(readableDomIds);
+        this.updateSpeed(speed);
     }
 
     // Returns time remaining
@@ -94,22 +95,6 @@ class Display {
         this.time_remaining = Math.ceil(time_remaining);
         document.getElementById("timerNumber").innerHTML = this.time_remaining;
     }
-
-    /*
-    Returns: 
-    - Initial speed in WPM, based on speed parameter used by tracker (int)
-    */
-    // initSpeed(speed) {
-    // // TODO: Create better estimate for initial reading speed
-    // /* REASONING: 
-    //     Avg sentence has 25 words, avg word has 5 letters -> avg letters per sentence ~ 125
-    //     speed_adj is usually 20*125 + 500 -> 3000 ms [base_speed * avg_letters_per_sentence + speed_bias]
-    //     So 25 words/3s -> ~400 WPM. Since speed = 20, and we want it to be 400, so we multiply by 20. 
-    //     Note this is rampant with estimations/is kinda bs. But good enough for hypothesis testing. 
-    //     In part, trickiness comes from speed's dependcy on sentence length. 
-    //     */
-    //     return speed
-    // }
 
     /* 
     Update display speed after speed is changed by user
