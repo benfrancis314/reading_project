@@ -46,6 +46,12 @@
 })();
 
 chrome.browserAction.onClicked.addListener(function (tab) {
+    // This gets triggered when user invokes browser action either by
+    // 1. Clicking the extension.
+    // 2. Pressing key sequences defined in manifest.json to invoke browser action.
+
+    // All the scripts below have IFNDEF protection patterns to ensure
+    // they only run once per page. 
     new ScriptExecution(tab.id)
         .executeScripts(
             "third_party/jquery-3.5.1.min.js",
@@ -60,9 +66,14 @@ chrome.browserAction.onClicked.addListener(function (tab) {
             "content_script.js"
         )
         .then(s => s.injectCss("content.css"))
-        .then(s => {    
-            chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-              chrome.tabs.sendMessage(tabs[0].id, {command: "toggleUI"}, function(response) {});
-            });
+        .then(s => {
+            // Send a message which will get handled by content_script.js
+            // This ensures that the same isolated world which has the first and only 
+            // script execution can handle the event.
+            // The alternative approach of executeScripts and rerunning content_script.js
+            // does not work because it will execute in a different isolated world,
+            // and will have lost access to the previous javascript vars and event handlers.
+            // See https://stackoverflow.com/a/8916706/4143394
+            chrome.tabs.sendMessage(tab.id, {command: "toggleUI"}, function(response) {});
         });
 });
