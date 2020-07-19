@@ -109,9 +109,13 @@ function startMove(dir) { // Note: I have combined the "moveUp" and "moveDown" f
 
 	// Schedule continuous movement, with the first move being run immediately.
 	(function repeat() { // Allows speed to be updated WHILE moving
-		// TODO: Consider returning boolean to see if there is any movement left
-		// If false, stop moving.
-		moveFn();
+		// If there is no more movement to be made, stop autoscroll.
+		let hasMoved = moveFn();
+		if (!hasMoved) {
+			stopTimer();
+			return;
+		}
+
 		timer = setTimeout(repeat, calculateTrackerLife());
 		// Immediately fade current tracker.
 		fadeTracker();
@@ -149,27 +153,43 @@ function calculateTrackerLife() {
 	// TODO: Use Moment.js
 }
 
-// Move one sentence up
+/*
+Move one sentence up.
+Return:
+- Boolean: True iff tracker successfully moved. False if there is no more element to move to.
+*/
 function moveUpOne() { // Sets start and end
 	// Let scrolling finish before any movement.
 	if (isScrolling) {
 		return;
 	}
-	tracker.movePrevious();
+	let hasMoved = tracker.movePrevious();
+	if (!hasMoved) {
+		return false;
+	}
 	highlight(tracker);
 	scrollUp();
+	return true;
 }
 
-// Move one sentence down
+/*
+Move one sentence down.
+Return:
+- Boolean: True iff tracker successfully moved. False if there is no more element to move to.
+*/
 function moveDownOne() { // Sets start and end
 	// Let scrolling finish before any movement.
 	if (isScrolling) {
 		return;
 	}
-	tracker.moveNext();
+	let hasMoved = tracker.moveNext();
+	if (!hasMoved) {
+		return false;
+	}
 	display.updateTimer(tracker.getReadableDomEls(), tracker.getContainerId());
 	highlight(tracker);
 	scrollDown();
+	return true;
 }
 
 // Scroll up when tracker is above page

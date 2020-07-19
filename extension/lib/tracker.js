@@ -115,11 +115,13 @@ class Tracker {
     Move tracker to the next readable portion, moving across containers if necessary.
     If not currently tracking, will point to the first sentence.
     If already at the end of the document, tracker will not be updated.
+    Return:
+    - Boolean: True iff tracker successfully moved. False if there is no more element to move to.
     */
     moveNext() {
         if (!this.isTracking()) {
             this.pointToContainer(0);
-            return;
+            return true;
         }
         let text = this.container.text();
         let len = text.length;
@@ -130,7 +132,7 @@ class Tracker {
             // Reached the end, no more container.
             // Don't update the tracker. Keep pointing to the last element.
             if (this.containerId >=  this.readableDomEls.length - 1) {
-                return;
+                return false;
             }
             this.pointToContainer(this.containerId + 1); 
         } else {
@@ -139,16 +141,19 @@ class Tracker {
             this.start = new_start;
             this.end = new_end;
         }
+        return true;
     }
 
     /*
     Move tracker to the previous readable portion, moving across containers if necessary.
     If not currently tracking, will not do anything.
     If already at the beginning of the document, tracker will not be updated.
+    Return:
+    - Boolean: True iff tracker successfully moved. False if there is no more element to move to.
     */
     movePrevious() {
         if (!this.isTracking()) {
-            return;
+            return false;
         }
         let text = this.container.text();
         let len = text.length;
@@ -157,7 +162,7 @@ class Tracker {
 
         if (new_end < 0) {
             // Need to change container.
-            if (this.containerId == 0) { return; } // Can't go back anymore. 
+            if (this.containerId == 0) { return false; } // Can't go back anymore. 
             this.pointToContainer(this.containerId - 1);
             // Point to the end of the contanier.
             this.end = text.length;
@@ -167,6 +172,7 @@ class Tracker {
             this.end = new_end;
             this.start = this.getSentenceStart(this.container.text(), this.end)
         }
+        return true;
     }
 
     ////////////////////
