@@ -81,7 +81,7 @@ mark {
 	font-weight: 400;
 	border-radius: 5px 5px 25% 25%;
 }
-#optionButton {
+#optionsButton {
 	position: fixed; 
 	top: 2%;
 	left: 61%;
@@ -91,37 +91,54 @@ mark {
 	z-index: 1000;
   	background-repeat: no-repeat !important; 
 }
-#optionButton svg {
+#optionsButton svg {
 	width: 100%;
 	height: 100%;
 }
 
-#optionButton:hover {
+#optionsButton:hover {
 	cursor: pointer !important;
 	transform: rotate(180deg);
 }
-#optionButton:hover svg g g .gear {
+#optionsButton:hover svg g g #gear {
 	fill: rgba(0,220,255,0.5) !important;
 	transition: all 0.5s ease;
 	stroke: rgba(0,220,255,1);
 	stroke-width: 5px;
 }
-.gear {
+#gear {
 	fill: rgba(15, 19, 28,1);
 	transition: all 0.5s ease;
 	stroke: rgba(166, 173, 189, 0); 
 	stroke-width: 0px;
 }
-.gear:hover {
+#gear:hover {
 	transition: all 0.5 ease;
 }
 
-#uiInstructCustom {
+#uiContainer {
 	width: 30%;
 	position: fixed;
 	z-index: 10002;
 	top: 2%;
 	right: 3%;
+	/* opacity: 0; */
+	/* display: none; */
+	/* visibility: hidden; */
+	/* transition: all 0.5s ease; */
+}
+#exitButton, #exitButtonBorder, #exitButtonText {
+	transition: all 0.5s ease;
+}
+#exitButton:hover {
+	transform: scale(1.005) matrix(3.54031e-17,-0.574888,0.574888,3.54031e-17,5493.27,3411.7);
+	cursor: pointer;
+}
+#exitButton:hover #exitButtonBorder {
+	stroke-width: 30px !important;
+	fill-opacity: 0.93 !important;
+}
+#exitButton:hover #exitButtonText {
 }
 
 
