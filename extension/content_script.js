@@ -27,26 +27,26 @@ let settings = window.settings;
 var speed_bias = 500; // Minimum amount of speed spent on each sentence (in milliseconds)
 // If the screen is currently scrolling. If it is, pause the tracker.
 var isScrolling = false;
-// Is it in auto-read mode?
-var currentStyle = "markedBoxShadow"; // TEMPORARY global variable, just for style experimentation. Will get rid of later
-
-// Classname for keyword highlights.
-let keywordStyle = "keyWord";
 
 /*
-To do:
-1. Make necessary comments
-2. Modularize where able
+Process of determining which style to use. 
+TODO: Redo this using CSS variable or something. 
+Problem is that highlighter and shadow need to be in the same ID;
+not scalable right now to more customizable settings that effect the tracker. 
+*/
+var highlighterSetting = "Blue";
+var shadowSetting = "Yellow";
+var keywordSetting = "Green";
+// // Expose to global (TODO: Refactor)
+window.highlighterSetting = highlighterSetting;
+window.shadowSetting = shadowSetting;
+window.keywordSetting = keywordSetting;
 
-Functions: 
-1. Click to highlight beginning of sentence
-2. Move (up/down fed as argument)
-3. Move up one sentence
-5. Move down one sentence
-6. Find end of one chunk (sentence OR semicolon OR ... )
-7. Tracker length (also sets the boundary)
-8. Read listener
-*/ 
+let trackerStyle = "trackerHighlighter"+highlighterSetting+"Shadow"+shadowSetting; // TODO: Refactor this color selection process
+
+// Classname for keyword highlights.
+
+let keywordStyle = "keyWord"+keywordSetting;
 
 // Possible reading directions.
 const direction = {
@@ -179,7 +179,7 @@ function scrollUp() {
 	let verticalMargin = 200;
 	// Autoscroll if tracker is above top of page.
 	// Number of pixels from top of window to top of current container.
-	let markedTopAbsoluteOffset = $("."+currentStyle).offset().top;
+	let markedTopAbsoluteOffset = $("."+trackerStyle).offset().top;
 	let markedTopRelativeOffset = markedTopAbsoluteOffset - $(window).scrollTop();
 	if (markedTopRelativeOffset < 0) {
 		isScrolling = true;
@@ -200,7 +200,7 @@ function scrollDown() {
 	let verticalMargin = 200;
 	// Autoscroll if too far ahead.
 	// Number of pixels from top of window to top of current container.
-	let markedTopAbsoluteOffset = $("."+currentStyle).offset().top;
+	let markedTopAbsoluteOffset = $("."+trackerStyle).offset().top;
 	let markedTopRelativeOffset = markedTopAbsoluteOffset - $(window).scrollTop();
 	if (markedTopRelativeOffset > scrollThreshold) {
 		isScrolling = true;
@@ -219,9 +219,9 @@ function scrollDown() {
 Highlight portion pointed to by tracker.
 */
 function highlight(tracker) {
-	let markEl = $("."+currentStyle);
+	let markEl = $("."+trackerStyle);
 	markEl.unmark();
-	markEl.removeClass(currentStyle);
+	markEl.removeClass(trackerStyle);
 	// Append the "mark" class (?) to the html corresponding to the interval
 	// The interval indices are w.r.t to the raw text.
 	// mark.js is smart enough to preserve the original html, and even provide
@@ -233,7 +233,7 @@ function highlight(tracker) {
     	start: start,
     	length: end - start
 	}], {
-		className: currentStyle
+		className: trackerStyle
 	});
 	highlightKeyWords(container, start, end);
 };
@@ -349,9 +349,33 @@ function readListener() {
     
 };
 
+/*
+When button is clicked, 
+*/
+function updateSettings() {
+	settings.getKeyword(function(settingsKeyword) {
+		keywordSetting = settingsKeyword;
+	})
+	settings.getHighlighter(function(settingsHighlighter) {
+		highlighterSetting = settingsHighlighter;
+	})
+	settings.getShadow(function(settingsShadow) {
+		shadowSetting = settingsShadow;
+	})
+}
+
 function init() {
 	// TODO: Refactor using promise logic so this is more readable.
 	// Load all the persistent settings, then render the UI.
+	// settings.getKeyword(function(settingsKeyword) {
+	// 	keywordSetting = settingsKeyword;
+	// })
+	// settings.getHighlighter(function(settingsHighlighter) {
+	// 	highlighterSetting = settingsHighlighter;
+	// })
+	// settings.getShadow(function(settingsShadow) {
+	// 	shadowSetting = settingsShadow;
+	// })
 	settings.getSpeed(function(settingsSpeed) {
 		speed = settingsSpeed;
 		let readableDomIds = window.parseDocument();
@@ -361,6 +385,9 @@ function init() {
 
 		setupClickListener(tracker);
 		readListener();
+
+		keywordSetting, highlighterSetting, shadowSetting = display.getSettings();
+		console.log(keywordSetting, highlighterSetting, shadowSetting);
 
 		startMove(direction.FORWARD); // Start reader on the first line
 		stopMove(); // Prevent from continuing to go forward

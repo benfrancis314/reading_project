@@ -1,27 +1,69 @@
 mark {
 	color: inherit !important;
 }
-.markedYellow {
-	background-color: yellow;
-}
-.markedBlue {
-	background-color:rgb(201, 218, 248); /* Same shade of blue as when normally highlight in browser */
-}
-.markedLightBlue {	
-	background-color:rgb(230, 239, 253); /* Lighter blue */
-}
-.markedBoxShadow {
-	/* ACTIVE */
-	background-color:rgb(230, 239, 253); /* Lighter blue */
-	/* box-shadow: 1pt 1pt 3pt 1pt yellow; */ /* Yellow box shadow  */
-	box-shadow: 1pt 1pt 3pt 1pt rgb(0,220,255); /* Box shadow with vibrant blue */
-}
-.keyWord {
-	background-color:#abfca4; /* Nancy personally chose this green color: */
-	/* background-color:#e6effd !important; Normal blue color */
-	/* background-color: yellow !important; */
 
+/* SHADOW, HIGHLIGHTER, and KEYWORD CSS */
+.trackerHighlighterBlueShadowBlue {
+	background-color:rgb(230, 239, 253); /* Light Blue highlighter */
+	box-shadow: 1pt 1pt 3pt 1pt rgb(0,220,255); /* Blue shadow */
+	transition: all 0.5s ease;
 }
+.trackerHighlighterBlueShadowYellow {
+	background-color:rgb(230, 239, 253); /* Light Blue highlighter */
+	box-shadow: 1pt 1pt 3pt 1pt yellow; /* Yellow shadow */
+	transition: all 0.5s ease;
+}
+.trackerHighlighterBlueShadowGreen {
+	background-color:rgb(230, 239, 253); /* Light Blue highlighter */
+	box-shadow: 1pt 1pt 3pt 1pt rgb(171, 252, 164); /* Green shadow */
+	transition: all 0.5s ease;
+}
+.trackerHighlighterYellowShadowBlue {
+	background-color:yellow; /* Yellow highlighter */
+	box-shadow: 1pt 1pt 3pt 1pt rgb(0,220,255); /* Blue shadow */
+	transition: all 0.5s ease;
+}
+.trackerHighlighterYellowShadowYellow {
+	background-color:yellow; /* Yellow highlighter */
+	box-shadow: 1pt 1pt 3pt 1pt yellow; /* Yellow shadow */
+	transition: all 0.5s ease;
+}
+.trackerHighlighterYellowShadowGreen {
+	background-color:yellow; /* Yellow highlighter */
+	box-shadow: 1pt 1pt 3pt 1pt rgb(171, 252, 164); /* Green shadow */
+	transition: all 0.5s ease;
+}
+.trackerHighlighterGreenShadowBlue {
+	background-color:rgb(171, 252, 164); /* Green highlighter */
+	box-shadow: 1pt 1pt 3pt 1pt rgb(0,220,255); /* Blue shadow */
+	transition: all 0.5s ease;
+}
+.trackerHighlighterGreenShadowYellow {
+	background-color:rgb(171, 252, 164); /* Green highlighter */
+	box-shadow: 1pt 1pt 3pt 1pt yellow; /* Yellow shadow */
+	transition: all 0.5s ease;
+}
+.trackerHighlighterGreenShadowGreen {
+	background-color:rgb(171, 252, 164); /* Green highlighter */
+	box-shadow: 1pt 1pt 3pt 1pt rgb(171, 252, 164); /* Green shadow */
+	transition: all 0.5s ease;
+}
+.keyWordGreen {
+	background-color:rgb(171, 252, 164); /* Nancy personally chose this green color: */
+	transition: all 0.5s ease;
+}
+.keyWordYellow {
+	background-color: yellow !important;
+	transition: all 0.5s ease;
+}
+.keyWordOff {
+	transition: all 0.5s ease;
+	/* This purposely doesn't highlight anything
+	TODO: Instead of "doign nothing", disable the keyword process to increase efficiency. */
+}
+/* END */
+
+
 #displayContainer {
 	position: fixed; 
 	top: 2%;
@@ -115,7 +157,6 @@ mark {
 #gear:hover {
 	transition: all 0.5 ease;
 }
-
 #uiContainer {
 	width: 30%;
 	position: fixed;
@@ -140,6 +181,30 @@ mark {
 }
 #exitButton:hover #exitButtonText {
 }
+#customKeywordGreen,#customKeywordYellow,#customKeywordOff,#customKeywordOffBorder,
+#customHighlighterBlue,#customHighlighterYellow,#customHighlighterGreen, 
+#customShadowBlue, #customShadowYellow, #customShadowGreen {
+	transition: all 0.5s ease;
+}
+#customKeywordGreen:hover,#customKeywordYellow:hover,
+#customHighlighterBlue:hover,#customHighlighterYellow:hover,#customHighlighterGreen:hover, 
+#customShadowBlue:hover, #customShadowYellow:hover, #customShadowGreen:hover {
+	stroke-width: 5px !important;
+	stroke-opacity: 1 !important;
+	fill-opacity: 1 !important;
+	cursor: pointer;
+}
+#customKeywordOffBorder:hover {
+	stroke-width: 5px !important;
+	stroke-opacity: 1 !important;
+	cursor: pointer;
+}
+#customKeywordOff:hover {
+	fill-opacity: 0 !important;
+	fill: #00dcff !important;
+	font-size:45px;
+}
+
 
 
 /* CSS FONTS */

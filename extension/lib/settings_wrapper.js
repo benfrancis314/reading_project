@@ -11,10 +11,11 @@ if (window[namespace] === true) {
 
 // List of chrome storage keys.
 const settingKey = {
-	// How long to stay on each character, in ms.
-	// Because of this definition, unintuitively, the smaller speed value,
-	// the faster the actual reading speed is. 
-    SPEED: "speed"
+	SPEED: "speed", // WPM
+	KEYWORD: "green", // Keywords color/active: "green", "yellow", "off"
+	HIGHLIGHTER: "blue", // Highlighter color: "blue", "yellow", "green"
+	SHADOW: "blue" // Shadow color: "blue", "yellow", "green"
+
 };
 
 /*
@@ -46,6 +47,30 @@ class Settings {
 		});
 
 	}
+	setKeyword(color) {
+		chrome.storage.local.set({[settingKey.KEYWORD]: color}, function() {
+			if (chrome.runtime.lastError) {
+				console.log("Failed to save keyword setting: " + chrome.runtime.lastError);
+				return;
+			}
+		});
+	}
+	setHighlighter(color) {
+		chrome.storage.local.set({[settingKey.HIGHLIGHTER]: color}, function() {
+			if (chrome.runtime.lastError) {
+				console.log("Failed to save highlighter setting: " + chrome.runtime.lastError);
+				return;
+			}
+		});
+	}
+	setShadow(color) {
+		chrome.storage.local.set({[settingKey.SHADOW]: color}, function() {
+			if (chrome.runtime.lastError) {
+				console.log("Failed to save shadow setting: " + chrome.runtime.lastError);
+				return;
+			}
+		});
+	}
 
 	/*
 	See setSpeed().
@@ -67,6 +92,72 @@ class Settings {
 			} 
 
 			cb(speed);
+		});
+	}
+	/*
+	See setKeyword().
+	If not set yet, return default value of "green".
+	Parameters;
+	- cb: func(int). A callback function which accepts the retrieved keyword status.
+	*/
+	getKeyword(cb) {
+		let key = settingKey.KEYWORD;
+		let val = chrome.storage.local.get(key, function(settingsDict) {
+			if (chrome.runtime.lastError) {
+				console.log("Failed to retrieve keyword setting: " + chrome.runtime.lastError);
+				return;
+			}
+			// Default keyword color.
+			let keyword = "Green";
+			if (key in settingsDict) {
+				keyword = settingsDict[key];
+			} 
+
+			cb(keyword);
+		});
+	}
+	/*
+	See setHighlighter().
+	If not set yet, return default value of "blue".
+	Parameters;
+	- cb: func(int). A callback function which accepts the retrieved highlighter.
+	*/
+	getHighlighter(cb) {
+		let key = settingKey.HIGHLIGHTER;
+		let val = chrome.storage.local.get(key, function(settingsDict) {
+			if (chrome.runtime.lastError) {
+				console.log("Failed to retrieve highlighter setting: " + chrome.runtime.lastError);
+				return;
+			}
+			// Default highlighter color.
+			let highlighter = "Blue";
+			if (key in settingsDict) {
+				highlighter = settingsDict[key];
+			} 
+
+			cb(highlighter);
+		});
+	}
+	/*
+	See setShadow().
+	If not set yet, return default value of "blue".
+	Parameters;
+	- cb: func(int). A callback function which accepts the retrieved shadow.
+	*/
+	getShadow(cb) {
+		let key = settingKey.SHADOW;
+		let val = chrome.storage.local.get(key, function(settingsDict) {
+			if (chrome.runtime.lastError) {
+				console.log("Failed to retrieve shadow setting: " + chrome.runtime.lastError);
+				return;
+			}
+			// Default shadow color.
+			let shadow = "Blue";
+			if (key in settingsDict) {
+				shadow = settingsDict[key];
+			} 
+
+			cb(shadow);
 		});
 	}
 }

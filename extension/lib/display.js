@@ -7,15 +7,28 @@ if (window[namespace] === true) {
     window[namespace] = true;
 }
 
+/*
+AGREGIOUS SIN: Accessing things elsewhere like this. Just doing to try
+to accelerate this. 
+TODO: Refactor these cross-file activities. 
+*/
+
 const avg_read_speed = 260; // WPM
-const avg_letters_per_word = 6; // 4.79; just from Quora, add a space after each word
 
 /*
 Creates a display overlaid on current web page that displays
 the estimated time remaining to read and the current speed of 
 the auto-read mode in WPM. 
 */
+
+let settings = window.settings;
+
+var keywordSetting = null;
+        var highlighterSetting = null;
+        var shadowSetting = null;
+
 class Display {
+    
     /*
     Initialize a display with total time remaining and initial speed (~200 WPM).
 
@@ -26,21 +39,51 @@ class Display {
     */
     constructor(readableDomIds, speed, total_words) {
         this.readableDomIds = readableDomIds; // Used to calc initial reading time
-        this.displayhHtml = null;
-        this.uiHtml = null;
+        this.displayhHtml = null; // HTML for the reading info display
+        this.uiHtml = null; // HTML for the UI (instructions & customizations)
         this.time_remaining = null;
         this.reading_speed = speed;
         this.end = null; 
-        this.auto_mode = false;
-        this.uiStatus = false;
+        this.auto_mode = false; // Is the reading mode in AUTO mode? (if not, in MANUAL)
+        this.uiStatus = false; // Is the UI (Instructions & Customizations) ON or OFF?
+        // this.keywordSetting = null; 
+        // this.highlighterSetting = null; 
+        // this.shadowSetting = null; 
 
+        this.keywordSetting = "Green"; // String: "Green", "Yellow", or "Off"
+        this.highlighterSetting = "Blue"; // String: "Blue", Yellow", or "Green"
+        this.shadowSetting = "Blue"; // String: "Blue", "Yellow", or "Green"
+
+        // this.setSettings();
         this.defineHtml();
         this.createDisplay(readableDomIds);
         this.updateSpeed(speed);
-        this.setHtmlListeners();
-
-        
+        this.setHtmlListeners(); 
+        this.setSettings();
     }
+    getSettings() {
+        return(this.keywordSetting, this.highlighterSetting, this.shadowSetting);
+    }
+
+    keywordSetting = null;
+    highlighterSetting = null;
+    shadowSetting = null;
+        
+
+    setSettings() {
+        var self = this; 
+        settings.getKeyword(function(settingsKeyword) {
+            self.keywordSetting = settingsKeyword
+        });
+        settings.getHighlighter(function(settingsHighlighter) {
+            self.highlighterSetting = settingsHighlighter
+        });
+        settings.getShadow(function(settingsShadow) {
+            self.shadowSetting = settingsShadow
+        });
+    }
+
+
 
     // Returns time remaining
     getTimeRemaining() {
@@ -108,20 +151,75 @@ class Display {
     }
 
     toggleUI() {
-        console.log("did I do anything?");
+        console.log(this.keywordSetting);
+        console.log(this.highlighterSetting);
+        console.log(this.shadowSetting);
+
         if (this.uiStatus) {
+            settings.setSpeed(100);
+            this.updateSpeed(100);
             let uiContainer = document.getElementById("uiContainer");
             uiContainer.remove();
             this.uiStatus = false;
         } else {
+            // Load UI display
+            settings.setSpeed(700);
+            this.updateSpeed(700);
             let optionsButton = document.getElementById("optionsButton");
             optionsButton.insertAdjacentHTML("afterend", this.uiHtml);
+
+            // Setup exit button
             let exitButton = document.getElementById("exitButton");
             exitButton.addEventListener("click", this.toggleUI.bind(this));
+
+            // Setup customization buttons
+            let keywordButtonGreen = document.getElementById("customKeywordGreen");
+            let keywordButtonYellow = document.getElementById("customKeywordYellow");
+            let keywordButtonOff = document.getElementById("customKeywordOff");
+            let highlighterButtonBlue = document.getElementById("customHighlighterBlue");
+            let highlighterButtonYellow = document.getElementById("customHighlighterYellow");
+            let highlighterButtonGreen = document.getElementById("customHighlighterGreen");
+            let shadowButtonBlue = document.getElementById("customShadowBlue");
+            let shadowButtonYellow = document.getElementById("customShadowYellow");
+            let shadowButtonGreen = document.getElementById("customShadowGreen");
+
+            keywordButtonGreen.addEventListener("click", function () {changeSetting("keyword", "Green")});
+            keywordButtonYellow.addEventListener("click", function () {changeSetting("keyword", "Yellow")});
+            keywordButtonOff.addEventListener("click", function () {changeSetting("keyword", "Off")});
+            highlighterButtonBlue.addEventListener("click", function () {changeSetting("highlighter", "Blue")});
+            highlighterButtonYellow.addEventListener("click", function () {changeSetting("highlighter", "Yellow")});
+            highlighterButtonGreen.addEventListener("click", function () {changeSetting("highlighter", "Off")});
+            shadowButtonBlue.addEventListener("click", function () {changeSetting("shadow", "Blue")});
+            shadowButtonYellow.addEventListener("click", function () {changeSetting("shadow", "Yellow")});
+            shadowButtonGreen.addEventListener("click", function () {changeSetting("shadow", "Green")});
+
+            function changeSetting(setting, choice) {
+                switch(setting) {
+                    case "keyword": 
+                        console.log("Set KEYWORD to: " + choice);
+                        settings.setKeyword(choice);
+                        window.keywordSetting = choice
+                    case "highlighter":
+                        console.log("Set HIGHLIGHTER to: " + choice);
+                        settings.setHighlighter(choice);
+                        window.highlighterSetting = choice
+                    case "shadow": 
+                        console.log("Set SHADOW to: " + choice);
+                        settings.setShadow(choice);
+                        window.shadowSetting = choice
+                }
+                // console.log("Display settings: "+Display.getSettings);
+                console.log("Keyword settings: "+window.keywordSetting)
+                console.log("Highlighter settings: "+window.highlighterSetting)
+                console.log("Shadow settings: "+window.shadowSetting)
+            }
+
+            // Set UI status to true
             this.uiStatus = true;
-        }        
+        };
     }
 
+    
 
     /*
     Defines html code for display to be inserted into web page. 
@@ -260,7 +358,7 @@ class Display {
                                 <g transform="matrix(1,0,0,1,177.305,-47.8655)">
                                     <path id="customKeywordYellow" d="M6383.21,-623.587C6383.21,-632.639 6375.86,-639.989 6366.81,-639.989L6248.59,-639.989C6239.54,-639.989 6232.19,-632.639 6232.19,-623.587L6232.19,-590.783C6232.19,-581.73 6239.54,-574.38 6248.59,-574.38L6366.81,-574.38C6375.86,-574.38 6383.21,-581.73 6383.21,-590.783L6383.21,-623.587Z" style="fill:rgb(255,255,0);fill-opacity:0.28;stroke:rgb(0,220,255);stroke-opacity:0.48;stroke-width:2.08px;"/>
                                 </g>
-                                <!-- KEYWORD: OFF -->
+                                <!-- KEYWORD: OFF TEXT -->
                                 <g transform="matrix(1,0,0,1,-4.75896,-14.7848)">
                                     <text id="customKeywordOff" x="6632.01px" y="-627.14px" style="font-family:'Montserrat-Regular', 'Montserrat';font-size:37.5px;fill:white;fill-opacity:0.57;">OFF</text>
                                 </g>
