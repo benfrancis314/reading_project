@@ -101,6 +101,13 @@ class Display {
         this.reading_speed = 800 - (20*speed) // Completely made up eq, reasonable enough for testing though
         document.getElementById("speedNumber").innerHTML = this.reading_speed;
     }
+
+    /*
+    Remove the widget UI elements from DOM.
+    */
+    turnDownUI() {
+        $("#displayContainer").remove();
+    }
 }
 
 // Expose to global.

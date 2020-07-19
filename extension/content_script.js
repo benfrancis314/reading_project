@@ -4,6 +4,7 @@
 (function(){
 var namespace = "content_script.js";
 if (window[namespace] === true) {
+	window.toggleExtensionVisibility();
 	return;
 } else {
 	window[namespace] = true;
@@ -31,6 +32,12 @@ var speed_bias = 500; // Minimum amount of speed spent on each sentence (in mill
 // If the screen is currently scrolling. If it is, pause the tracker.
 var isScrolling = false;
 var currentStyle = "markedBoxShadow"; // TEMPORARY global variable, just for style experimentation. Will get rid of later
+let readableDomIds = null;
+// If the extension is active, all listeners are active and UI widgets are active.
+// If extension is inactive, TODO:
+let isExtensionActive = false;
+
+let globalEl = null;
 
 /*
 To do:
@@ -59,12 +66,28 @@ Params:
 */
 // Handle click events for each readable item.
 function setupClickListener(tracker) {
+	// This works and is ignored. So same context on off is working
+	globalEl.on("click", function() {alert("from code cancel")});
+	globalEl.off("click");
+	globalEl.on("click", function() {alert("from code")});
 	for (let i = 0; i < tracker.readableDomIds.length; i++) {
 		let container = tracker.getContainer(i);
-		container.click(function () {
+		container.on("click", function () {
+			alert("yea thats me " + container.attr('id'));
 			tracker.pointToContainer(i);
 			highlight(tracker);
 		});
+	}
+}
+
+function removeClickListeners(tracker) {
+	// This doesn't work.
+	globalEl.off("click");
+	for (let i = 0; i < tracker.readableDomIds.length; i++) {
+		if (i < 2) {
+			alert("o removing " + tracker.getContainer(i).attr('id'));
+		}
+		tracker.getContainer(i).off("click");
 	}
 }
 
@@ -183,6 +206,15 @@ function scrollDown() {
 			}
 		);
 	}
+}
+
+/*
+Undo all actions by highlight() and highlightKeyWords().
+*/
+function unhighlightEverything() {
+	$("."+currentStyle).unmark();
+	// TODO: Refactor
+	$(".keyWord").unmark();
 }
 
 /*
@@ -314,13 +346,27 @@ function readListener() {
     
 };
 
-function init() {
+// TODO: Not working.
+function removeKeyListeners() {
+	$(document).off('keydown');
+	$(document).off('keyup');
+}
+
+// One time setup per page.
+function setup() {
+	readableDomIds = window.parseDocument();
+	doc = new Doc(readableDomIds);
+	globalEl = $("#ui-id-57");
+}
+
+/*
+Render all the UI elements.
+*/
+function initUI() {
 	// TODO: Refactor using promise logic so this is more readable.
 	// Load all the persistent settings, then render the UI.
 	settings.getSpeed(function(settingsSpeed) {
 		speed = settingsSpeed;
-		let readableDomIds = window.parseDocument();
-		doc = new Doc(readableDomIds);
 		tracker = new Tracker(readableDomIds);
 		display = new Display(readableDomIds, speed, doc.getTotalWords());
 
@@ -329,10 +375,40 @@ function init() {
 
 		startMove(direction.FORWARD); // Start reader on the first line
 		stopMove(); // Prevent from continuing to go forward
+
 	});
+
+	// Outside here doesn't work. But that makes sense cos listener hasn't been tracked yet.
+	// $("#ui-id-57").off("click");
+
 }
 
-init();
+/*
+Turn down all the UI elements.
+*/
+function turnDownUI() {
+	removeClickListeners(tracker);
+	removeKeyListeners();
+	unhighlightEverything();
+	tracker = null;
+
+	display.turnDownUI();
+	display = null;
+}
+
+setup();
+initUI();
+
+// Export just this one function for browser action events to do the toggling.
+// Note that everything inside this file is just run once per tab, whereas
+// the toggle will be done multiple times.
+window.toggleExtensionVisibility = function() {
+	if (display === null) {
+		initUI();
+	} else {
+		turnDownUI();
+	}
+}
 
 // Uncomment this if you want to see the relative y offsets of current container
 // so you can tweak the auto-scroll feature.
