@@ -6,21 +6,54 @@ if (window[namespace] === true) {
 } else {
     window[namespace] = true;
 }
- 
+
+/*
+All NLP <-> DOM preprocessing logic should reside in this file.
+There are two main core concepts, each concept having an NLP meaning, along with DOM binding.
+1. Container. Sentences are grouped into containers. The reason why we care about containers
+   is because this is the most granular DOM element, and so we need pointers to them in order
+   to do anything DOM related. 
+2. Sentence. A single sentence housed inside a container. 
+
+More general notes about these concepts:
+- Ordered ids. Each concept element has an ordered ID that goes from 0 to
+    <num sentence / num container> - 1
+- Interacting with the API.
+  - If the logic does not require any UI, you should only be communicating with IDs.
+    E.g. tracker.js should just be storing sentence ids, not any DOM pointers.
+  - If you need to do UI changes, then you can convert the ID back to DOM pointers
+    E.g. getSentencePointer(sentenceId), getContainer(containerId)
+*/
+
+/*
+Pointers to a sentence within a container.
+*/
+class SentencePointer {
+    constructor(containerId, start, end) {
+        this.containerId = containerId;
+        // Marks the sentence offset within the container. start is inclusive, end exlusive.
+        this.start = start;
+        this.end = end;
+    }
+}
+
 /*
 Class dedicated to keeping track of model of document. 
 Note: Called "Doc" because Document is already used in js. 
 */
-
 class Doc {
     constructor(readableDomEls) {
-        this.readableDomEls = readableDomEls; // $[]; List of all jquery readable containers.
-        this.containerId = null; // str; ID of current container
+        this.containers = readableDomEls; // $[]; List of all jquery readable containers.
+        // Set up these instance variables:
+        // - SentencePointer[] sentences. All the sentences in the document.
+        // - int[] containerIdToFirstSentenceId. Given a container id, what is the sentence id of the
+        //   first sentence?
+        this.detectSentenceBoundaries(this.containers);
         this.termFreq = null; // { str : int } , Frequency of terms in document. Set in calcTotalWords function
         this.total_words = this.calcTotalWords(readableDomEls); // int; Total number of words in document;
         this.keywords = this.setKeyWords(this.termFreq); // string[] keywords of document
-        this.container_sentences_map = null; // int[], Index[i] is # of sentneces in ith container, This is set by calcTotalSentences()
-        this.total_sentences = this.calcTotalSentences(readableDomEls);
+        // int[], Index[i] is # of sentences in ith container.
+        this.container_sentences_map = this.calcSentencePerContainer(this.sentences);
     };
 
     // Returns: Total words in doc (int)
@@ -38,6 +71,47 @@ class Doc {
         return this.container_sentences_map;
     }
     
+    /*
+    Find all sentence boundaries within containers.
+    Initializes [sentences, containerIdToFirstSentenceId]
+    */
+    detectSentenceBoundaries() {
+        this.sentences = [];
+        this.containerIdToFirstSentenceId = [];
+        for(let container_id = 0; container_id < this.getNumContainers(); container_id++) {
+            this.containerIdToFirstSentenceId.push(this.sentences.length);
+            let container = this.getContainer(container_id);
+            let text = container.text();
+            let len = text.length;
+
+            let start = 0;
+            let end = this.getSentenceEnd(text, start);
+            while (true) {
+                if (end - start <= 0) {
+                    break;
+                }
+                this.sentences.push(new SentencePointer(container_id, start, end));
+                start = end + 2;
+                end = this.getSentenceEnd(text, start);
+            }
+        }
+    }
+
+    /*
+    Params:
+    - text (string)
+    - start (int)
+    Return:
+    - end (int). Exclusive index to the end of the sentence within text that starts at 'start' 
+    */
+    getSentenceEnd(text, start) {
+        let end = text.indexOf(". ", start);
+        if (end < 0) {
+            end = text.length;
+        }
+        return end;
+    }
+
     /*
     Returns: Total words in document (int)
     Calculates total words in the document
@@ -68,27 +142,25 @@ class Doc {
     }
 
     /*
-    Params: Current container ID
-    Returns: # of sentences in document, starting from current container
+    Params: Sentence[]
+    Returns: int[] container_sentences_map. container_sentences_map[i] = number of sentences in container id i.
     */
-    calcTotalSentences(readableDomEls) {
+    calcSentencePerContainer(sentences) {
         let total_sentences = 0;
         let container_sentences_map = []; // For each container, add # of sentences in it
-        for (var section in readableDomEls) {
-            let text = readableDomEls[section].text();
-            let start = 0;
-            let end = 0;
-            var container_sentences = 0;
-            while (end > -1) { 
-                end = text.indexOf(". ", start); // TODO: Refactor sentence boundary with tracker.js
-                total_sentences++;
-                container_sentences++;
-                start = end+2;
-            };
-            container_sentences_map.push(container_sentences);
-        };
-        this.container_sentences_map = container_sentences_map;
-        return total_sentences;
+        for (let container_id = 0; container_id < this.getNumContainers(); container_id++) {
+            let first_sentence_id = this.containerIdToFirstSentenceId[container_id];
+            let end_sentence_id_exclusive = null;
+            if (container_id == this.getNumContainers() - 1) {
+                end_sentence_id_exclusive = this.getNumSentences();
+            } else {
+                end_sentence_id_exclusive = this.containerIdToFirstSentenceId[container_id + 1];
+            }
+
+            let num_sentences = end_sentence_id_exclusive - first_sentence_id;
+            container_sentences_map.push(num_sentences);
+        }
+        return container_sentences_map;
     };
 
     /*
@@ -107,6 +179,38 @@ class Doc {
         };
         return keywords;
     };
+
+    getNumContainers() {
+        return this.containers.length;
+    }
+
+    getNumSentences() {
+        return this.sentences.length;
+    }
+
+    /*
+    Get the jquery container corresponding to containerId.
+
+    Throws exception on invalid container id.
+    */
+    getContainer(containerId) {
+        if (containerId === null || containerId < 0 || containerId >= this.getNumContainers()) {
+            throw `Invalid ${containerId}, should be [0, ${this.getNumContainers()})`;
+        }
+        return this.containers[containerId];
+    }
+
+    /*
+    Get the SentencePointer corresponding to sentenceId.
+
+    Throws exception on invalid sentence id.
+    */
+    getSentence(sentenceId) {
+        if (sentenceId === null || sentenceId < 0 || sentenceId >= this.getNumSentences()) {
+            throw `Invalid ${sentenceId}, should be [0, ${this.getNumSentences()})`;
+        }
+        return this.sentences[sentenceId];
+    }
 };
 
 
