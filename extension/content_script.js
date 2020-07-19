@@ -60,7 +60,7 @@ Params:
 */
 // Handle click events for each readable item.
 function setupClickListener(tracker) {
-	for (let i = 0; i < tracker.readableDomIds.length; i++) {
+	for (let i = 0; i < tracker.getReadableDomEls().length; i++) {
 		let container = tracker.getContainer(i);
 		container.click(function () {
 			tracker.pointToContainer(i);
@@ -167,9 +167,7 @@ function moveDownOne() { // Sets start and end
 		return;
 	}
 	tracker.moveNext();
-	let readableDomIds = tracker.getReadableDomIds();
-	let containerId = tracker.getContainerId();
-	display.updateTimer(readableDomIds, containerId);
+	display.updateTimer(tracker.getReadableDomEls(), tracker.getContainerId());
 	highlight(tracker);
 	scrollDown();
 }
@@ -328,10 +326,10 @@ function readListener() {
 			case 'Space': // Switch to auto mode
 				if (timer) {
 					stopMove();
-					display.updateTimer(readableDomIds, tracker.getContainerId());
+					display.updateTimer(tracker.getReadableDomEls(), tracker.getContainerId());
 				} else {
 					startMove(direction.FORWARD);
-					display.updateTimer(readableDomIds, tracker.getContainerId());
+					display.updateTimer(tracker.getReadableDomEls(), tracker.getContainerId());
 				}
 			default:
                 break;
@@ -354,10 +352,10 @@ function init() {
 	// Load all the persistent settings, then render the UI.
 	settings.getSpeed(function(settingsSpeed) {
 		speed = settingsSpeed;
-		let readableDomIds = window.parseDocument();
-		doc = new Doc(readableDomIds);
-		tracker = new Tracker(readableDomIds);
-		display = new Display(readableDomIds, speed, doc.getTotalWords());
+		let readableDomEls = window.parseDocument();
+		doc = new Doc(readableDomEls);
+		tracker = new Tracker(readableDomEls);
+		display = new Display(readableDomEls, speed, doc.getTotalWords());
 
 		setupClickListener(tracker);
 		readListener();

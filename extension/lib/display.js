@@ -20,12 +20,12 @@ class Display {
     Initialize a display with total time remaining and initial speed (~200 WPM).
 
     Parameters:
-    - readableDomIds: string[]. List of dom IDs that contain readable content.
+    - readableDomEls: $[]. List of jquery dom elements that contain readable content.
     - speed: int. Value proportional to the speed of auto-read mode, before adjustment by sentence length. 
     - total_words: int. Total number of words in readable containers on web page
     */
-    constructor(readableDomIds, speed, total_words) {
-        this.readableDomIds = readableDomIds; // Used to calc initial reading time
+    constructor(readableDomEls, speed, total_words) {
+        this.readableDomEls = readableDomEls; // Used to calc initial reading time
         this.html = null;
         this.time_remaining = null;
         this.reading_speed = speed;
@@ -33,7 +33,7 @@ class Display {
         this.auto_mode = false;
 
         this.defineHtml();
-        this.createDisplay(readableDomIds);
+        this.createDisplay(readableDomEls);
         this.updateSpeed(speed);
     }
 
@@ -65,8 +65,8 @@ class Display {
     /*
     Inserts display HTML into webpage. 
     */
-    createDisplay(readableDomIds) {
-        document.getElementById(readableDomIds[0]).insertAdjacentHTML("beforebegin", this.html);
+    createDisplay(readableDomEls) {
+        readableDomEls[0].prepend(this.html);
         document.getElementById("displayContainer").style.opacity = 1; // For smoother transition
     }
 
@@ -78,13 +78,13 @@ class Display {
     /*
     Updates reading timer based on containers after current tracker. 
     */
-    updateTimer(readableDomIds, containerId) { // Call everytime you get to new paragraph
+    updateTimer(readableDomEls, containerId) { // Call everytime you get to new paragraph
         // TODO: Should also update timer if a user is using the autoread mode. 
         let total_words = 0;
         let currentSpeed = this.reading_speed;
-        let remainingContainers = readableDomIds.slice(containerId); // Need to store as own new list, so for loop indexes through this, not old list
+        let remainingContainers = readableDomEls.slice(containerId); // Need to store as own new list, so for loop indexes through this, not old list
         for (var section in remainingContainers) {    // Calc total words
-            let text = $("#" + remainingContainers[section]).text();
+            let text = remainingContainers[section].text();
             // Regex that will not include numbers: /\b[^\d\W]+\b/g
             let wordRegex = /\b\w+\b/g; // Checks for words
             let wordList = text.match(wordRegex);
