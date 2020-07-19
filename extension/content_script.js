@@ -29,9 +29,6 @@ var speed_bias = 500; // Minimum amount of speed spent on each sentence (in mill
 var isScrolling = false;
 // Is it in auto-read mode?
 var currentStyle = "markedBoxShadow"; // TEMPORARY global variable, just for style experimentation. Will get rid of later
-// If the extension is active, all listeners are active and UI widgets are active.
-// If extension is inactive, TODO:
-let isExtensionActive = false;
 
 // Classname for keyword highlights.
 let keywordStyle = "keyWord";
@@ -89,7 +86,7 @@ See startMove()
 function stopMove() {
 	if (timer) {
 		// Stop fading animation.
-		$("mark").stop();
+		stopFadeTracker();
 		clearInterval(timer);
 		timer = null;
 	}	
@@ -230,7 +227,7 @@ function scrollDown() {
 Undo all actions by highlight() and highlightKeyWords().
 */
 function unhighlightEverything() {
-	$("."+currentStyle).unmark();
+	$("." + currentStyle).unmark();
 	$("." + keywordStyle).unmark();
 }
 
@@ -296,6 +293,11 @@ function fadeTracker() {
 	fadeElement($("." + keywordStyle));
 }
 
+function stopFadeTracker() {
+	$("mark").stop();
+	$("." + keywordStyle).stop();
+}
+
 function fadeElement(el) {
 	// Some async issue. If marker already gets deleted but not initialized.
 	if (!el) {
@@ -318,7 +320,6 @@ function adjustSpeed(speedDelta) {
 
 function readListener() {
 	jdoc.on("keydown", function(evt) {
-		alert("keydown called!");
 		if (!document.hasFocus()) {
 		  return true;
 		}
@@ -364,6 +365,7 @@ function readListener() {
 				stopMove();
 				break;
 		}
+		return true;
     });
 };
 
