@@ -59,5 +59,10 @@ chrome.browserAction.onClicked.addListener(function (tab) {
             "lib/doc.js",
             "content_script.js"
         )
-        .then(s => s.injectCss("content.css"));
+        .then(s => s.injectCss("content.css"))
+        .then(s => {    
+            chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+              chrome.tabs.sendMessage(tabs[0].id, {command: "toggleUI"}, function(response) {});
+            });
+        });
 });

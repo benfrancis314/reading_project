@@ -4,7 +4,6 @@
 (function(){
 var namespace = "content_script.js";
 if (window[namespace] === true) {
-	window.toggleExtensionVisibility();
 	return;
 } else {
 	window[namespace] = true;
@@ -21,23 +20,25 @@ var doc = null;
 // 1. null means tracker is static.
 // 2. Non-null means there is a scheduled timer that keeps moving the tracker around.
 var timer = null;
+// This will be read once from persistent settings during initialization. 
+let speed = null; // WPM, Base speed, not accounting for sentence length; adjustable w/ D/S
 // Persistent settings.
 let settings = window.settings;
-// How long to stay on each character, in ms.
-// Because of this definition, unintuitively, the smaller speed value,
-// the faster the actual reading speed is.
-// This will be read once from persistent settings during initialization. 
-let speed = null;
 var speed_bias = 500; // Minimum amount of speed spent on each sentence (in milliseconds)
 // If the screen is currently scrolling. If it is, pause the tracker.
 var isScrolling = false;
+// Is it in auto-read mode?
 var currentStyle = "markedBoxShadow"; // TEMPORARY global variable, just for style experimentation. Will get rid of later
-let readableDomIds = null;
 // If the extension is active, all listeners are active and UI widgets are active.
 // If extension is inactive, TODO:
 let isExtensionActive = false;
 
-let globalEl = null;
+// Classname for keyword highlights.
+let keywordStyle = "keyWord";
+// Need the same $ invocation for on and off of event handlers to work
+// for async.
+// Not sure why, but found this through experimentation.
+let jdoc = $(document);
 
 /*
 To do:
@@ -66,14 +67,9 @@ Params:
 */
 // Handle click events for each readable item.
 function setupClickListener(tracker) {
-	// This works and is ignored. So same context on off is working
-	globalEl.on("click", function() {alert("from code cancel")});
-	globalEl.off("click");
-	globalEl.on("click", function() {alert("from code")});
-	for (let i = 0; i < tracker.readableDomIds.length; i++) {
+	for (let i = 0; i < tracker.getReadableDomEls().length; i++) {
 		let container = tracker.getContainer(i);
 		container.on("click", function () {
-			alert("yea thats me " + container.attr('id'));
 			tracker.pointToContainer(i);
 			highlight(tracker);
 		});
@@ -81,12 +77,7 @@ function setupClickListener(tracker) {
 }
 
 function removeClickListeners(tracker) {
-	// This doesn't work.
-	globalEl.off("click");
-	for (let i = 0; i < tracker.readableDomIds.length; i++) {
-		if (i < 2) {
-			alert("o removing " + tracker.getContainer(i).attr('id'));
-		}
+	for (let i = 0; i < tracker.getReadableDomEls().length; i++) {
 		tracker.getContainer(i).off("click");
 	}
 }
@@ -102,6 +93,7 @@ function stopMove() {
 		clearInterval(timer);
 		timer = null;
 	}	
+	display.updateAutoMode(false);
 }
 
 /*
@@ -114,6 +106,8 @@ If we are in a moving state and startMove is called, nothing happens.
 Parameters:
 - dir. See direction enum.
 */
+
+// TODO: Maybe refactor so it doesn't when turn on automode?
 function startMove(dir) { // Note: I have combined the "moveUp" and "moveDown" functions here
 	if (timer) {
 		return;
@@ -135,11 +129,37 @@ function startMove(dir) { // Note: I have combined the "moveUp" and "moveDown" f
 		// Immediately fade current tracker.
 		fadeTracker();
 	})();
+	display.updateAutoMode(true);
 }
 
 // Calculate lingering time for current tracker in ms.
+// TODO: Why does this get called twice?
 function calculateTrackerLife() {
-	return (speed * tracker.getTrackerLen()) + speed_bias;
+	/* Methodology of calculating tracker life: 
+		Each sentence has a minimum amount of time to stay on; i.e., a bias. 
+		The user specifies the WPM they want, and this calculates a time remaining. 
+		This function then distributes the remaining time to each sentence according
+		to ratio of the sentence_words:total_words. 
+	*/
+	const speed_bias_ms = 500; // Half of a second; is this too long?
+	let containerId = tracker.getContainerId();
+	// This is an array that has the number of sentences in each container. The 1st container has the 1st element in this array, and so on.  
+	let container_sentences_map = doc.getContainerSentencesMap().slice(containerId); // Don't include containers before current container
+	let sentences_remaining = 0; // This will be sentences remaining on page
+	// Sum up sentences in array
+	for (var i = 0; i < container_sentences_map.length; i++) {
+		sentences_remaining += container_sentences_map[i]; 
+	}
+	let sentence_words = tracker.getTrackerLen() // Words in current sentence
+	// TODO: This should be total_words_REMAINING
+	let total_words = doc.getTotalWords(); // Total words on page
+	let base_time_s = sentences_remaining * speed_bias_ms/1000; // Time from just speed_bias on each sentence. In seconds
+	let desired_time_s = display.getTimeRemaining() * 60; // Time we need to finish in
+	let distributable_time = desired_time_s - base_time_s; // Time left to distribute to sentences
+	let word_ratio = sentence_words/total_words;
+	let linger_time_ms = distributable_time*(word_ratio)*1000 + speed_bias_ms; // convert from s to ms
+	return (linger_time_ms); 
+	// TODO: Use Moment.js
 }
 
 // Move one sentence up
@@ -160,9 +180,7 @@ function moveDownOne() { // Sets start and end
 		return;
 	}
 	tracker.moveNext();
-	let readableDomIds = tracker.getReadableDomIds();
-	let containerId = tracker.getContainerId();
-	display.updateTimer(readableDomIds, containerId);
+	display.updateTimer(tracker.getReadableDomEls(), tracker.getContainerId());
 	highlight(tracker);
 	scrollDown();
 }
@@ -213,8 +231,7 @@ Undo all actions by highlight() and highlightKeyWords().
 */
 function unhighlightEverything() {
 	$("."+currentStyle).unmark();
-	// TODO: Refactor
-	$(".keyWord").unmark();
+	$("." + keywordStyle).unmark();
 }
 
 /*
@@ -246,7 +263,6 @@ function highlight(tracker) {
     */
 function highlightKeyWords(container, start, end) {
 	// TODO: Mark.js is actually built to do this; migrate functionality to mark.js
-	let keywordStyle = "keyWord";
 	$("."+keywordStyle).unmark(); // Remove previous sentence keyword styling
 	$("."+keywordStyle).removeClass(keywordStyle);
 	// Get list of words in interval
@@ -276,15 +292,19 @@ function highlightKeyWords(container, start, end) {
 Fade the current tracker indicator according to the calculated speed.
 */
 function fadeTracker() {
-	let markEl = $("mark");
+	fadeElement($("mark"));
+	fadeElement($("." + keywordStyle));
+}
+
+function fadeElement(el) {
 	// Some async issue. If marker already gets deleted but not initialized.
-	if (!markEl) {
+	if (!el) {
 		return;
 	}
-	let rgb = jQuery.Color(markEl.css('backgroundColor'));
+	let rgb = jQuery.Color(el.css('backgroundColor'));
 	// Set alpha to 0, and animate towards this, to simulate bg fade of same color.
 	let newRgba = `rgba(${rgb.red()}, ${rgb.green()}, ${rgb.blue()}, 0)`
-	markEl.animate({ 'background-color': newRgba }, calculateTrackerLife());
+	el.animate({ 'background-color': newRgba }, calculateTrackerLife());
 }
 
 /*
@@ -297,8 +317,8 @@ function adjustSpeed(speedDelta) {
 }
 
 function readListener() {
-
-	document.addEventListener('keydown', function(evt) {
+	jdoc.on("keydown", function(evt) {
+		alert("keydown called!");
 		if (!document.hasFocus()) {
 		  return true;
 		}
@@ -316,10 +336,10 @@ function readListener() {
                 startMove(direction.FORWARD);
 				break;
 			case 'KeyD':	// Increase velocity
-				adjustSpeed(-2);
+				adjustSpeed(40);
 				break;
 			case 'KeyS':	// Slow velocity
-				adjustSpeed(+2);
+				adjustSpeed(-40);
 				break;
 			// case 'KeyU':	// Update display -> FOR TESTING
 			// 	display.updateDisplay();
@@ -327,60 +347,70 @@ function readListener() {
 			case 'Space': // Switch to auto mode
 				if (timer) {
 					stopMove();
+					display.updateTimer(tracker.getReadableDomEls(), tracker.getContainerId());
 				} else {
 					startMove(direction.FORWARD);
+					display.updateTimer(tracker.getReadableDomEls(), tracker.getContainerId());
 				}
 			default:
                 break;
 		}
 		return true;
-	}, false);
-	document.addEventListener('keyup', function(evt) {
+	});
+	jdoc.on("keyup", function(evt) {
 		switch (evt.code) {
 			case 'ArrowLeft':
 			case 'ArrowRight':
 				stopMove();
 				break;
 		}
-    }, false);
-    
+    });
 };
 
-// TODO: Not working.
 function removeKeyListeners() {
-	$(document).off('keydown');
-	$(document).off('keyup');
+	jdoc.off('keydown');
+	jdoc.off('keyup');
 }
 
 // One time setup per page.
 function setup() {
-	readableDomIds = window.parseDocument();
-	doc = new Doc(readableDomIds);
-	globalEl = $("#ui-id-57");
+	let readableDomEls = window.parseDocument();
+	doc = new Doc(readableDomEls);
+	tracker = new Tracker(readableDomEls);
+
+	// TODO: Refactor using promise logic so this is more readable.
+	// Load all the persistent settings, then render the UI.
+	settings.getSpeed(function(settingsSpeed) {
+		speed = settingsSpeed;
+		// Listen for background pings for toggling.
+		// Have to run the toggle() method within the context of the same
+		// content script execution, or else the isolated world policy
+		// will disallow you from accessing old js codes, including
+		// old event handlers.
+		// See https://stackoverflow.com/a/8916706/4143394
+		// TODO: This still doesn't work :(
+		// Why do I lose access to the dom els event handlers?
+		chrome.runtime.onMessage.addListener(
+			function(request, sender, sendResponse) {
+			    if (request.command === "toggleUI") {
+			    	toggleExtensionVisibility();
+			    }
+			}
+		);
+	});
 }
 
 /*
 Render all the UI elements.
 */
 function initUI() {
-	// TODO: Refactor using promise logic so this is more readable.
-	// Load all the persistent settings, then render the UI.
-	settings.getSpeed(function(settingsSpeed) {
-		speed = settingsSpeed;
-		tracker = new Tracker(readableDomIds);
-		display = new Display(readableDomIds, speed, doc.getTotalWords());
+	display = new Display(tracker.readableDomEls, speed, doc.getTotalWords());
 
-		setupClickListener(tracker);
-		readListener();
+	setupClickListener(tracker);
+	readListener();
 
-		startMove(direction.FORWARD); // Start reader on the first line
-		stopMove(); // Prevent from continuing to go forward
-
-	});
-
-	// Outside here doesn't work. But that makes sense cos listener hasn't been tracked yet.
-	// $("#ui-id-57").off("click");
-
+	startMove(direction.FORWARD); // Start reader on the first line
+	stopMove(); // Prevent from continuing to go forward
 }
 
 /*
@@ -390,25 +420,21 @@ function turnDownUI() {
 	removeClickListeners(tracker);
 	removeKeyListeners();
 	unhighlightEverything();
-	tracker = null;
+	tracker.reset();
 
 	display.turnDownUI();
 	display = null;
 }
 
-setup();
-initUI();
-
-// Export just this one function for browser action events to do the toggling.
-// Note that everything inside this file is just run once per tab, whereas
-// the toggle will be done multiple times.
-window.toggleExtensionVisibility = function() {
+function toggleExtensionVisibility() {
 	if (display === null) {
 		initUI();
 	} else {
 		turnDownUI();
 	}
 }
+
+setup();
 
 // Uncomment this if you want to see the relative y offsets of current container
 // so you can tweak the auto-scroll feature.

@@ -7,7 +7,7 @@ if (window[namespace] === true) {
     window[namespace] = true;
 }
 
-const avg_read_speed = 200; // WPM
+const avg_read_speed = 260; // WPM
 const avg_letters_per_word = 6; // 4.79; just from Quora, add a space after each word
 
 /*
@@ -20,19 +20,26 @@ class Display {
     Initialize a display with total time remaining and initial speed (~200 WPM).
 
     Parameters:
-    - readableDomIds: string[]. List of dom IDs that contain readable content.
+    - readableDomEls: $[]. List of jquery dom elements that contain readable content.
     - speed: int. Value proportional to the speed of auto-read mode, before adjustment by sentence length. 
     - total_words: int. Total number of words in readable containers on web page
     */
-    constructor(readableDomIds, speed, total_words) {
-        this.readableDomIds = readableDomIds; // Used to calc initial reading time
+    constructor(readableDomEls, speed, total_words) {
+        this.readableDomEls = readableDomEls; // Used to calc initial reading time
         this.html = null;
-        this.time_remaining = this.initTimer(total_words);
+        this.time_remaining = null;
+        this.reading_speed = speed;
         this.end = null; 
+        this.auto_mode = false;
 
         this.defineHtml();
-        this.createDisplay(readableDomIds);
+        this.createDisplay(readableDomEls);
         this.updateSpeed(speed);
+    }
+
+    // Returns time remaining
+    getTimeRemaining() {
+        return this.time_remaining;
     }
 
     /*
@@ -58,37 +65,33 @@ class Display {
     /*
     Inserts display HTML into webpage. 
     */
-    createDisplay(readableDomIds) {
-        document.getElementById(readableDomIds[0]).insertAdjacentHTML("beforebegin", this.html);
+    createDisplay(readableDomEls) {
+        readableDomEls[0].prepend(this.html);
         document.getElementById("displayContainer").style.opacity = 1; // For smoother transition
     }
 
-    /* 
-    Params: 
-    - List of container IDs on web page (string[])
-    Return: 
-    The total time remaining to read document, based on avg letters/word and lowball estimate of WPM (int)
-    */
-    initTimer(total_words) {
-        let time_remaining = total_words/avg_read_speed; // in minutes
-        return Math.ceil(time_remaining);
-    };
+    // Is user in auto mode? (bool)
+    updateAutoMode(bool) {
+        this.auto_mode = bool;
+    }
     
     /*
     Updates reading timer based on containers after current tracker. 
     */
-    updateTimer(readableDomIds, containerId) { // Call everytime you get to new paragraph
+    updateTimer(readableDomEls, containerId) { // Call everytime you get to new paragraph
         // TODO: Should also update timer if a user is using the autoread mode. 
         let total_words = 0;
-        let remainingContainers = readableDomIds.slice(containerId); // Need to store as own new list, so for loop indexes through this, not old list
+        let currentSpeed = this.reading_speed;
+        let remainingContainers = readableDomEls.slice(containerId); // Need to store as own new list, so for loop indexes through this, not old list
         for (var section in remainingContainers) {    // Calc total words
-            let text = $("#" + remainingContainers[section]).text();
+            let text = remainingContainers[section].text();
             // Regex that will not include numbers: /\b[^\d\W]+\b/g
-            let wordRegex = /\b\w+\b/g; // Checks for words that don't include numbers or non-letters
+            let wordRegex = /\b\w+\b/g; // Checks for words
             let wordList = text.match(wordRegex);
             if (wordList) { total_words += wordList.length; }
-        }
-        let time_remaining = total_words/avg_read_speed; // in minutes
+        };
+        // if (this.auto_mode) { currentSpeed = this.reading_speed } else { currentSpeed = avg_read_speed };
+        let time_remaining = total_words/currentSpeed; // in minutes
         this.time_remaining = Math.ceil(time_remaining);
         document.getElementById("timerNumber").innerHTML = this.time_remaining;
     }
@@ -97,8 +100,8 @@ class Display {
     Update display speed after speed is changed by user
     */
     updateSpeed(speed) {
-        // TODO: Create real equation for updated reading speed
-        this.reading_speed = 800 - (20*speed) // Completely made up eq, reasonable enough for testing though
+        // TODO: There should be an upper limit to this; because we have a speed bias, it cannot get infinitely fast. 
+        this.reading_speed = speed // Completely made up eq, reasonable enough for testing though
         document.getElementById("speedNumber").innerHTML = this.reading_speed;
     }
 

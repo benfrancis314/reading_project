@@ -17,7 +17,7 @@ How:
 - Run Readability to filter for the good elements.
 - Return back the leftover unique ids.
 Returns:
-- readableDomIds - Dom IDs of readable content to initialize the tracker with.
+- readableDomEls - jquery dom elements of readable content to initialize the tracker with.
 */
 function parseDocument() {
 	// Get all direct + indirect descendants of body that are visible.
@@ -28,7 +28,7 @@ function parseDocument() {
 		$(this).uniqueId();
 	});
 
-	let readableDomIds = [];
+	let readableDomEls = [];
 	// Pass clone of document because readability mutates the document.
 	let docClone = document.cloneNode(/* deep= */true);
 	trimDocBasedOnSite(docClone);
@@ -44,15 +44,15 @@ function parseDocument() {
 		// a good thing to skip these. 
 		let el = $(`#${id}`);
 		if (id !== undefined && el.is(":visible") && el.text().length > 0) {
-			readableDomIds.push(id);
+			readableDomEls.push(el);
 		}
 	});
-	return readableDomIds;
+	return readableDomEls;
 	// Uncomment this if you want to see the readable partitions.
 	/*
 		let colors = ['yellow', 'blue'];
-		for (let i = 0; i < readableDomIds.length; i++) {
-			let el = $("#" + readableDomIds[i]);
+		for (let i = 0; i < readableDomEls.length; i++) {
+			let el = readableDomEls[i];
 			console.log((i + 1) + ". " + el.html());
 			el.css({ "background-color": colors[i % colors.length], "opacity": ".20" });
 		}
