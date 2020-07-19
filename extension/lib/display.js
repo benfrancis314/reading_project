@@ -66,7 +66,7 @@ class Display {
     Inserts display HTML into webpage. 
     */
     createDisplay(readableDomEls) {
-        readableDomEls[0].prepend(this.html);
+        $(this.html).insertBefore(readableDomEls[0]);
         document.getElementById("displayContainer").style.opacity = 1; // For smoother transition
     }
 
