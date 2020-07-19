@@ -60,14 +60,12 @@ const direction = {
 }
 /*
 Handle click events for each readable item.
-Params:
-- tracker. The tracker to be updated when an item is clicked.
 */
-function setupClickListeners(tracker) {
-	for (let i = 0; i < tracker.getReadableDomEls().length; i++) {
-		let container = tracker.getContainer(i);
+function setupClickListeners() {
+	for (let containerId = 0; containerId < doc.getNumContainers(); containerId++) {
+		let container = doc.getContainer(containerId);
 		container.on("click", function () {
-			tracker.pointToContainer(i);
+			tracker.pointToContainer(containerId);
 			highlight(tracker);
 		});
 	}
@@ -76,9 +74,9 @@ function setupClickListeners(tracker) {
 /*
 Undo setupClickListeners()
 */
-function removeClickListeners(tracker) {
-	for (let i = 0; i < tracker.getReadableDomEls().length; i++) {
-		tracker.getContainer(i).off("click");
+function removeClickListeners() {
+	for (let containerId = 0; containerId < doc.getNumContainers(); containerId++) {
+		doc.getContainer(containerId).off("click");
 	}
 }
 
@@ -146,7 +144,11 @@ function calculateTrackerLife() {
 		to ratio of the sentence_words:total_words. 
 	*/
 	const speed_bias_ms = 500; // Half of a second; is this too long?
-	let containerId = tracker.getContainerId();
+
+	let sentenceId = tracker.getSentenceId();
+	let sentencePtr = doc.getSentence(sentenceId);
+
+	let containerId = sentencePtr.containerId;
 	// This is an array that has the number of sentences in each container. The 1st container has the 1st element in this array, and so on.  
 	let container_sentences_map = doc.getContainerSentencesMap().slice(containerId); // Don't include containers before current container
 	let sentences_remaining = 0; // This will be sentences remaining on page
@@ -154,7 +156,7 @@ function calculateTrackerLife() {
 	for (var i = 0; i < container_sentences_map.length; i++) {
 		sentences_remaining += container_sentences_map[i]; 
 	}
-	let sentence_words = tracker.getTrackerLen() // Words in current sentence
+	let sentence_words = doc.getNumWordsInSentence(sentenceId); // Words in current sentence
 	// TODO: This should be total_words_REMAINING
 	let total_words = doc.getTotalWords(); // Total words on page
 	let base_time_s = sentences_remaining * speed_bias_ms/1000; // Time from just speed_bias on each sentence. In seconds
@@ -199,7 +201,10 @@ function moveDownOne() { // Sets start and end
 	if (!hasMoved) {
 		return false;
 	}
-	display.updateTimer(tracker.getReadableDomEls(), tracker.getContainerId());
+
+	let sentenceId = tracker.getSentenceId();
+	let sentencePtr = doc.getSentence(sentenceId);
+	display.updateTimer(doc.getContainers(), sentencePtr.containerId);
 	highlight(tracker);
 	scrollDown();
 	return true;
@@ -272,9 +277,11 @@ function highlight(tracker) {
 	// The interval indices are w.r.t to the raw text.
 	// mark.js is smart enough to preserve the original html, and even provide
 	// multiple consecutive spans to cover embedded htmls
-	let container = tracker.getCurrentContainer();
-	let start = tracker.getStart();
-	let end = tracker.getEnd();
+	let sentenceId = tracker.getSentenceId();
+	let sentencePtr = doc.getSentence(sentenceId);
+	let container = doc.getContainer(sentencePtr.containerId);
+	let start = sentencePtr.start;
+	let end = sentencePtr.end;
 	container.markRanges([{
     	start: start,
     	length: end - start
@@ -380,12 +387,13 @@ function setupKeyListeners() {
 			// 	display.updateDisplay();
 			// 	break;
 			case 'Space': // Switch to auto mode
+				let sentencePtr = doc.getSentence(tracker.getSentenceId());
 				if (timer) {
 					stopMove();
-					display.updateTimer(tracker.getReadableDomEls(), tracker.getContainerId());
+					display.updateTimer(doc.getContainers(), sentencePtr.containerId);
 				} else {
 					startMove(direction.FORWARD);
-					display.updateTimer(tracker.getReadableDomEls(), tracker.getContainerId());
+					display.updateTimer(doc.getContainers(), sentencePtr.containerId);
 				}
 			default:
                 break;
@@ -429,7 +437,7 @@ In the INACTIVE state, the widgets are not visible, and no event handlers are at
 function oneTimeSetup() {
 	let readableDomEls = window.parseDocument();
 	doc = new Doc(readableDomEls);
-	tracker = new Tracker(readableDomEls);
+	tracker = new Tracker(doc);
 
 	// TODO: Refactor using promise logic so this is more readable.
 	// Load all the persistent settings, then render the UI.
@@ -450,12 +458,12 @@ function oneTimeSetup() {
 Render all the UI elements.
 */
 function setupUI() {
-	display = new Display(tracker.readableDomEls, speed, doc.getTotalWords());
+	display = new Display(doc.getContainers(), speed, doc.getTotalWords());
 
 	startMove(direction.FORWARD); // Start reader on the first line
 	stopMove(); // Prevent from continuing to go forward
 
-	setupClickListeners(tracker);
+	setupClickListeners();
 	setupKeyListeners();
 }
 
@@ -465,7 +473,7 @@ Undo setupUI()
 */
 function removeUI() {
 	removeKeyListeners();
-	removeClickListeners(tracker);
+	removeClickListeners();
 	stopMove();
 	unhighlightEverything();
 	tracker.reset();

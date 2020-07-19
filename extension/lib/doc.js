@@ -54,6 +54,8 @@ class Doc {
         this.keywords = this.setKeyWords(this.termFreq); // string[] keywords of document
         // int[], Index[i] is # of sentences in ith container.
         this.container_sentences_map = this.calcSentencePerContainer(this.sentences);
+        // int[], Index[i] is # of words in the ith sentence.
+        this.num_words_per_sentence = this.calcNumWordsPerSentence(this.sentences);
     };
 
     // Returns: Total words in doc (int)
@@ -71,6 +73,13 @@ class Doc {
         return this.container_sentences_map;
     }
     
+    // TODO: REmove this once you have refactored all the other classes.
+    // Clients should not have direct access to the containers, but use other getter functions.
+    // Return $[]; List of all jquery readable containers.
+    getContainers() {
+        return this.containers;
+    }
+
     /*
     Find all sentence boundaries within containers.
     Initializes [sentences, containerIdToFirstSentenceId]
@@ -95,6 +104,17 @@ class Doc {
                 end = this.getSentenceEnd(text, start);
             }
         }
+    }
+
+    /*
+    Get the sentence id of the first sentence in container.
+    */
+    getFirstSentenceIdInContainer(containerId) {
+        return this.containerIdToFirstSentenceId[containerId];
+    }
+
+    getNumWordsInSentence(sentenceId) {
+        return this.num_words_per_sentence[sentenceId];
     }
 
     /*
@@ -139,6 +159,27 @@ class Doc {
         }
         this.termFreq = termFreq; // Set class attribute "termFreq"
         return total_words // Set total words for use elsewhere (like Display)
+    }
+
+    /*
+    Params: Sentence[]
+    Returns: int[], Index[i] is # of words in the ith sentence.
+    */
+    calcNumWordsPerSentence(sentences) {
+        let num_words_per_sentence = [];
+        for (let sentence_id = 0; sentence_id < this.getNumSentences(); sentence_id++) {
+            let sentencePtr = sentences[sentence_id];
+            let container = this.getContainer(sentencePtr.containerId);
+            let text = container.text().slice(sentencePtr.start, sentencePtr.end);
+            let wordRegex = /\b\w+\b/g; // Checks for words
+            let wordList = text.match(wordRegex);
+            let num_words = 0;
+            if (wordList) {
+                num_words = wordList.length;
+            }
+            num_words_per_sentence.push(num_words);
+        }
+        return num_words_per_sentence;
     }
 
     /*
