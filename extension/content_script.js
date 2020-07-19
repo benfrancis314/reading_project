@@ -76,7 +76,7 @@ See startMove()
 function stopMove() {
 	if (timer) {
 		// Stop fading animation.
-		$("mark").stop();
+		stopFadeTracker();
 		clearInterval(timer);
 		timer = null;
 	}	
@@ -274,6 +274,15 @@ function fadeTracker() {
 	fadeElement($("mark"));
 	fadeElement($("." + keywordStyle));
 }
+
+/*
+Stop all animations related to fading.
+*/
+function stopFadeTracker() {
+	$("mark").stop();
+	$("." + keywordStyle).stop();
+}
+
 
 function fadeElement(el) {
 	// Some async issue. If marker already gets deleted but not initialized.
