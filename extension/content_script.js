@@ -20,16 +20,14 @@ var doc = null;
 // 1. null means tracker is static.
 // 2. Non-null means there is a scheduled timer that keeps moving the tracker around.
 var timer = null;
+// This will be read once from persistent settings during initialization. 
+let speed = null; // WPM, Base speed, not accounting for sentence length; adjustable w/ D/S
 // Persistent settings.
 let settings = window.settings;
-// How long to stay on each character, in ms.
-// Because of this definition, unintuitively, the smaller speed value,
-// the faster the actual reading speed is.
-// This will be read once from persistent settings during initialization. 
-let speed = null;
 var speed_bias = 500; // Minimum amount of speed spent on each sentence (in milliseconds)
 // If the screen is currently scrolling. If it is, pause the tracker.
 var isScrolling = false;
+// Is it in auto-read mode?
 var currentStyle = "markedBoxShadow"; // TEMPORARY global variable, just for style experimentation. Will get rid of later
 
 /*
@@ -79,6 +77,7 @@ function stopMove() {
 		clearInterval(timer);
 		timer = null;
 	}	
+	display.updateAutoMode(false);
 }
 
 /*
@@ -91,6 +90,8 @@ If we are in a moving state and startMove is called, nothing happens.
 Parameters:
 - dir. See direction enum.
 */
+
+// TODO: Maybe refactor so it doesn't when turn on automode?
 function startMove(dir) { // Note: I have combined the "moveUp" and "moveDown" functions here
 	if (timer) {
 		return;
@@ -112,11 +113,37 @@ function startMove(dir) { // Note: I have combined the "moveUp" and "moveDown" f
 		// Immediately fade current tracker.
 		fadeTracker();
 	})();
+	display.updateAutoMode(true);
 }
 
 // Calculate lingering time for current tracker in ms.
+// TODO: Why does this get called twice?
 function calculateTrackerLife() {
-	return (speed * tracker.getTrackerLen()) + speed_bias;
+	/* Methodology of calculating tracker life: 
+		Each sentence has a minimum amount of time to stay on; i.e., a bias. 
+		The user specifies the WPM they want, and this calculates a time remaining. 
+		This function then distributes the remaining time to each sentence according
+		to ratio of the sentence_words:total_words. 
+	*/
+	const speed_bias_ms = 500; // Half of a second; is this too long?
+	let containerId = tracker.getContainerId();
+	// This is an array that has the number of sentences in each container. The 1st container has the 1st element in this array, and so on.  
+	let container_sentences_map = doc.getContainerSentencesMap().slice(containerId); // Don't include containers before current container
+	let sentences_remaining = 0; // This will be sentences remaining on page
+	// Sum up sentences in array
+	for (var i = 0; i < container_sentences_map.length; i++) {
+		sentences_remaining += container_sentences_map[i]; 
+	}
+	let sentence_words = tracker.getTrackerLen() // Words in current sentence
+	// TODO: This should be total_words_REMAINING
+	let total_words = doc.getTotalWords(); // Total words on page
+	let base_time_s = sentences_remaining * speed_bias_ms/1000; // Time from just speed_bias on each sentence. In seconds
+	let desired_time_s = display.getTimeRemaining() * 60; // Time we need to finish in
+	let distributable_time = desired_time_s - base_time_s; // Time left to distribute to sentences
+	let word_ratio = sentence_words/total_words;
+	let linger_time_ms = distributable_time*(word_ratio)*1000 + speed_bias_ms; // convert from s to ms
+	return (linger_time_ms); 
+	// TODO: Use Moment.js
 }
 
 // Move one sentence up
@@ -284,10 +311,10 @@ function readListener() {
                 startMove(direction.FORWARD);
 				break;
 			case 'KeyD':	// Increase velocity
-				adjustSpeed(-2);
+				adjustSpeed(40);
 				break;
 			case 'KeyS':	// Slow velocity
-				adjustSpeed(+2);
+				adjustSpeed(-40);
 				break;
 			// case 'KeyU':	// Update display -> FOR TESTING
 			// 	display.updateDisplay();
@@ -295,8 +322,10 @@ function readListener() {
 			case 'Space': // Switch to auto mode
 				if (timer) {
 					stopMove();
+					display.updateTimer(readableDomIds, tracker.getContainerId());
 				} else {
 					startMove(direction.FORWARD);
+					display.updateTimer(readableDomIds, tracker.getContainerId());
 				}
 			default:
                 break;

@@ -61,7 +61,7 @@ class Settings {
 				return;
 			}
 			// Default speed.
-			let speed = 20;
+			let speed = 260;
 			if (key in settingsDict) {
 				speed = settingsDict[key];
 			} 

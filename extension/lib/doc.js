@@ -19,6 +19,8 @@ class Doc {
         this.termFreq = null; // { str : int } , Frequency of terms in document. Set in calcTotalWords function
         this.total_words = this.calcTotalWords(readableDomIds); // int; Total number of words in document;
         this.keywords = this.setKeyWords(this.termFreq); // string[] keywords of document
+        this.container_sentences_map = null; // int[], Index[i] is # of sentneces in ith container, This is set by calcTotalSentences()
+        this.total_sentences = this.calcTotalSentences(readableDomIds);
     };
 
     // Returns: Total words in doc (int)
@@ -38,6 +40,11 @@ class Doc {
             throw `Invalid ${containerId}, should be [0, ${this.readableDomIds.length})`;
         }
         return $("#" + this.readableDomIds[containerId]);
+    }
+
+    // Returns: Container-sentences map; tells how many sentences are in each container
+    getContainerSentencesMap() {
+        return this.container_sentences_map;
     }
     
     /*
@@ -70,6 +77,30 @@ class Doc {
     }
 
     /*
+    Params: Current container ID
+    Returns: # of sentences in document, starting from current container
+    */
+    calcTotalSentences(readableDomIds) {
+        let total_sentences = 0;
+        let container_sentences_map = []; // For each container, add # of sentences in it
+        for (var section in readableDomIds) {
+            let text = this.getContainer(section).text();
+            let start = 0;
+            let end = 0;
+            var container_sentences = 0;
+            while (end > -1) { 
+                end = text.indexOf(". ", start); // TODO: Refactor sentence boundary with tracker.js
+                total_sentences++;
+                container_sentences++;
+                start = end+2;
+            };
+            container_sentences_map.push(container_sentences);
+        };
+        this.container_sentences_map = container_sentences_map;
+        return total_sentences;
+    };
+
+    /*
     Returns: string[], given 
     Determines the keywords of the document (using simple term frequency filter)
     */
@@ -79,7 +110,6 @@ class Doc {
         let keywordFilter = 0.005; // Any word below this frequency is a keyword
         for (var word in termFreq) {
             termFreq[word] /= this.total_words; // Divide frequency by total words
-            // console.log(termFreq[word]);
             if (termFreq[word] < keywordFilter) {
                 keywords.add(word.toLowerCase());
             };

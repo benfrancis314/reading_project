@@ -93,13 +93,18 @@ class Tracker {
 
     /*
     Returns:
-    If isTracking, the number of characters in the tracked portion. Otherwise, 0.
+    If isTracking, the number of WORDS in the tracked portion. Otherwise, 0.
     */
     getTrackerLen() {
         if (!this.isTracking()) {
             return 0;
         }
-        return this.end - this.start;
+        let text = this.container.text().slice(this.start, this.end);
+        let wordRegex = /\b\w+\b/g; // Checks for words
+        let wordList = text.match(wordRegex);
+        if (!wordList) { return 0; };
+        let total_words = wordList.length;
+        return total_words;
     }
     
     /*
