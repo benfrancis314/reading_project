@@ -81,6 +81,49 @@ mark {
 	font-weight: 400;
 	border-radius: 5px 5px 25% 25%;
 }
+#optionButton {
+	position: fixed; 
+	top: 2%;
+	left: 61%;
+	width: 25px;
+	height: 25px;
+	transition: transform 2s ease 0s;
+	z-index: 1000;
+  	background-repeat: no-repeat !important; 
+}
+#optionButton svg {
+	width: 100%;
+	height: 100%;
+}
+
+#optionButton:hover {
+	cursor: pointer !important;
+	transform: rotate(180deg);
+}
+#optionButton:hover svg g g .gear {
+	fill: rgba(0,220,255,0.5) !important;
+	transition: all 0.5s ease;
+	stroke: rgba(0,220,255,1);
+	stroke-width: 5px;
+}
+.gear {
+	fill: rgba(15, 19, 28,1);
+	transition: all 0.5s ease;
+	stroke: rgba(166, 173, 189, 0); 
+	stroke-width: 0px;
+}
+.gear:hover {
+	transition: all 0.5 ease;
+}
+
+#uiInstructCustom {
+	width: 30%;
+	position: fixed;
+	z-index: 10002;
+	top: 2%;
+	right: 3%;
+}
+
 
 /* CSS FONTS */
 
