@@ -125,7 +125,7 @@ function startMove(dir) { // Note: I have combined the "moveUp" and "moveDown" f
 		// If there is no more movement to be made, stop autoscroll.
 		let hasMoved = moveFn();
 		if (!hasMoved) {
-			stopTimer();
+			stopMove();
 			return;
 		}
 
