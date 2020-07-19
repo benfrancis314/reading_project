@@ -32,6 +32,11 @@ var currentStyle = "markedBoxShadow"; // TEMPORARY global variable, just for sty
 
 // Classname for keyword highlights.
 let keywordStyle = "keyWord";
+// Need the same $ reference for on and off of event handlers to be detectable.
+// Re-doing $(document) in an async context for somre reason doesn't allow you 
+// to detect previously attached event handlers.
+// Not sure why, but found this through experimentation.
+let jdoc = $(document);
 
 /*
 To do:
@@ -58,14 +63,22 @@ Handle click events for each readable item.
 Params:
 - tracker. The tracker to be updated when an item is clicked.
 */
-// Handle click events for each readable item.
-function setupClickListener(tracker) {
+function setupClickListeners(tracker) {
 	for (let i = 0; i < tracker.getReadableDomEls().length; i++) {
 		let container = tracker.getContainer(i);
-		container.click(function () {
+		container.on("click", function () {
 			tracker.pointToContainer(i);
 			highlight(tracker);
 		});
+	}
+}
+
+/*
+Undo setupClickListeners()
+*/
+function removeClickListeners(tracker) {
+	for (let i = 0; i < tracker.getReadableDomEls().length; i++) {
+		tracker.getContainer(i).off("click");
 	}
 }
 
@@ -212,6 +225,21 @@ function scrollDown() {
 		);
 	}
 }
+// Uncomment this if you want to see the relative y offsets of current container
+// so you can tweak the auto-scroll feature.
+/*
+$(window).scroll(function() {
+	console.log(`Window container's top Y = ${getContainer(containerId).offset().top
+		- $(window).scrollTop()}`);
+});
+
+/*
+Undo all actions by highlight() and highlightKeyWords().
+*/
+function unhighlightEverything() {
+	$("." + currentStyle).unmark();
+	$("." + keywordStyle).unmark();
+}
 
 /*
 Highlight portion pointed to by tracker.
@@ -304,9 +332,8 @@ function adjustSpeed(speedDelta) {
 	display.updateSpeed(speed);
 }
 
-function readListener() {
-
-	document.addEventListener('keydown', function(evt) {
+function setupKeyListeners() {
+	jdoc.on("keydown", function(evt) {
 		if (!document.hasFocus()) {
 		  return true;
 		}
@@ -344,48 +371,96 @@ function readListener() {
                 break;
 		}
 		return true;
-	}, false);
-	document.addEventListener('keyup', function(evt) {
+	});
+	jdoc.on("keyup", function(evt) {
 		switch (evt.code) {
 			case 'ArrowLeft':
 			case 'ArrowRight':
 				stopMove();
 				break;
 		}
-    }, false);
-    
+		return true;
+    });
 };
 
-function init() {
+/*
+Undo setupKeyListeners()
+*/
+function removeKeyListeners() {
+	jdoc.off('keydown');
+	jdoc.off('keyup');
+}
+
+/********************************************************************
+Page setup / teardown flow
+1. oneTimeSetup() gets called exactly ONCE per tab, to do the heavy document parsing
+   but does NOT result in any UI change (no listeners, no visible UI drawing)
+2. toggleExtensionVisibility() gets called EVERY TIME browser action is invoked.
+   This toggle the UI state between one of the two [ACTIVE, INACTIVE]
+
+In the ACTIVE state, the extension widgets are visible, and event handlers are attached.
+In the INACTIVE state, the widgets are not visible, and no event handlers are attached.
+   It's as if the user has not opened the extension yet.
+   We might have tweaked the dom a bit though, but in a non-visible way.
+   E.g. unique ids to all els.
+********************************************************************/
+
+// One time setup per page.
+function oneTimeSetup() {
+	let readableDomEls = window.parseDocument();
+	doc = new Doc(readableDomEls);
+	tracker = new Tracker(readableDomEls);
+
 	// TODO: Refactor using promise logic so this is more readable.
 	// Load all the persistent settings, then render the UI.
 	settings.getSpeed(function(settingsSpeed) {
 		speed = settingsSpeed;
-		let readableDomEls = window.parseDocument();
-		doc = new Doc(readableDomEls);
-		tracker = new Tracker(readableDomEls);
-		display = new Display(readableDomEls, speed, doc.getTotalWords());
-
-		setupClickListener(tracker);
-		readListener();
-
-		startMove(direction.FORWARD); // Start reader on the first line
-		stopMove(); // Prevent from continuing to go forward
+		// Listen for background.js toggle pings.
+		chrome.runtime.onMessage.addListener(
+			function(request, sender, sendResponse) {
+			    if (request.command === "toggleUI") {
+			    	toggleExtensionVisibility();
+			    }
+			}
+		);
 	});
 }
 
-init();
-
-// Uncomment this if you want to see the relative y offsets of current container
-// so you can tweak the auto-scroll feature.
 /*
-$(window).scroll(function() {
-	console.log(`Window container's top Y = ${getContainer(containerId).offset().top
-		- $(window).scrollTop()}`);
-});
+Render all the UI elements.
 */
+function setupUI() {
+	display = new Display(tracker.readableDomEls, speed, doc.getTotalWords());
 
+	startMove(direction.FORWARD); // Start reader on the first line
+	stopMove(); // Prevent from continuing to go forward
 
+	setupClickListeners(tracker);
+	setupKeyListeners();
+}
 
+/*
+Turn down all the UI elements.
+Undo setupUI()
+*/
+function removeUI() {
+	removeKeyListeners();
+	removeClickListeners(tracker);
+	stopMove();
+	unhighlightEverything();
+	tracker.reset();
 
+	display.turnDownUI();
+	display = null;
+}
+
+function toggleExtensionVisibility() {
+	if (display === null) {
+		setupUI();
+	} else {
+		removeUI();
+	}
+}
+
+oneTimeSetup();
 })(); // End of namespace

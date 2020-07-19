@@ -28,6 +28,13 @@ class Tracker {
         // E.g. readableDomEls[0] gets you the jQuery element to the first readable content.
         // Populated by parseDocument()
         this.readableDomEls = readableDomEls;
+        this.reset();
+    }
+
+    /*
+    Reset tracker position to not be tracking anything.
+    */
+    reset() {
         // Int. Pointer to an element in readableDomEls. The current container the tracker is in.
         // If there is no tracker yet, this value is null.
         // Otherwise, it will be in [0, readableDomEls.length)
