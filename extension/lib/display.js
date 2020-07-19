@@ -62,7 +62,7 @@ class Display {
         this.setSettings();
     }
     getSettings() {
-        return(this.keywordSetting, this.highlighterSetting, this.shadowSetting);
+        return([this.keywordSetting, this.highlighterSetting, this.shadowSetting]);
     }
 
     keywordSetting = null;
@@ -151,9 +151,11 @@ class Display {
     }
 
     toggleUI() {
-        console.log(this.keywordSetting);
-        console.log(this.highlighterSetting);
-        console.log(this.shadowSetting);
+        console.log("Keyword setting: "+this.keywordSetting);
+        console.log("Highlighter setting: "+this.highlighterSetting);
+        console.log("Shadow setting: "+this.shadowSetting);
+
+        var self = this; 
 
         if (this.uiStatus) {
             settings.setSpeed(100);
@@ -161,6 +163,7 @@ class Display {
             let uiContainer = document.getElementById("uiContainer");
             uiContainer.remove();
             this.uiStatus = false;
+            console.log(this.getSettings());
         } else {
             // Load UI display
             settings.setSpeed(700);
@@ -194,24 +197,17 @@ class Display {
             shadowButtonGreen.addEventListener("click", function () {changeSetting("shadow", "Green")});
 
             function changeSetting(setting, choice) {
-                switch(setting) {
-                    case "keyword": 
-                        console.log("Set KEYWORD to: " + choice);
-                        settings.setKeyword(choice);
-                        window.keywordSetting = choice
-                    case "highlighter":
-                        console.log("Set HIGHLIGHTER to: " + choice);
-                        settings.setHighlighter(choice);
-                        window.highlighterSetting = choice
-                    case "shadow": 
-                        console.log("Set SHADOW to: " + choice);
-                        settings.setShadow(choice);
-                        window.shadowSetting = choice
+                if (setting == "keyword") {
+                    console.log("Set KEYWORD to: " + choice);
+                    settings.setKeyword(choice);
+                } else if (setting == "highlighter") {
+                    console.log("Set HIGHLIGHTER to: " + choice);
+                    settings.setHighlighter(choice);
+                } else if (setting == "shadow") {
+                    console.log("Set SHADOW to: " + choice);
+                    settings.setShadow(choice);
                 }
-                // console.log("Display settings: "+Display.getSettings);
-                console.log("Keyword settings: "+window.keywordSetting)
-                console.log("Highlighter settings: "+window.highlighterSetting)
-                console.log("Shadow settings: "+window.shadowSetting)
+                self.setSettings(); // Refresh the attributes of this class representing settings
             }
 
             // Set UI status to true

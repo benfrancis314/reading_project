@@ -34,15 +34,19 @@ TODO: Redo this using CSS variable or something.
 Problem is that highlighter and shadow need to be in the same ID;
 not scalable right now to more customizable settings that effect the tracker. 
 */
-var highlighterSetting = "Blue";
-var shadowSetting = "Yellow";
-var keywordSetting = "Green";
+var highlighterSetting = null;
+var shadowSetting = null;
+var keywordSetting = null;
+// var highlighterSetting = "Blue";
+// var shadowSetting = "Yellow";
+// var keywordSetting = "Green";
 // // Expose to global (TODO: Refactor)
-window.highlighterSetting = highlighterSetting;
-window.shadowSetting = shadowSetting;
-window.keywordSetting = keywordSetting;
+// window.highlighterSetting = highlighterSetting;
+// window.shadowSetting = shadowSetting;
+// window.keywordSetting = keywordSetting;
 
-let trackerStyle = "trackerHighlighter"+highlighterSetting+"Shadow"+shadowSetting; // TODO: Refactor this color selection process
+var trackerStyle = null;
+// var trackerStyle = "trackerHighlighter"+highlighterSetting+"Shadow"+shadowSetting; // TODO: Refactor this color selection process
 
 // Classname for keyword highlights.
 
@@ -219,6 +223,7 @@ function scrollDown() {
 Highlight portion pointed to by tracker.
 */
 function highlight(tracker) {
+	console.log(trackerStyle);
 	let markEl = $("."+trackerStyle);
 	markEl.unmark();
 	markEl.removeClass(trackerStyle);
@@ -386,7 +391,11 @@ function init() {
 		setupClickListener(tracker);
 		readListener();
 
-		keywordSetting, highlighterSetting, shadowSetting = display.getSettings();
+		let displaySettings = display.getSettings();
+		keywordSetting = displaySettings[0];
+		highlighterSetting = displaySettings[1];
+		shadowSetting = displaySettings[2];
+		trackerStyle = "trackerHighlighter"+highlighterSetting+"Shadow"+shadowSetting; // TODO: Refactor this color selection process
 		console.log(keywordSetting, highlighterSetting, shadowSetting);
 
 		startMove(direction.FORWARD); // Start reader on the first line
