@@ -20,11 +20,18 @@ var doc = null;
 // 1. null means tracker is static.
 // 2. Non-null means there is a scheduled timer that keeps moving the tracker around.
 var timer = null;
-var speed = 20; // Base speed, not accounting for sentence length; adjustable w/ D/S
+// This will be read once from persistent settings during initialization. 
+let speed = null; // WPM, Base speed, not accounting for sentence length; adjustable w/ D/S
+// Persistent settings.
+let settings = window.settings;
 var speed_bias = 500; // Minimum amount of speed spent on each sentence (in milliseconds)
 // If the screen is currently scrolling. If it is, pause the tracker.
 var isScrolling = false;
+// Is it in auto-read mode?
 var currentStyle = "markedBoxShadow"; // TEMPORARY global variable, just for style experimentation. Will get rid of later
+
+// Classname for keyword highlights.
+let keywordStyle = "keyWord";
 
 /*
 To do:
@@ -73,6 +80,7 @@ function stopMove() {
 		clearInterval(timer);
 		timer = null;
 	}	
+	display.updateAutoMode(false);
 }
 
 /*
@@ -85,6 +93,8 @@ If we are in a moving state and startMove is called, nothing happens.
 Parameters:
 - dir. See direction enum.
 */
+
+// TODO: Maybe refactor so it doesn't when turn on automode?
 function startMove(dir) { // Note: I have combined the "moveUp" and "moveDown" functions here
 	if (timer) {
 		return;
@@ -106,11 +116,37 @@ function startMove(dir) { // Note: I have combined the "moveUp" and "moveDown" f
 		// Immediately fade current tracker.
 		fadeTracker();
 	})();
+	display.updateAutoMode(true);
 }
 
 // Calculate lingering time for current tracker in ms.
+// TODO: Why does this get called twice?
 function calculateTrackerLife() {
-	return (speed * tracker.getTrackerLen()) + speed_bias;
+	/* Methodology of calculating tracker life: 
+		Each sentence has a minimum amount of time to stay on; i.e., a bias. 
+		The user specifies the WPM they want, and this calculates a time remaining. 
+		This function then distributes the remaining time to each sentence according
+		to ratio of the sentence_words:total_words. 
+	*/
+	const speed_bias_ms = 500; // Half of a second; is this too long?
+	let containerId = tracker.getContainerId();
+	// This is an array that has the number of sentences in each container. The 1st container has the 1st element in this array, and so on.  
+	let container_sentences_map = doc.getContainerSentencesMap().slice(containerId); // Don't include containers before current container
+	let sentences_remaining = 0; // This will be sentences remaining on page
+	// Sum up sentences in array
+	for (var i = 0; i < container_sentences_map.length; i++) {
+		sentences_remaining += container_sentences_map[i]; 
+	}
+	let sentence_words = tracker.getTrackerLen() // Words in current sentence
+	// TODO: This should be total_words_REMAINING
+	let total_words = doc.getTotalWords(); // Total words on page
+	let base_time_s = sentences_remaining * speed_bias_ms/1000; // Time from just speed_bias on each sentence. In seconds
+	let desired_time_s = display.getTimeRemaining() * 60; // Time we need to finish in
+	let distributable_time = desired_time_s - base_time_s; // Time left to distribute to sentences
+	let word_ratio = sentence_words/total_words;
+	let linger_time_ms = distributable_time*(word_ratio)*1000 + speed_bias_ms; // convert from s to ms
+	return (linger_time_ms); 
+	// TODO: Use Moment.js
 }
 
 // Move one sentence up
@@ -208,7 +244,6 @@ function highlight(tracker) {
     */
 function highlightKeyWords(container, start, end) {
 	// TODO: Mark.js is actually built to do this; migrate functionality to mark.js
-	let keywordStyle = "keyWord";
 	$("."+keywordStyle).unmark(); // Remove previous sentence keyword styling
 	$("."+keywordStyle).removeClass(keywordStyle);
 	// Get list of words in interval
@@ -238,22 +273,42 @@ function highlightKeyWords(container, start, end) {
 Fade the current tracker indicator according to the calculated speed.
 */
 function fadeTracker() {
-	let markEl = $("mark");
+	fadeElement($("mark"));
+	fadeElement($("." + keywordStyle));
+}
+
+function fadeElement(el) {
 	// Some async issue. If marker already gets deleted but not initialized.
-	if (!markEl) {
+	if (!el) {
 		return;
 	}
-	let rgb = jQuery.Color(markEl.css('backgroundColor'));
+	let rgb = jQuery.Color(el.css('backgroundColor'));
 	// Set alpha to 0, and animate towards this, to simulate bg fade of same color.
 	let newRgba = `rgba(${rgb.red()}, ${rgb.green()}, ${rgb.blue()}, 0)`
-	markEl.animate({ 'background-color': newRgba }, calculateTrackerLife());
+	el.animate({ 'background-color': newRgba }, calculateTrackerLife());
+}
+
+/*
+Adjust current speed by speedDelta, and persist the setting.
+*/
+function adjustSpeed(speedDelta) {
+	speed += speedDelta;
+	settings.setSpeed(speed);
+	display.updateSpeed(speed);
 }
 
 function readListener() {
+
 	document.addEventListener('keydown', function(evt) {
 		if (!document.hasFocus()) {
 		  return true;
 		}
+
+		// Disable browser's default behavior of page-downing on space.
+		if (evt.code == 'Space' && evt.target == document.body) {
+		    evt.preventDefault();
+		}
+
 		switch (evt.code) {
 			case 'ArrowLeft': // Move back
                 startMove(direction.BACKWARD);
@@ -262,23 +317,22 @@ function readListener() {
                 startMove(direction.FORWARD);
 				break;
 			case 'KeyD':	// Increase velocity
-				speed -= 2;
-				display.updateSpeed(speed);
+				adjustSpeed(40);
 				break;
 			case 'KeyS':	// Slow velocity
-				speed += 2;
-				display.updateSpeed(speed);
+				adjustSpeed(-40);
 				break;
 			// case 'KeyU':	// Update display -> FOR TESTING
 			// 	display.updateDisplay();
 			// 	break;
-			case 'AltLeft': // Switch to auto mode
+			case 'Space': // Switch to auto mode
 				if (timer) {
 					stopMove();
+					display.updateTimer(readableDomIds, tracker.getContainerId());
 				} else {
 					startMove(direction.FORWARD);
+					display.updateTimer(readableDomIds, tracker.getContainerId());
 				}
-				break;
 			default:
                 break;
 		}
@@ -292,64 +346,28 @@ function readListener() {
 				break;
 		}
     }, false);
+    
 };
 
-/*
-Attach IDs to all elements in document.
-Returns:
-- readableDomIds - Dom IDs of readable content to initialize the tracker with.
-*/
-function parseDocument() {
-	// Get all direct + indirect descendants of body that are visible.
-	// Generate unique id for each one, if doesn't exist before.
-	// This makes sure that after readability.js mutates the clone, we can
-	// recover the pointers to the original elements.
-	$("body *").filter(":visible").each(function() {
-		$(this).uniqueId();
-	});
+function init() {
+	// TODO: Refactor using promise logic so this is more readable.
+	// Load all the persistent settings, then render the UI.
+	settings.getSpeed(function(settingsSpeed) {
+		speed = settingsSpeed;
+		let readableDomIds = window.parseDocument();
+		doc = new Doc(readableDomIds);
+		tracker = new Tracker(readableDomIds);
+		display = new Display(readableDomIds, speed, doc.getTotalWords());
 
-	let readableDomIds = [];
-	// Pass clone of document because readability mutates the document.
-	let docClone = document.cloneNode(/* deep= */true);
-	// TODO: Handle readability failures.
-	let article = new Readability(docClone).parse();
-	// Readability.js converts all readable elements into <p>
-	$(article.content).find("p,h1,h2,h3,li").each(function() {
-		let id = $(this).attr('id');
-		// The unidentified ids seem to be images / iframe snippets that
-		// are re-included as-is, but otherwise are not considered readable text.
-		// Sometimes I see ads being re-included with undefined ids, so it's probably
-		// a good thing to skip these. 
-		let el = $(`#${id}`);
-		if (id !== undefined && el.is(":visible") && el.text().length > 0) {
-			readableDomIds.push(id);
-		}
+		setupClickListener(tracker);
+		readListener();
+
+		startMove(direction.FORWARD); // Start reader on the first line
+		stopMove(); // Prevent from continuing to go forward
 	});
-	return readableDomIds;
-	// Uncomment this if you want to see the readable partitions.
-	/*
-		let colors = ['yellow', 'blue'];
-		for (let i = 0; i < readableDomIds.length; i++) {
-			let el = $("#" + readableDomIds[i]);
-			console.log((i + 1) + ". " + el.html());
-			el.css({ "background-color": colors[i % colors.length], "opacity": ".20" });
-		}
-	*/
 }
 
-let readableDomIds = parseDocument();
-doc = new Doc(readableDomIds);
-tracker = new Tracker(readableDomIds);
-display = new Display(readableDomIds, speed, doc.getTotalWords());
-
-
-
-setupClickListener(tracker);
-readListener();
-
-startMove(direction.FORWARD); // Start reader on the first line
-stopMove(); // Prevent from continuing to go forward
-
+init();
 
 // Uncomment this if you want to see the relative y offsets of current container
 // so you can tweak the auto-scroll feature.
