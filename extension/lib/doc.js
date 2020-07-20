@@ -132,22 +132,7 @@ class Doc {
     getNumSentencesFromSentenceTilEnd(sentenceId) {
         return this.getNumSentences() - sentenceId;
     }
-
-    /*
-    Params:
-    - text (string)
-    - start (int)
-    Return:
-    - end (int). Exclusive index to the end of the sentence within text that starts at 'start' 
-    */
-    getSentenceEnd(text, start) {
-        let end = text.indexOf(". ", start);
-        if (end < 0) {
-            end = text.length;
-        }
-        return end;
-    }
-
+    
     /*
     Returns: Total words in document (int)
     Calculates total words in the document
