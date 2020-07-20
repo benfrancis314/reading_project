@@ -24,12 +24,12 @@ class Display {
     Initialize a display with total time remaining and initial speed (~200 WPM).
 
     Parameters:
-    - readableDomEls: $[]. List of jquery dom elements that contain readable content.
+    - doc: Doc. The preprocessed document.
     - speed: int. Value proportional to the speed of auto-read mode, before adjustment by sentence length. 
     - total_words: int. Total number of words in readable containers on web page
     */
-    constructor(readableDomEls, speed) {
-        this.readableDomEls = readableDomEls; // Used to calc initial reading time
+    constructor(doc, speed) {
+        this.doc = doc;
         this.displayhHtml = null; // HTML for the reading info display
         this.uiHtml = null; // HTML for the UI (instructions & customizations)
         this.time_remaining = null;
@@ -44,7 +44,7 @@ class Display {
 
         // this.setSettings();
         this.defineHtml();
-        this.createDisplay(readableDomEls);
+        this.createDisplay();
         this.updateSpeed(speed);
         this.setHtmlListeners(); 
         this.updateSettings();
@@ -105,13 +105,7 @@ class Display {
     /*
     Inserts display HTML into webpage. 
     */
-// TODO: Get this to work for readableDomEls (jQuery objects)
-//     // TODO: Do this is in a more stable/better way
-//     createDisplay(readableDomIds) {
-//         // This is a SUPER hacky fix for the moment; just trying to escape out to the body element due
-//         // to CSS layering problems with the option button
-//         document.getElementById(readableDomIds[0]).parentElement.parentElement.parentElement.insertAdjacentHTML("beforebegin", this.displayHtml);
-    createDisplay(readableDomEls) {
+    createDisplay() {
         $(this.displayHtml).insertBefore($("body").children().first());
         document.getElementById("displayContainer").style.opacity = 1; // For smoother transition
         document.getElementById("optionsButton").style.opacity = 1; // For smoother transition
@@ -123,21 +117,15 @@ class Display {
     }
     
     /*
-    Updates reading timer based on containers after current tracker. 
+    Updates reading timer based on current sentence.
     */
-    updateTimer(readableDomEls, containerId) { // Call everytime you get to new paragraph
+    updateTimer(sentenceId) { // Call everytime the tracker moves.
         // TODO: Should also update timer if a user is using the autoread mode. 
-        let total_words = 0;
+        let total_words = this.doc.getNumWordsFromSentenceTilEnd(sentenceId);
         let currentSpeed = this.reading_speed;
-        let remainingContainers = readableDomEls.slice(containerId); // Need to store as own new list, so for loop indexes through this, not old list
-        for (var section in remainingContainers) {    // Calc total words
-            let text = remainingContainers[section].text();
-            // Regex that will not include numbers: /\b[^\d\W]+\b/g
-            let wordRegex = /\b\w+\b/g; // Checks for words
-            let wordList = text.match(wordRegex);
-            if (wordList) { total_words += wordList.length; }
-        };
         // if (this.auto_mode) { currentSpeed = this.reading_speed } else { currentSpeed = avg_read_speed };
+        // TODO: Update time_remaining to be in seconds than minutes.
+        // See https://github.com/benfrancis314/reading_project/issues/61
         let time_remaining = total_words/currentSpeed; // in minutes
         this.time_remaining = Math.ceil(time_remaining);
         document.getElementById("timerNumber").innerHTML = this.time_remaining;
