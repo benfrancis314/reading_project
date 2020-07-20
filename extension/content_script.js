@@ -27,11 +27,7 @@ let settings = window.settings;
 var speed_bias = 500; // Minimum amount of speed spent on each sentence (in milliseconds)
 // If the screen is currently scrolling. If it is, pause the tracker.
 var isScrolling = false;
-// Is it in auto-read mode?
-var currentStyle = "markedBoxShadow"; // TEMPORARY global variable, just for style experimentation. Will get rid of later
 
-// Classname for keyword highlights.
-let keywordStyle = "keyWord";
 // Need the same $ reference for on and off of event handlers to be detectable.
 // Re-doing $(document) in an async context for somre reason doesn't allow you 
 // to detect previously attached event handlers.
@@ -39,19 +35,15 @@ let keywordStyle = "keyWord";
 let jdoc = $(document);
 
 /*
-To do:
-1. Make necessary comments
-2. Modularize where able
-
-Functions: 
-1. Click to highlight beginning of sentence
-2. Move (up/down fed as argument)
-3. Move up one sentence
-5. Move down one sentence
-6. Find end of one chunk (sentence OR semicolon OR ... )
-7. Tracker length (also sets the boundary)
-8. Read listener
-*/ 
+Process of determining which style to use. 
+TODO: Redo this using CSS variable or something. 
+Problem is that highlighter and shadow need to be in the same ID;
+not scalable right now to more customizable settings that effect the tracker. 
+*/
+var keywordStyle = null; // will be CSS ID of keywords
+var trackerStyle = null; // will be CSS ID of tracker
+window.keywordStyle = keywordStyle;
+window.trackerStyle = trackerStyle;
 
 // Possible reading directions.
 const direction = {
@@ -205,10 +197,19 @@ function moveDownOne() { // Sets start and end
 
 // Scroll up when tracker is above page
 function scrollUp() {
+	// Check to see if we should use old style or look for new
+	let tracker_style_current = null; // Depends on if style was just switched
+	if ($("."+trackerStyle)) {
+		tracker_style_current = trackerStyle
+	} else { 
+		let displaySettings = display.getSettings();
+		tracker_style_current = "trackerHighlighter"+displaySettings[1]+"Shadow"+displaySettings[2]; 
+	}
+
 	let verticalMargin = 200;
 	// Autoscroll if tracker is above top of page.
 	// Number of pixels from top of window to top of current container.
-	let markedTopAbsoluteOffset = $("."+currentStyle).offset().top;
+	let markedTopAbsoluteOffset = $("."+tracker_style_current).offset().top;
 	let markedTopRelativeOffset = markedTopAbsoluteOffset - $(window).scrollTop();
 	if (markedTopRelativeOffset < 0) {
 		isScrolling = true;
@@ -225,11 +226,21 @@ function scrollUp() {
 
 // Scroll down when tracker is below a certain point
 function scrollDown() {
+	// Check to see if we should use old style or look for new
+	let tracker_style_current = null; // Depends on if style was just switched
+	if ($("."+trackerStyle)) {
+		tracker_style_current = trackerStyle
+	} else { 
+		let displaySettings = display.getSettings();
+		tracker_style_current = "trackerHighlighter"+displaySettings[1]+"Shadow"+displaySettings[2]; 
+	}
+	
 	let scrollThreshold = 500;
 	let verticalMargin = 200;
 	// Autoscroll if too far ahead.
 	// Number of pixels from top of window to top of current container.
-	let markedTopAbsoluteOffset = $("."+currentStyle).offset().top;
+
+	let markedTopAbsoluteOffset = $("."+tracker_style_current).offset().top;
 	let markedTopRelativeOffset = markedTopAbsoluteOffset - $(window).scrollTop();
 	if (markedTopRelativeOffset > scrollThreshold) {
 		isScrolling = true;
@@ -255,7 +266,8 @@ $(window).scroll(function() {
 Undo all actions by highlight() and highlightKeyWords().
 */
 function unhighlightEverything() {
-	$("." + currentStyle).unmark();
+  // TODO: If this is broken, make a tracker class that never changes. Then use the ID for styling
+	$("." + trackerStyle).unmark(); 
 	$("." + keywordStyle).unmark();
 }
 
@@ -263,9 +275,12 @@ function unhighlightEverything() {
 Highlight portion pointed to by tracker.
 */
 function highlight(tracker) {
-	let markEl = $("."+currentStyle);
+	// Notice trackerStyle here is NOT immediately updated when user changes settings;
+	// We need the old trackerStyle name to be able to find and remove the styling, 
+	// since the next sentence will get a new style. 
+	let markEl = $("."+trackerStyle);
 	markEl.unmark();
-	markEl.removeClass(currentStyle);
+	markEl.removeClass(trackerStyle);
 	// Append the "mark" class (?) to the html corresponding to the interval
 	// The interval indices are w.r.t to the raw text.
 	// mark.js is smart enough to preserve the original html, and even provide
@@ -279,7 +294,7 @@ function highlight(tracker) {
     	start: start,
     	length: end - start
 	}], {
-		className: currentStyle
+		className: trackerStyle
 	});
 	highlightKeyWords(container, start, end);
 };
@@ -289,6 +304,9 @@ function highlight(tracker) {
     Highlights the keywords within the tracked sentence. 
     */
 function highlightKeyWords(container, start, end) {
+	// TODO: Refactor this; this should be reset whenever it is changed, not checked every sentence
+	let displaySettings = display.getSettings();
+	let keywordStyle = "keyWord"+displaySettings[0]; 
 	// TODO: Mark.js is actually built to do this; migrate functionality to mark.js
 	$("."+keywordStyle).unmark(); // Remove previous sentence keyword styling
 	$("."+keywordStyle).removeClass(keywordStyle);
@@ -319,6 +337,8 @@ function highlightKeyWords(container, start, end) {
 Fade the current tracker indicator according to the calculated speed.
 */
 function fadeTracker() {
+	let displaySettings = display.getSettings();
+	let keywordStyle = "keyWord"+displaySettings[0];
 	fadeElement($("mark"));
 	fadeElement($("." + keywordStyle));
 }
@@ -376,9 +396,6 @@ function setupKeyListeners() {
 			case 'KeyS':	// Slow velocity
 				adjustSpeed(-40);
 				break;
-			// case 'KeyU':	// Update display -> FOR TESTING
-			// 	display.updateDisplay();
-			// 	break;
 			case 'Space': // Switch to auto mode
 				let sentencePtr = doc.getSentence(tracker.getSentenceId());
 				if (timer) {
@@ -404,6 +421,42 @@ function setupKeyListeners() {
     });
 };
 
+
+
+/*
+Process of determining which style to use. 
+TODO: Redo this using CSS variable or something. 
+Problem is that highlighter and shadow need to be in the same ID;
+not scalable right now to more customizable settings that effect the tracker. 
+*/
+
+// var trackerStyle = "trackerHighlighter"+highlighterSetting+"Shadow"+shadowSetting; // TODO: Refactor this color selection process
+
+// Classname for keyword highlights.
+
+function initializeTracker(settingsCustomizations) {
+	keywordStyle = "keyWord"+settingsCustomizations[0]; // 0th element is the keyword type
+	// TODO: Refactor this color selection process; won't scale
+	trackerStyle = "trackerHighlighter"+settingsCustomizations[1]+"Shadow"+settingsCustomizations[2]; // 1st element is highlighter type, 2nd element is shadow type
+	// console.log(keywordStyle);
+	// console.log(trackerStyle);
+	startMove(direction.FORWARD); // Start reader on the first line
+	stopMove(); // Prevent from continuing to go forward
+}
+
+
+
+/*
+REMOVE THIS
+*/
+function updateDisplaySettings() {
+	let displaySettings = []; // Settings: 1: Keyword 2: Highlighter 3: Shadow
+	settings.getCustomizations(function(settingsCustomizations) {
+		initializeTracker(settingsCustomizations)
+	});
+}
+
+  
 /*
 Undo setupKeyListeners()
 */
@@ -431,7 +484,6 @@ function oneTimeSetup() {
 	let readableDomEls = window.parseDocument();
 	doc = new Doc(readableDomEls);
 	tracker = new Tracker(doc);
-
 	// TODO: Refactor using promise logic so this is more readable.
 	// Load all the persistent settings, then render the UI.
 	settings.getSpeed(function(settingsSpeed) {
@@ -446,20 +498,18 @@ function oneTimeSetup() {
 		);
 	});
 }
-
 /*
 Render all the UI elements.
 */
 function setupUI() {
 	display = new Display(doc.getContainers(), speed, doc.getTotalWords());
-
-	startMove(direction.FORWARD); // Start reader on the first line
-	stopMove(); // Prevent from continuing to go forward
-
+  
+	updateDisplaySettings();
+  
 	setupClickListeners();
 	setupKeyListeners();
+  
 }
-
 /*
 Turn down all the UI elements.
 Undo setupUI()
@@ -470,7 +520,6 @@ function removeUI() {
 	stopMove();
 	unhighlightEverything();
 	tracker.reset();
-
 	display.turnDownUI();
 	display = null;
 }
