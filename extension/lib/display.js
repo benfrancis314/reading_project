@@ -24,7 +24,7 @@ class Display {
     Initialize a display with total time remaining and initial speed (~200 WPM).
 
     Parameters:
-    - readableDomIds: string[]. List of dom IDs that contain readable content.
+    - readableDomEls: $[]. List of jquery dom elements that contain readable content.
     - speed: int. Value proportional to the speed of auto-read mode, before adjustment by sentence length. 
     - total_words: int. Total number of words in readable containers on web page
     */
@@ -44,7 +44,7 @@ class Display {
 
         // this.setSettings();
         this.defineHtml();
-        this.createDisplay(readableDomIds);
+        this.createDisplay(readableDomEls);
         this.updateSpeed(speed);
         this.setHtmlListeners(); 
         this.updateSettings();
@@ -105,11 +105,14 @@ class Display {
     /*
     Inserts display HTML into webpage. 
     */
-    // TODO: Do this is in a more stable/better way
-    createDisplay(readableDomIds) {
-        // This is a SUPER hacky fix for the moment; just trying to escape out to the body element due
-        // to CSS layering problems with the option button
-        document.getElementById(readableDomIds[0]).parentElement.parentElement.parentElement.insertAdjacentHTML("beforebegin", this.displayHtml);
+// TODO: Get this to work for readableDomEls (jQuery objects)
+//     // TODO: Do this is in a more stable/better way
+//     createDisplay(readableDomIds) {
+//         // This is a SUPER hacky fix for the moment; just trying to escape out to the body element due
+//         // to CSS layering problems with the option button
+//         document.getElementById(readableDomIds[0]).parentElement.parentElement.parentElement.insertAdjacentHTML("beforebegin", this.displayHtml);
+    createDisplay(readableDomEls) {
+        $(this.html).insertBefore(readableDomEls[0]);
         document.getElementById("displayContainer").style.opacity = 1; // For smoother transition
         document.getElementById("optionsButton").style.opacity = 1; // For smoother transition
     }
@@ -122,13 +125,13 @@ class Display {
     /*
     Updates reading timer based on containers after current tracker. 
     */
-    updateTimer(readableDomIds, containerId) { // Call everytime you get to new paragraph
+    updateTimer(readableDomEls, containerId) { // Call everytime you get to new paragraph
         // TODO: Should also update timer if a user is using the autoread mode. 
         let total_words = 0;
         let currentSpeed = this.reading_speed;
-        let remainingContainers = readableDomIds.slice(containerId); // Need to store as own new list, so for loop indexes through this, not old list
+        let remainingContainers = readableDomEls.slice(containerId); // Need to store as own new list, so for loop indexes through this, not old list
         for (var section in remainingContainers) {    // Calc total words
-            let text = $("#" + remainingContainers[section]).text();
+            let text = remainingContainers[section].text();
             // Regex that will not include numbers: /\b[^\d\W]+\b/g
             let wordRegex = /\b\w+\b/g; // Checks for words
             let wordList = text.match(wordRegex);
@@ -519,6 +522,12 @@ class Display {
                 </svg>
             </div>
         `;
+    }
+
+    // Remove the widget UI elements from DOM.
+
+    turnDownUI() {
+        $("#displayContainer").remove();
     }
 }
 

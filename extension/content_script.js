@@ -28,6 +28,12 @@ var speed_bias = 500; // Minimum amount of speed spent on each sentence (in mill
 // If the screen is currently scrolling. If it is, pause the tracker.
 var isScrolling = false;
 
+// Need the same $ reference for on and off of event handlers to be detectable.
+// Re-doing $(document) in an async context for somre reason doesn't allow you 
+// to detect previously attached event handlers.
+// Not sure why, but found this through experimentation.
+let jdoc = $(document);
+
 /*
 Process of determining which style to use. 
 TODO: Redo this using CSS variable or something. 
@@ -46,17 +52,23 @@ const direction = {
 }
 /*
 Handle click events for each readable item.
-Params:
-- tracker. The tracker to be updated when an item is clicked.
 */
-// Handle click events for each readable item.
-function setupClickListener(tracker) {
-	for (let i = 0; i < tracker.readableDomIds.length; i++) {
-		let container = tracker.getContainer(i);
-		container.click(function () {
-			tracker.pointToContainer(i);
+function setupClickListeners() {
+	for (let containerId = 0; containerId < doc.getNumContainers(); containerId++) {
+		let container = doc.getContainer(containerId);
+		container.on("click", function () {
+			tracker.pointToContainer(containerId);
 			highlight(tracker);
 		});
+	}
+}
+
+/*
+Undo setupClickListeners()
+*/
+function removeClickListeners() {
+	for (let containerId = 0; containerId < doc.getNumContainers(); containerId++) {
+		doc.getContainer(containerId).off("click");
 	}
 }
 
@@ -67,7 +79,7 @@ See startMove()
 function stopMove() {
 	if (timer) {
 		// Stop fading animation.
-		$("mark").stop();
+		stopFadeTracker();
 		clearInterval(timer);
 		timer = null;
 	}	
@@ -100,9 +112,13 @@ function startMove(dir) { // Note: I have combined the "moveUp" and "moveDown" f
 
 	// Schedule continuous movement, with the first move being run immediately.
 	(function repeat() { // Allows speed to be updated WHILE moving
-		// TODO: Consider returning boolean to see if there is any movement left
-		// If false, stop moving.
-		moveFn();
+		// If there is no more movement to be made, stop autoscroll.
+		let hasMoved = moveFn();
+		if (!hasMoved) {
+			stopMove();
+			return;
+		}
+
 		timer = setTimeout(repeat, calculateTrackerLife());
 		// Immediately fade current tracker.
 		fadeTracker();
@@ -120,49 +136,63 @@ function calculateTrackerLife() {
 		to ratio of the sentence_words:total_words. 
 	*/
 	const speed_bias_ms = 500; // Half of a second; is this too long?
-	let containerId = tracker.getContainerId();
-	// This is an array that has the number of sentences in each container. The 1st container has the 1st element in this array, and so on.  
-	let container_sentences_map = doc.getContainerSentencesMap().slice(containerId); // Don't include containers before current container
-	let sentences_remaining = 0; // This will be sentences remaining on page
-	// Sum up sentences in array
-	for (var i = 0; i < container_sentences_map.length; i++) {
-		sentences_remaining += container_sentences_map[i]; 
-	}
-	let sentence_words = tracker.getTrackerLen() // Words in current sentence
-	// TODO: This should be total_words_REMAINING
-	let total_words = doc.getTotalWords(); // Total words on page
+
+	let sentenceId = tracker.getSentenceId();
+	let sentencePtr = doc.getSentence(sentenceId);
+
+	let containerId = sentencePtr.containerId;
+	let sentences_remaining = doc.getNumSentencesFromSentenceTilEnd(sentenceId);
+	let sentence_words = doc.getNumWordsInSentence(sentenceId); // Words in current sentence
+	let total_words_remaining = doc.getNumWordsFromSentenceTilEnd(sentenceId);
 	let base_time_s = sentences_remaining * speed_bias_ms/1000; // Time from just speed_bias on each sentence. In seconds
 	let desired_time_s = display.getTimeRemaining() * 60; // Time we need to finish in
 	let distributable_time = desired_time_s - base_time_s; // Time left to distribute to sentences
-	let word_ratio = sentence_words/total_words;
+	let word_ratio = sentence_words/total_words_remaining;
 	let linger_time_ms = distributable_time*(word_ratio)*1000 + speed_bias_ms; // convert from s to ms
 	return (linger_time_ms); 
 	// TODO: Use Moment.js
 }
 
-// Move one sentence up
+/*
+Move one sentence up.
+Return:
+- Boolean: True iff tracker successfully moved. False if there is no more element to move to.
+*/
 function moveUpOne() { // Sets start and end
 	// Let scrolling finish before any movement.
 	if (isScrolling) {
 		return;
 	}
-	tracker.movePrevious();
+	let hasMoved = tracker.movePrevious();
+	if (!hasMoved) {
+		return false;
+	}
 	highlight(tracker);
 	scrollUp();
+	return true;
 }
 
-// Move one sentence down
+/*
+Move one sentence down.
+Return:
+- Boolean: True iff tracker successfully moved. False if there is no more element to move to.
+*/
 function moveDownOne() { // Sets start and end
 	// Let scrolling finish before any movement.
 	if (isScrolling) {
 		return;
 	}
-	tracker.moveNext();
-	let readableDomIds = tracker.getReadableDomIds();
-	let containerId = tracker.getContainerId();
-	display.updateTimer(readableDomIds, containerId);
+	let hasMoved = tracker.moveNext();
+	if (!hasMoved) {
+		return false;
+	}
+
+	let sentenceId = tracker.getSentenceId();
+	let sentencePtr = doc.getSentence(sentenceId);
+	display.updateTimer(doc.getContainers(), sentencePtr.containerId);
 	highlight(tracker);
 	scrollDown();
+	return true;
 }
 
 // Scroll up when tracker is above page
@@ -224,6 +254,22 @@ function scrollDown() {
 		);
 	}
 }
+// Uncomment this if you want to see the relative y offsets of current container
+// so you can tweak the auto-scroll feature.
+/*
+$(window).scroll(function() {
+	console.log(`Window container's top Y = ${getContainer(containerId).offset().top
+		- $(window).scrollTop()}`);
+});
+
+/*
+Undo all actions by highlight() and highlightKeyWords().
+*/
+function unhighlightEverything() {
+  // TODO: If this is broken, make a tracker class that never changes. Then use the ID for styling
+	$("." + trackerStyle).unmark(); 
+	$("." + keywordStyle).unmark();
+}
 
 /*
 Highlight portion pointed to by tracker.
@@ -239,9 +285,11 @@ function highlight(tracker) {
 	// The interval indices are w.r.t to the raw text.
 	// mark.js is smart enough to preserve the original html, and even provide
 	// multiple consecutive spans to cover embedded htmls
-	let container = tracker.getCurrentContainer();
-	let start = tracker.getStart();
-	let end = tracker.getEnd();
+	let sentenceId = tracker.getSentenceId();
+	let sentencePtr = doc.getSentence(sentenceId);
+	let container = doc.getContainer(sentencePtr.containerId);
+	let start = sentencePtr.start;
+	let end = sentencePtr.end;
 	container.markRanges([{
     	start: start,
     	length: end - start
@@ -295,6 +343,15 @@ function fadeTracker() {
 	fadeElement($("." + keywordStyle));
 }
 
+/*
+Stop all animations related to fading.
+*/
+function stopFadeTracker() {
+	$("mark").stop();
+	$("." + keywordStyle).stop();
+}
+
+
 function fadeElement(el) {
 	// Some async issue. If marker already gets deleted but not initialized.
 	if (!el) {
@@ -315,9 +372,8 @@ function adjustSpeed(speedDelta) {
 	display.updateSpeed(speed);
 }
 
-function readListener() {
-
-	document.addEventListener('keydown', function(evt) {
+function setupKeyListeners() {
+	jdoc.on("keydown", function(evt) {
 		if (!document.hasFocus()) {
 		  return true;
 		}
@@ -341,28 +397,30 @@ function readListener() {
 				adjustSpeed(-40);
 				break;
 			case 'Space': // Switch to auto mode
+				let sentencePtr = doc.getSentence(tracker.getSentenceId());
 				if (timer) {
 					stopMove();
-					display.updateTimer(readableDomIds, tracker.getContainerId());
+					display.updateTimer(doc.getContainers(), sentencePtr.containerId);
 				} else {
 					startMove(direction.FORWARD);
-					display.updateTimer(readableDomIds, tracker.getContainerId());
+					display.updateTimer(doc.getContainers(), sentencePtr.containerId);
 				}
 			default:
                 break;
 		}
 		return true;
-	}, false);
-	document.addEventListener('keyup', function(evt) {
+	});
+	jdoc.on("keyup", function(evt) {
 		switch (evt.code) {
 			case 'ArrowLeft':
 			case 'ArrowRight':
 				stopMove();
 				break;
 		}
-    }, false);
-    
+		return true;
+    });
 };
+
 
 
 /*
@@ -398,43 +456,81 @@ function updateDisplaySettings() {
 	});
 }
 
-function init() {
-	// TODO: Refactor using promise logic so this is more readable.
-	// Load all the persistent settings, then render the UI.
-	// settings.getKeyword(function(settingsKeyword) {
-	// 	keywordSetting = settingsKeyword;
-	// })
-	// settings.getHighlighter(function(settingsHighlighter) {
-	// 	highlighterSetting = settingsHighlighter;
-	// })
-	// settings.getShadow(function(settingsShadow) {
-	// 	shadowSetting = settingsShadow;
-	// })
-	settings.getSpeed(function(settingsSpeed) {
-		speed = settingsSpeed;
-		let readableDomIds = window.parseDocument();
-		doc = new Doc(readableDomIds);
-		display = new Display(readableDomIds, speed, doc.getTotalWords());
-		tracker = new Tracker(readableDomIds);
-		updateDisplaySettings();
-
-		setupClickListener(tracker);
-		readListener();
-	});
+  
+/*
+Undo setupKeyListeners()
+*/
+function removeKeyListeners() {
+	jdoc.off('keydown');
+	jdoc.off('keyup');
 }
 
-init();
+/********************************************************************
+Page setup / teardown flow
+1. oneTimeSetup() gets called exactly ONCE per tab, to do the heavy document parsing
+   but does NOT result in any UI change (no listeners, no visible UI drawing)
+2. toggleExtensionVisibility() gets called EVERY TIME browser action is invoked.
+   This toggle the UI state between one of the two [ACTIVE, INACTIVE]
 
-// Uncomment this if you want to see the relative y offsets of current container
-// so you can tweak the auto-scroll feature.
+In the ACTIVE state, the extension widgets are visible, and event handlers are attached.
+In the INACTIVE state, the widgets are not visible, and no event handlers are attached.
+   It's as if the user has not opened the extension yet.
+   We might have tweaked the dom a bit though, but in a non-visible way.
+   E.g. unique ids to all els.
+********************************************************************/
+
+// One time setup per page.
+function oneTimeSetup() {
+	let readableDomEls = window.parseDocument();
+	doc = new Doc(readableDomEls);
+	tracker = new Tracker(doc);
+	// TODO: Refactor using promise logic so this is more readable.
+	// Load all the persistent settings, then render the UI.
+	settings.getSpeed(function(settingsSpeed) {
+		speed = settingsSpeed;
+		// Listen for background.js toggle pings.
+		chrome.runtime.onMessage.addListener(
+			function(request, sender, sendResponse) {
+			    if (request.command === "toggleUI") {
+			    	toggleExtensionVisibility();
+			    }
+			}
+		);
+	});
+}
 /*
-$(window).scroll(function() {
-	console.log(`Window container's top Y = ${getContainer(containerId).offset().top
-		- $(window).scrollTop()}`);
-});
+Render all the UI elements.
 */
+function setupUI() {
+	display = new Display(doc.getContainers(), speed, doc.getTotalWords());
+  
+	updateDisplaySettings();
+  
+	setupClickListeners();
+	setupKeyListeners();
+  
+}
+/*
+Turn down all the UI elements.
+Undo setupUI()
+*/
+function removeUI() {
+	removeKeyListeners();
+	removeClickListeners();
+	stopMove();
+	unhighlightEverything();
+	tracker.reset();
+	display.turnDownUI();
+	display = null;
+}
 
+function toggleExtensionVisibility() {
+	if (display === null) {
+		setupUI();
+	} else {
+		removeUI();
+	}
+}
 
-
-
+oneTimeSetup();
 })(); // End of namespace
