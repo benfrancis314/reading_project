@@ -28,8 +28,8 @@ class Display {
     - speed: int. Value proportional to the speed of auto-read mode, before adjustment by sentence length. 
     - total_words: int. Total number of words in readable containers on web page
     */
-    constructor(readableDomIds, speed, total_words) {
-        this.readableDomIds = readableDomIds; // Used to calc initial reading time
+    constructor(readableDomEls, speed) {
+        this.readableDomEls = readableDomEls; // Used to calc initial reading time
         this.displayhHtml = null; // HTML for the reading info display
         this.uiHtml = null; // HTML for the UI (instructions & customizations)
         this.time_remaining = null;
@@ -112,7 +112,7 @@ class Display {
 //         // to CSS layering problems with the option button
 //         document.getElementById(readableDomIds[0]).parentElement.parentElement.parentElement.insertAdjacentHTML("beforebegin", this.displayHtml);
     createDisplay(readableDomEls) {
-        $(this.html).insertBefore(readableDomEls[0]);
+        $(this.displayHtml).insertBefore($("body").children().first());
         document.getElementById("displayContainer").style.opacity = 1; // For smoother transition
         document.getElementById("optionsButton").style.opacity = 1; // For smoother transition
     }
