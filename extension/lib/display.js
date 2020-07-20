@@ -107,7 +107,7 @@ class Display {
     */
     createDisplay() {
         $(this.displayHtml).insertBefore($("body").children().first());
-        document.getElementById("displayContainer").style.opacity = 1; // For smoother transition
+        document.getElementById("readingDisplayContainer").style.opacity = 1; // For smoother transition
         document.getElementById("optionsButton").style.opacity = 1; // For smoother transition
     }
 
