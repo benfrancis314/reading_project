@@ -101,17 +101,12 @@ class Doc {
             this.containerIdToFirstSentenceId.push(this.sentences.length);
             let container = this.getContainer(container_id);
             let text = container.text();
-            let len = text.length;
-
-            let start = 0;
-            let end = this.getSentenceEnd(text, start);
-            while (true) {
-                if (end - start <= 0) {
-                    break;
-                }
+            let sentenceBoundaries = tokenizeSentences(text);
+            for (let i = 0; i < sentenceBoundaries.length; i++) {
+                let sentenceBoundary = sentenceBoundaries[i];
+                let start = sentenceBoundary.index;
+                let end = start + sentenceBoundary.offset;
                 this.sentences.push(new SentencePointer(container_id, start, end));
-                start = end + 2;
-                end = this.getSentenceEnd(text, start);
             }
         }
     }
@@ -137,22 +132,7 @@ class Doc {
     getNumSentencesFromSentenceTilEnd(sentenceId) {
         return this.getNumSentences() - sentenceId;
     }
-
-    /*
-    Params:
-    - text (string)
-    - start (int)
-    Return:
-    - end (int). Exclusive index to the end of the sentence within text that starts at 'start' 
-    */
-    getSentenceEnd(text, start) {
-        let end = text.indexOf(". ", start);
-        if (end < 0) {
-            end = text.length;
-        }
-        return end;
-    }
-
+    
     /*
     Returns: Total words in document (int)
     Calculates total words in the document
