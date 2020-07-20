@@ -67,15 +67,10 @@ class Doc {
         this.termFreq = null; // { str : int } , Frequency of terms in document. Set in calcTotalWords function
         this.total_words = this.calcTotalWords(readableDomEls); // int; Total number of words in document;
         this.keywords = this.setKeyWords(this.termFreq); // string[] keywords of document
-<<<<<<< HEAD
         // int[], Index[i] is # of words in the ith sentence.
         this.num_words_per_sentence = this.calcNumWordsPerSentence(this.sentences);
         // int[], Index[i] is the total # of words from ith sentence til the end of document.
         this.num_words_per_sentence_suffix_sum = suffix_sum(this.num_words_per_sentence);
-=======
-        this.container_sentences_map = null; // This is set by calcTotalSentences()
-        this.total_sentences = this.calcTotalSentences(readableDomIds);
->>>>>>> changed calculation of tracker life to be accurate, and to reflect whether on auto or not
     };
 
     // Returns: Total words in doc (int)
@@ -166,7 +161,6 @@ class Doc {
     }
 
     /*
-<<<<<<< HEAD
     Params: Sentence[]
     Returns: int[], Index[i] is # of words in the ith sentence.
     */
@@ -207,29 +201,6 @@ class Doc {
             container_sentences_map.push(num_sentences);
         }
         return container_sentences_map;
-=======
-    Params: Current container ID
-    Returns: # of sentences in document, starting from current container
-    */
-    calcTotalSentences(readableDomIds) {
-        let total_sentences = 0;
-        let container_sentences_map = []; // For each container, add # of sentences in it
-        for (var section in readableDomIds) {
-            let text = this.getContainer(section).text();
-            let start = 0;
-            let end = 0;
-            var container_sentences = 0;
-            while (end > -1) {
-                end = text.indexOf(". ", start);
-                total_sentences++;
-                container_sentences++;
-                start = end+2;
-            };
-            container_sentences_map.push(container_sentences);
-        };
-        this.container_sentences_map = container_sentences_map;
-        return total_sentences;
->>>>>>> changed calculation of tracker life to be accurate, and to reflect whether on auto or not
     };
 
     /*

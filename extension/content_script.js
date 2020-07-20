@@ -20,15 +20,10 @@ var doc = null;
 // 1. null means tracker is static.
 // 2. Non-null means there is a scheduled timer that keeps moving the tracker around.
 var timer = null;
-<<<<<<< HEAD
 // This will be read once from persistent settings during initialization. 
 let speed = null; // WPM, Base speed, not accounting for sentence length; adjustable w/ D/S
 // Persistent settings.
 let settings = window.settings;
-=======
-var speed = 400; // WPM, Base speed, not accounting for sentence length; adjustable w/ D/S
->>>>>>> changed calculation of tracker life to be accurate, and to reflect whether on auto or not
-var speed_bias = 500; // Minimum amount of speed spent on each sentence (in milliseconds)
 // If the screen is currently scrolling. If it is, pause the tracker.
 var isScrolling = false;
 
@@ -133,13 +128,9 @@ function calculateTrackerLife() {
 		This function then distributes the remaining time to each sentence according
 		to ratio of the sentence_words:total_words. 
 	*/
-<<<<<<< HEAD
 	const speed_bias_ms = 500; // Half of a second; is this too long?
 
 	let sentenceId = tracker.getSentenceId();
-	let sentencePtr = doc.getSentence(sentenceId);
-
-	let containerId = sentencePtr.containerId;
 	let sentences_remaining = doc.getNumSentencesFromSentenceTilEnd(sentenceId);
 	let sentence_words = doc.getNumWordsInSentence(sentenceId); // Words in current sentence
 	let total_words_remaining = doc.getNumWordsFromSentenceTilEnd(sentenceId);
@@ -151,25 +142,6 @@ function calculateTrackerLife() {
 
 	return (linger_time_ms); 
 	// TODO: Use Moment.js
-=======
-	const speed_bias = 500; // Half of a second; is this too long?
-	let containerId = tracker.getContainerId();
-	// This is an array that has the number of sentences in each container. The 1st container has the 1st element in this array, and so on.  
-	let container_sentences_map = doc.getContainerSentencesMap().slice(containerId); // Don't include containers before current container
-	let sentences_remaining = 0; // This will be sentences remaining on page
-	// Sum up sentences in array
-	for (var i = 0; i < container_sentences_map.length; i++) {
-		sentences_remaining += container_sentences_map[i]; 
-	}
-	let sentence_words = tracker.getTrackerLen() // Words in current sentence
-	let total_words = doc.getTotalWords(); // Total words on page
-	let base_time = sentences_remaining * speed_bias /1000; // Time from just speed_bias on each sentence. In seconds
-	let desired_time = display.getTimeRemaining() * 60; // Time we need to finish in
-	let distributable_time = desired_time - base_time; // Time left to distribute to sentences
-	let word_ratio = sentence_words/total_words;
-	let linger_time = distributable_time*(word_ratio)*1000 + speed_bias; // convert from s to ms
-	return (linger_time);
->>>>>>> changed calculation of tracker life to be accurate, and to reflect whether on auto or not
 }
 
 /*
@@ -207,19 +179,10 @@ function moveOne(dir) { // Sets start and end
 
 // Scroll up when tracker is above page
 function scrollUp() {
-	// Check to see if we should use old style or look for new
-	let tracker_style_current = null; // Depends on if style was just switched
-	if ($("."+trackerStyle)) {
-		tracker_style_current = trackerStyle
-	} else { 
-		let displaySettings = display.getSettings();
-		tracker_style_current = "trackerHighlighter"+displaySettings[1]+"Shadow"+displaySettings[2]; 
-	}
-
 	let verticalMargin = 200;
 	// Autoscroll if tracker is above top of page.
 	// Number of pixels from top of window to top of current container.
-	let markedTopAbsoluteOffset = $("."+tracker_style_current).offset().top;
+	let markedTopAbsoluteOffset = $(".trackerClass").offset().top;
 	let markedTopRelativeOffset = markedTopAbsoluteOffset - $(window).scrollTop();
 	if (markedTopRelativeOffset < 0) {
 		isScrolling = true;
@@ -236,21 +199,12 @@ function scrollUp() {
 
 // Scroll down when tracker is below a certain point
 function scrollDown() {
-	// Check to see if we should use old style or look for new
-	let tracker_style_current = null; // Depends on if style was just switched
-	if ($("."+trackerStyle)) {
-		tracker_style_current = trackerStyle
-	} else { 
-		let displaySettings = display.getSettings();
-		tracker_style_current = "trackerHighlighter"+displaySettings[1]+"Shadow"+displaySettings[2]; 
-	}
-	
 	let scrollThreshold = 500;
 	let verticalMargin = 200;
 	// Autoscroll if too far ahead.
 	// Number of pixels from top of window to top of current container.
 
-	let markedTopAbsoluteOffset = $("."+tracker_style_current).offset().top;
+	let markedTopAbsoluteOffset = $(".trackerClass").offset().top;
 	let markedTopRelativeOffset = markedTopAbsoluteOffset - $(window).scrollTop();
 	if (markedTopRelativeOffset > scrollThreshold) {
 		isScrolling = true;
@@ -277,8 +231,8 @@ Undo all actions by highlight() and highlightKeyWords().
 */
 function unhighlightEverything() {
   // TODO: If this is broken, make a tracker class that never changes. Then use the ID for styling
-	$("." + trackerStyle).unmark(); 
-	$("." + keywordStyle).unmark();
+	$(".trackerClass").unmark(); 
+	$(".keywordClass").unmark();
 }
 
 /*
@@ -288,8 +242,9 @@ function highlight(tracker) {
 	// Notice trackerStyle here is NOT immediately updated when user changes settings;
 	// We need the old trackerStyle name to be able to find and remove the styling, 
 	// since the next sentence will get a new style. 
-	let markEl = $("."+trackerStyle);
+	let markEl = $(".trackerClass");
 	markEl.unmark();
+	markEl.removeClass("trackerClass");
 	markEl.removeClass(trackerStyle);
 	// Append the "mark" class (?) to the html corresponding to the interval
 	// The interval indices are w.r.t to the raw text.
@@ -304,8 +259,11 @@ function highlight(tracker) {
     	start: start,
     	length: end - start
 	}], {
-		className: trackerStyle
+		// "trackerClass" is for finding current tracker
+		className: "trackerClass"
 	});
+	// Find element with class "trackerClass", add on trackerStyle class:
+	$('.trackerClass').addClass(trackerStyle) 
 	highlightKeyWords(container, start, end);
 };
 
@@ -318,7 +276,8 @@ function highlightKeyWords(container, start, end) {
 	let displaySettings = display.getSettings();
 	let keywordStyle = "keyWord"+displaySettings[0]; 
 	// TODO: Mark.js is actually built to do this; migrate functionality to mark.js
-	$("."+keywordStyle).unmark(); // Remove previous sentence keyword styling
+	$(".keywordClass").unmark(); // Remove previous sentence keyword styling
+	$(".keywordClass").removeClass(keywordStyle);
 	$("."+keywordStyle).removeClass(keywordStyle);
 	// Get list of words in interval
 	let containerText = container.text();
@@ -338,19 +297,18 @@ function highlightKeyWords(container, start, end) {
 			start: word_start,
 			length: word_len
 		}], {
-			className: keywordStyle
+			className: "keywordClass"
 		});
 	}
+	$('.keywordClass').addClass(keywordStyle) 
 };
 
 /*
 Fade the current tracker indicator according to the calculated speed.
 */
 function fadeTracker() {
-	let displaySettings = display.getSettings();
-	let keywordStyle = "keyWord"+displaySettings[0];
 	fadeElement($("mark"));
-	fadeElement($("." + keywordStyle));
+	fadeElement($(".keywordClass"));
 }
 
 /*
@@ -358,7 +316,7 @@ Stop all animations related to fading.
 */
 function stopFadeTracker() {
 	$("mark").stop();
-	$("." + keywordStyle).stop();
+	$(".keywordClass").stop();
 }
 
 
