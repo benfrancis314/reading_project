@@ -157,12 +157,11 @@ function calculateTrackerLife() {
 		sentences_remaining += container_sentences_map[i]; 
 	}
 	let sentence_words = doc.getNumWordsInSentence(sentenceId); // Words in current sentence
-	// TODO: This should be total_words_REMAINING
-	let total_words = doc.getTotalWords(); // Total words on page
+	let total_words_remaining = doc.getNumWordsFromSentenceTilEnd(sentenceId);
 	let base_time_s = sentences_remaining * speed_bias_ms/1000; // Time from just speed_bias on each sentence. In seconds
 	let desired_time_s = display.getTimeRemaining() * 60; // Time we need to finish in
 	let distributable_time = desired_time_s - base_time_s; // Time left to distribute to sentences
-	let word_ratio = sentence_words/total_words;
+	let word_ratio = sentence_words/total_words_remaining;
 	let linger_time_ms = distributable_time*(word_ratio)*1000 + speed_bias_ms; // convert from s to ms
 	return (linger_time_ms); 
 	// TODO: Use Moment.js
