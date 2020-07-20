@@ -11,10 +11,11 @@ if (window[namespace] === true) {
 
 // List of chrome storage keys.
 const settingKey = {
-	// How long to stay on each character, in ms.
-	// Because of this definition, unintuitively, the smaller speed value,
-	// the faster the actual reading speed is. 
-    SPEED: "speed"
+	SPEED: "speed", // WPM
+	CUSTOMS: "customs"
+	// KEYWORD: "green", // Keywords color/active: "green", "yellow", "off"
+	// HIGHLIGHTER: "blue", // Highlighter color: "blue", "yellow", "green"
+	// SHADOW: "blue" // Shadow color: "blue", "yellow", "green"
 };
 
 /*
@@ -46,6 +47,20 @@ class Settings {
 		});
 
 	}
+	// I AM USING A COPY OF THIS IN DISPLAY.JS JUST FOR NOW FOR POC;
+	// TODO: MOVE CALLBACK FLOW TO GO BACK THROUGH HERE
+	/* Stored as array bc I need all 3 to proceed in content_script.js. 
+	So instead of waiting for three async calls, merging them into an array back here
+	*/
+	setCustomizations(customs,cb) { // string[] -> 1. Keyword 2. Highlighter 3. Shadow
+		chrome.storage.local.set({[settingKey.CUSTOMS]: customs}, function() {
+			if (chrome.runtime.lastError) {
+				console.log("Failed to save customization setting: " + chrome.runtime.lastError);
+				return;
+			}
+			cb();
+		});
+	}
 
 	/*
 	See setSpeed().
@@ -65,8 +80,28 @@ class Settings {
 			if (key in settingsDict) {
 				speed = settingsDict[key];
 			} 
-
 			cb(speed);
+		});
+	}
+	/*
+	See setCustomizations().
+	If not set yet, return default value of ["Green", "Blue", "Blue"].
+	Parameters;
+	- cb: func(int). A callback function which accepts the retrieved customizations status.
+	*/
+	getCustomizations(cb) {
+		let key = settingKey.CUSTOMS;
+		let val = chrome.storage.local.get(key, function(settingsDict) {
+			if (chrome.runtime.lastError) {
+				console.log("Failed to retrieve customization setting: " + chrome.runtime.lastError);
+				return;
+			}
+			// Default keyword color.
+			let customs = ["Green", "Blue", "Blue"]
+			if (key in settingsDict) {
+				customs = settingsDict[key];
+			} 
+			cb(customs);
 		});
 	}
 }

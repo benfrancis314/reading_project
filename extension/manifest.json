@@ -25,6 +25,10 @@
         },
         "default_title": "no title :("
     },
+    "web_accessible_resources": [
+        "gear.svg",
+        "ui_instructions_customizations.svg"
+    ],
     "options_page": "options.html",
     "manifest_version": 2
 }
