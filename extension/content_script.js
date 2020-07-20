@@ -9,6 +9,9 @@ if (window[namespace] === true) {
 	window[namespace] = true;
 }
 
+const keywordClass = "keywordClass" // Name of class for FINDING keywords (no styling)
+const trackerClass = "trackerClass" // Name of class for FINDING the tracker (no styling)
+
 // Keeps track of the pointed text. Initialized by end of script load.
 var tracker = null;
 // Creates display for time remaining and reading speed at top of page. Initialized by end of script load.
@@ -182,7 +185,7 @@ function scrollUp() {
 	let verticalMargin = 200;
 	// Autoscroll if tracker is above top of page.
 	// Number of pixels from top of window to top of current container.
-	let markedTopAbsoluteOffset = $(".trackerClass").offset().top;
+	let markedTopAbsoluteOffset = $("."+trackerClass).offset().top;
 	let markedTopRelativeOffset = markedTopAbsoluteOffset - $(window).scrollTop();
 	if (markedTopRelativeOffset < 0) {
 		isScrolling = true;
@@ -204,7 +207,7 @@ function scrollDown() {
 	// Autoscroll if too far ahead.
 	// Number of pixels from top of window to top of current container.
 
-	let markedTopAbsoluteOffset = $(".trackerClass").offset().top;
+	let markedTopAbsoluteOffset = $("."+trackerClass).offset().top;
 	let markedTopRelativeOffset = markedTopAbsoluteOffset - $(window).scrollTop();
 	if (markedTopRelativeOffset > scrollThreshold) {
 		isScrolling = true;
@@ -231,8 +234,8 @@ Undo all actions by highlight() and highlightKeyWords().
 */
 function unhighlightEverything() {
   // TODO: If this is broken, make a tracker class that never changes. Then use the ID for styling
-	$(".trackerClass").unmark(); 
-	$(".keywordClass").unmark();
+	$("." + trackerClass).unmark(); 
+	$("." + keywordClass).unmark();
 }
 
 /*
@@ -242,9 +245,9 @@ function highlight(tracker) {
 	// Notice trackerStyle here is NOT immediately updated when user changes settings;
 	// We need the old trackerStyle name to be able to find and remove the styling, 
 	// since the next sentence will get a new style. 
-	let markEl = $(".trackerClass");
+	let markEl = $("."+trackerClass);
 	markEl.unmark();
-	markEl.removeClass("trackerClass");
+	markEl.removeClass(trackerClass);
 	markEl.removeClass(trackerStyle);
 	// Append the "mark" class (?) to the html corresponding to the interval
 	// The interval indices are w.r.t to the raw text.
@@ -260,10 +263,10 @@ function highlight(tracker) {
     	length: end - start
 	}], {
 		// "trackerClass" is for finding current tracker
-		className: "trackerClass"
+		className: trackerClass
 	});
 	// Find element with class "trackerClass", add on trackerStyle class:
-	$('.trackerClass').addClass(trackerStyle) 
+	$('.'+trackerClass).addClass(trackerStyle) 
 	highlightKeyWords(container, start, end);
 };
 
@@ -276,8 +279,8 @@ function highlightKeyWords(container, start, end) {
 	let displaySettings = display.getSettings();
 	let keywordStyle = "keyWord"+displaySettings[0]; 
 	// TODO: Mark.js is actually built to do this; migrate functionality to mark.js
-	$(".keywordClass").unmark(); // Remove previous sentence keyword styling
-	$(".keywordClass").removeClass(keywordStyle);
+	$("."+keywordClass).unmark(); // Remove previous sentence keyword styling
+	$("."+keywordClass).removeClass(keywordStyle);
 	$("."+keywordStyle).removeClass(keywordStyle);
 	// Get list of words in interval
 	let containerText = container.text();
@@ -297,10 +300,10 @@ function highlightKeyWords(container, start, end) {
 			start: word_start,
 			length: word_len
 		}], {
-			className: "keywordClass"
+			className: keywordClass
 		});
 	}
-	$('.keywordClass').addClass(keywordStyle) 
+	$('.'+keywordClass).addClass(keywordStyle) 
 };
 
 /*
@@ -308,7 +311,7 @@ Fade the current tracker indicator according to the calculated speed.
 */
 function fadeTracker() {
 	fadeElement($("mark"));
-	fadeElement($(".keywordClass"));
+	fadeElement($("."+keywordClass));
 }
 
 /*
@@ -316,7 +319,7 @@ Stop all animations related to fading.
 */
 function stopFadeTracker() {
 	$("mark").stop();
-	$(".keywordClass").stop();
+	$("."+keywordClass).stop();
 }
 
 
