@@ -333,7 +333,7 @@ class Display {
     */
     defineHtml() {
         this.displayHtml = `
-            <div id="displayContainer">
+            <div id="readingDisplayContainer">
                 <div id="timerContainer">
                     <div id="timerInsideContainer">
                         <span id="timerNumber">${this.time_remaining}</span> min remaining
@@ -515,7 +515,9 @@ class Display {
     // Remove the widget UI elements from DOM.
 
     turnDownUI() {
-        $("#displayContainer").remove();
+        $("#readingDisplayContainer").remove();
+        $('#optionsButton').remove();
+        $('#uiContainer').remove();
     }
 }
 
