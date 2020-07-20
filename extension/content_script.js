@@ -59,6 +59,7 @@ function setupClickListeners() {
 		container.on("click", function () {
 			tracker.pointToContainer(containerId);
 			highlight(tracker);
+			display.updateTimer(tracker.getSentenceId());
 		});
 	}
 }
@@ -103,17 +104,10 @@ function startMove(dir) { // Note: I have combined the "moveUp" and "moveDown" f
 		return;
 	}
 
-	let moveFn = null;
-	if (dir == direction.BACKWARD) {
-		moveFn = moveUpOne;
-	} else if (dir == direction.FORWARD) {
-		moveFn = moveDownOne;
-	}
-
 	// Schedule continuous movement, with the first move being run immediately.
 	(function repeat() { // Allows speed to be updated WHILE moving
 		// If there is no more movement to be made, stop autoscroll.
-		let hasMoved = moveFn();
+		let hasMoved = moveOne(dir);
 		if (!hasMoved) {
 			stopMove();
 			return;
@@ -149,49 +143,41 @@ function calculateTrackerLife() {
 	let distributable_time = desired_time_s - base_time_s; // Time left to distribute to sentences
 	let word_ratio = sentence_words/total_words_remaining;
 	let linger_time_ms = distributable_time*(word_ratio)*1000 + speed_bias_ms; // convert from s to ms
+
 	return (linger_time_ms); 
 	// TODO: Use Moment.js
 }
 
 /*
-Move one sentence up.
+Move one sentence in the given direction.
 Return:
 - Boolean: True iff tracker successfully moved. False if there is no more element to move to.
 */
-function moveUpOne() { // Sets start and end
+function moveOne(dir) { // Sets start and end
 	// Let scrolling finish before any movement.
 	if (isScrolling) {
 		return;
 	}
-	let hasMoved = tracker.movePrevious();
+
+	let hasMoved = false;
+
+	if (dir == direction.BACKWARD) {
+		hasMoved = tracker.movePrevious();
+	} else if (dir == direction.FORWARD) {
+		hasMoved = tracker.moveNext();
+	}
 	if (!hasMoved) {
 		return false;
 	}
+	display.updateTimer(tracker.getSentenceId());
 	highlight(tracker);
-	scrollUp();
-	return true;
-}
+ 
 
-/*
-Move one sentence down.
-Return:
-- Boolean: True iff tracker successfully moved. False if there is no more element to move to.
-*/
-function moveDownOne() { // Sets start and end
-	// Let scrolling finish before any movement.
-	if (isScrolling) {
-		return;
+	if (dir == direction.BACKWARD) {
+		scrollUp();
+	} else if (dir == direction.FORWARD) {
+		scrollDown();
 	}
-	let hasMoved = tracker.moveNext();
-	if (!hasMoved) {
-		return false;
-	}
-
-	let sentenceId = tracker.getSentenceId();
-	let sentencePtr = doc.getSentence(sentenceId);
-	display.updateTimer(doc.getContainers(), sentencePtr.containerId);
-	highlight(tracker);
-	scrollDown();
 	return true;
 }
 
@@ -397,13 +383,10 @@ function setupKeyListeners() {
 				adjustSpeed(-40);
 				break;
 			case 'Space': // Switch to auto mode
-				let sentencePtr = doc.getSentence(tracker.getSentenceId());
 				if (timer) {
 					stopMove();
-					display.updateTimer(doc.getContainers(), sentencePtr.containerId);
 				} else {
 					startMove(direction.FORWARD);
-					display.updateTimer(doc.getContainers(), sentencePtr.containerId);
 				}
 			default:
                 break;
@@ -502,7 +485,7 @@ function oneTimeSetup() {
 Render all the UI elements.
 */
 function setupUI() {
-	display = new Display(doc.getContainers(), speed, doc.getTotalWords());
+	display = new Display(doc, speed);
   
 	updateDisplaySettings();
   

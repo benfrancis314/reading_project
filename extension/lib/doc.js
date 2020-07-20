@@ -83,13 +83,6 @@ class Doc {
         return this.keywords;
     }
 
-    // TODO: REmove this once you have refactored all the other classes.
-    // Clients should not have direct access to the containers, but use other getter functions.
-    // Return $[]; List of all jquery readable containers.
-    getContainers() {
-        return this.containers;
-    }
-
     /*
     Find all sentence boundaries within containers.
     Initializes [sentences, containerIdToFirstSentenceId]
