@@ -149,13 +149,7 @@ function calculateTrackerLife() {
 	let sentencePtr = doc.getSentence(sentenceId);
 
 	let containerId = sentencePtr.containerId;
-	// This is an array that has the number of sentences in each container. The 1st container has the 1st element in this array, and so on.  
-	let container_sentences_map = doc.getContainerSentencesMap().slice(containerId); // Don't include containers before current container
-	let sentences_remaining = 0; // This will be sentences remaining on page
-	// Sum up sentences in array
-	for (var i = 0; i < container_sentences_map.length; i++) {
-		sentences_remaining += container_sentences_map[i]; 
-	}
+	let sentences_remaining = doc.getNumSentencesFromSentenceTilEnd(sentenceId);
 	let sentence_words = doc.getNumWordsInSentence(sentenceId); // Words in current sentence
 	let total_words_remaining = doc.getNumWordsFromSentenceTilEnd(sentenceId);
 	let base_time_s = sentences_remaining * speed_bias_ms/1000; // Time from just speed_bias on each sentence. In seconds

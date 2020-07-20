@@ -67,8 +67,6 @@ class Doc {
         this.termFreq = null; // { str : int } , Frequency of terms in document. Set in calcTotalWords function
         this.total_words = this.calcTotalWords(readableDomEls); // int; Total number of words in document;
         this.keywords = this.setKeyWords(this.termFreq); // string[] keywords of document
-        // int[], Index[i] is # of sentences in ith container.
-        this.container_sentences_map = this.calcSentencePerContainer(this.sentences);
         // int[], Index[i] is # of words in the ith sentence.
         this.num_words_per_sentence = this.calcNumWordsPerSentence(this.sentences);
         // int[], Index[i] is the total # of words from ith sentence til the end of document.
@@ -85,11 +83,6 @@ class Doc {
         return this.keywords;
     }
 
-    // Returns: Container-sentences map; tells how many sentences are in each container
-    getContainerSentencesMap() {
-        return this.container_sentences_map;
-    }
-    
     // TODO: REmove this once you have refactored all the other classes.
     // Clients should not have direct access to the containers, but use other getter functions.
     // Return $[]; List of all jquery readable containers.
@@ -139,6 +132,10 @@ class Doc {
     */
     getNumWordsFromSentenceTilEnd(sentenceId) {
         return this.num_words_per_sentence_suffix_sum[sentenceId];
+    }
+
+    getNumSentencesFromSentenceTilEnd(sentenceId) {
+        return this.getNumSentences() - sentenceId;
     }
 
     /*
