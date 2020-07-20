@@ -54,11 +54,6 @@ class Display {
         return([this.keywordSetting, this.highlighterSetting, this.shadowSetting]);
     }
 
-    // Returns time remaining
-    getTimeRemaining() {
-        return this.time_remaining;
-    }
-
     /*
     Called by onClick handler on each button of the customization UI. 
     Given a setting and choice, it uses provides an array to setCustomizations containing

@@ -367,10 +367,8 @@ function setupKeyListeners() {
 			case 'Space': // Switch to auto mode
 				if (timer) {
 					stopMove();
-					display.updateTimer(readableDomIds, tracker.getContainerId());
 				} else {
 					startMove(direction.FORWARD);
-					display.updateTimer(readableDomIds, tracker.getContainerId());
 				}
 			default:
                 break;

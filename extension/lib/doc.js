@@ -126,11 +126,6 @@ class Doc {
         return this.getNumSentences() - sentenceId;
     }
 
-    // Returns: Container-sentences map; tells how many sentences are in each container
-    getContainerSentencesMap() {
-        return this.container_sentences_map;
-    }
-    
     /*
     Returns: Total words in document (int)
     Calculates total words in the document
