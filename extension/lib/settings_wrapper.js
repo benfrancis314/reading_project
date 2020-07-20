@@ -12,10 +12,10 @@ if (window[namespace] === true) {
 // List of chrome storage keys.
 const settingKey = {
 	SPEED: "speed", // WPM
-	KEYWORD: "green", // Keywords color/active: "green", "yellow", "off"
-	HIGHLIGHTER: "blue", // Highlighter color: "blue", "yellow", "green"
-	SHADOW: "blue" // Shadow color: "blue", "yellow", "green"
-
+	CUSTOMS: "customs"
+	// KEYWORD: "green", // Keywords color/active: "green", "yellow", "off"
+	// HIGHLIGHTER: "blue", // Highlighter color: "blue", "yellow", "green"
+	// SHADOW: "blue" // Shadow color: "blue", "yellow", "green"
 };
 
 /*
@@ -47,28 +47,20 @@ class Settings {
 		});
 
 	}
-	setKeyword(color) {
-		chrome.storage.local.set({[settingKey.KEYWORD]: color}, function() {
+	// I AM USING A COPY OF THIS IN DISPLAY.JS JUST FOR NOW FOR POC;
+	// TODO: MOVE CALLBACK FLOW TO GO BACK THROUGH HERE
+	/* Stored as array bc I need all 3 to proceed in content_script.js. 
+	So instead of waiting for three async calls, merging them into an array back here
+	*/
+	setCustomizations(customs,cb) { // string[] -> 1. Keyword 2. Highlighter 3. Shadow
+		// console.log("check if set setCustoms");
+		// console.log(customs)
+		chrome.storage.local.set({[settingKey.CUSTOMS]: customs}, function() {
 			if (chrome.runtime.lastError) {
-				console.log("Failed to save keyword setting: " + chrome.runtime.lastError);
+				console.log("Failed to save customization setting: " + chrome.runtime.lastError);
 				return;
 			}
-		});
-	}
-	setHighlighter(color) {
-		chrome.storage.local.set({[settingKey.HIGHLIGHTER]: color}, function() {
-			if (chrome.runtime.lastError) {
-				console.log("Failed to save highlighter setting: " + chrome.runtime.lastError);
-				return;
-			}
-		});
-	}
-	setShadow(color) {
-		chrome.storage.local.set({[settingKey.SHADOW]: color}, function() {
-			if (chrome.runtime.lastError) {
-				console.log("Failed to save shadow setting: " + chrome.runtime.lastError);
-				return;
-			}
+			cb();
 		});
 	}
 
@@ -90,74 +82,28 @@ class Settings {
 			if (key in settingsDict) {
 				speed = settingsDict[key];
 			} 
-
 			cb(speed);
 		});
 	}
 	/*
-	See setKeyword().
-	If not set yet, return default value of "green".
+	See setCustomizations().
+	If not set yet, return default value of ["Green", "Blue", "Blue"].
 	Parameters;
-	- cb: func(int). A callback function which accepts the retrieved keyword status.
+	- cb: func(int). A callback function which accepts the retrieved customizations status.
 	*/
-	getKeyword(cb) {
-		let key = settingKey.KEYWORD;
+	getCustomizations(cb) {
+		let key = settingKey.CUSTOMS;
 		let val = chrome.storage.local.get(key, function(settingsDict) {
 			if (chrome.runtime.lastError) {
-				console.log("Failed to retrieve keyword setting: " + chrome.runtime.lastError);
+				console.log("Failed to retrieve customization setting: " + chrome.runtime.lastError);
 				return;
 			}
 			// Default keyword color.
-			let keyword = "Green";
+			let customs = ["Green", "Blue", "Blue"]
 			if (key in settingsDict) {
-				keyword = settingsDict[key];
+				customs = settingsDict[key];
 			} 
-
-			cb(keyword);
-		});
-	}
-	/*
-	See setHighlighter().
-	If not set yet, return default value of "blue".
-	Parameters;
-	- cb: func(int). A callback function which accepts the retrieved highlighter.
-	*/
-	getHighlighter(cb) {
-		let key = settingKey.HIGHLIGHTER;
-		let val = chrome.storage.local.get(key, function(settingsDict) {
-			if (chrome.runtime.lastError) {
-				console.log("Failed to retrieve highlighter setting: " + chrome.runtime.lastError);
-				return;
-			}
-			// Default highlighter color.
-			let highlighter = "Blue";
-			if (key in settingsDict) {
-				highlighter = settingsDict[key];
-			} 
-
-			cb(highlighter);
-		});
-	}
-	/*
-	See setShadow().
-	If not set yet, return default value of "blue".
-	Parameters;
-	- cb: func(int). A callback function which accepts the retrieved shadow.
-	*/
-	getShadow(cb) {
-		let key = settingKey.SHADOW;
-		let val = chrome.storage.local.get(key, function(settingsDict) {
-			if (chrome.runtime.lastError) {
-				console.log("Failed to retrieve shadow setting: " + chrome.runtime.lastError);
-				return;
-			}
-			// Default shadow color.
-			let shadow = "Blue";
-			if (key in settingsDict) {
-				shadow = settingsDict[key];
-			} 
-
-			cb(shadow);
+			cb(customs);
 		});
 	}
 }

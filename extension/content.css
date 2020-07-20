@@ -48,6 +48,11 @@ mark {
 	box-shadow: 1pt 1pt 3pt 1pt rgb(171, 252, 164); /* Green shadow */
 	transition: all 0.5s ease;
 }
+.trackerHighlighternullShadownull {
+	background-color:rgb(252, 185, 164); /* Green highlighter */
+	box-shadow: 1pt 1pt 3pt 1pt rgb(252, 164, 164); /* Green shadow */
+	transition: all 0.5s ease;
+}
 .keyWordGreen {
 	background-color:rgb(171, 252, 164); /* Nancy personally chose this green color: */
 	transition: all 0.5s ease;

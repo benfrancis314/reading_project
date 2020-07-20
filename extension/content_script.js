@@ -34,23 +34,10 @@ TODO: Redo this using CSS variable or something.
 Problem is that highlighter and shadow need to be in the same ID;
 not scalable right now to more customizable settings that effect the tracker. 
 */
-var highlighterSetting = null;
-var shadowSetting = null;
-var keywordSetting = null;
-// var highlighterSetting = "Blue";
-// var shadowSetting = "Yellow";
-// var keywordSetting = "Green";
-// // Expose to global (TODO: Refactor)
-// window.highlighterSetting = highlighterSetting;
-// window.shadowSetting = shadowSetting;
-// window.keywordSetting = keywordSetting;
-
-var trackerStyle = null;
-// var trackerStyle = "trackerHighlighter"+highlighterSetting+"Shadow"+shadowSetting; // TODO: Refactor this color selection process
-
-// Classname for keyword highlights.
-
-let keywordStyle = "keyWord"+keywordSetting;
+var keywordStyle = null; // will be CSS ID of keywords
+var trackerStyle = null; // will be CSS ID of tracker
+window.keywordStyle = keywordStyle;
+window.trackerStyle = trackerStyle;
 
 // Possible reading directions.
 const direction = {
@@ -200,6 +187,8 @@ function scrollUp() {
 
 // Scroll down when tracker is below a certain point
 function scrollDown() {
+	let displaySettings = display.getSettings();
+	let trackerStyle = "trackerHighlighter"+displaySettings[1]+"Shadow"+displaySettings[2]; // TODO: Refactor this color selection process
 	let scrollThreshold = 500;
 	let verticalMargin = 200;
 	// Autoscroll if too far ahead.
@@ -223,7 +212,9 @@ function scrollDown() {
 Highlight portion pointed to by tracker.
 */
 function highlight(tracker) {
-	console.log(trackerStyle);
+	let displaySettings = display.getSettings();
+	let trackerStyle = "trackerHighlighter"+displaySettings[1]+"Shadow"+displaySettings[2]; // TODO: Refactor this color selection process
+
 	let markEl = $("."+trackerStyle);
 	markEl.unmark();
 	markEl.removeClass(trackerStyle);
@@ -248,6 +239,9 @@ function highlight(tracker) {
     Highlights the keywords within the tracked sentence. 
     */
 function highlightKeyWords(container, start, end) {
+	// TODO: Refactor this; this should be reset whenever it is changed, not checked every sentence
+	let displaySettings = display.getSettings();
+	let keywordStyle = "keyWord"+displaySettings[0]; 
 	// TODO: Mark.js is actually built to do this; migrate functionality to mark.js
 	$("."+keywordStyle).unmark(); // Remove previous sentence keyword styling
 	$("."+keywordStyle).removeClass(keywordStyle);
@@ -278,6 +272,8 @@ function highlightKeyWords(container, start, end) {
 Fade the current tracker indicator according to the calculated speed.
 */
 function fadeTracker() {
+	let displaySettings = display.getSettings();
+	let keywordStyle = "keyWord"+displaySettings[0];
 	fadeElement($("mark"));
 	fadeElement($("." + keywordStyle));
 }
@@ -327,9 +323,6 @@ function readListener() {
 			case 'KeyS':	// Slow velocity
 				adjustSpeed(-40);
 				break;
-			// case 'KeyU':	// Update display -> FOR TESTING
-			// 	display.updateDisplay();
-			// 	break;
 			case 'Space': // Switch to auto mode
 				if (timer) {
 					stopMove();
@@ -354,19 +347,38 @@ function readListener() {
     
 };
 
+
 /*
-When button is clicked, 
+Process of determining which style to use. 
+TODO: Redo this using CSS variable or something. 
+Problem is that highlighter and shadow need to be in the same ID;
+not scalable right now to more customizable settings that effect the tracker. 
 */
-function updateSettings() {
-	settings.getKeyword(function(settingsKeyword) {
-		keywordSetting = settingsKeyword;
-	})
-	settings.getHighlighter(function(settingsHighlighter) {
-		highlighterSetting = settingsHighlighter;
-	})
-	settings.getShadow(function(settingsShadow) {
-		shadowSetting = settingsShadow;
-	})
+
+// var trackerStyle = "trackerHighlighter"+highlighterSetting+"Shadow"+shadowSetting; // TODO: Refactor this color selection process
+
+// Classname for keyword highlights.
+
+function initializeTracker(settingsCustomizations) {
+	keywordStyle = "keyWord"+settingsCustomizations[0]; // 0th element is the keyword type
+	// TODO: Refactor this color selection process; won't scale
+	trackerStyle = "trackerHighlighter"+settingsCustomizations[1]+"Shadow"+settingsCustomizations[2]; // 1st element is highlighter type, 2nd element is shadow type
+	// console.log(keywordStyle);
+	// console.log(trackerStyle);
+	startMove(direction.FORWARD); // Start reader on the first line
+	stopMove(); // Prevent from continuing to go forward
+}
+
+
+
+/*
+REMOVE THIS
+*/
+function updateDisplaySettings() {
+	let displaySettings = []; // Settings: 1: Keyword 2: Highlighter 3: Shadow
+	settings.getCustomizations(function(settingsCustomizations) {
+		initializeTracker(settingsCustomizations)
+	});
 }
 
 function init() {
@@ -385,21 +397,12 @@ function init() {
 		speed = settingsSpeed;
 		let readableDomIds = window.parseDocument();
 		doc = new Doc(readableDomIds);
-		tracker = new Tracker(readableDomIds);
 		display = new Display(readableDomIds, speed, doc.getTotalWords());
+		tracker = new Tracker(readableDomIds);
+		updateDisplaySettings();
 
 		setupClickListener(tracker);
 		readListener();
-
-		let displaySettings = display.getSettings();
-		keywordSetting = displaySettings[0];
-		highlighterSetting = displaySettings[1];
-		shadowSetting = displaySettings[2];
-		trackerStyle = "trackerHighlighter"+highlighterSetting+"Shadow"+shadowSetting; // TODO: Refactor this color selection process
-		console.log(keywordSetting, highlighterSetting, shadowSetting);
-
-		startMove(direction.FORWARD); // Start reader on the first line
-		stopMove(); // Prevent from continuing to go forward
 	});
 }
 

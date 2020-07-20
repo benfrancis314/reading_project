@@ -15,6 +15,18 @@ TODO: Refactor these cross-file activities.
 
 const avg_read_speed = 260; // WPM
 
+// THIS IS FROM SETTINGS_WRAPPER.JS
+// Using it here just for a bandaid fix on getting the following sequence of functions (see below) to work:
+// changeSetting() in toggleUI() -> setCustomizations -> updateSettings -> getCustomizations -> setSettings
+const settingKey = {
+	SPEED: "speed", // WPM
+	CUSTOMS: ["Keyword", "Highlighter", "Shadow"]
+	// KEYWORD: "green", // Keywords color/active: "green", "yellow", "off"
+	// HIGHLIGHTER: "blue", // Highlighter color: "blue", "yellow", "green"
+	// SHADOW: "blue" // Shadow color: "blue", "yellow", "green"
+
+};
+
 /*
 Creates a display overlaid on current web page that displays
 the estimated time remaining to read and the current speed of 
@@ -46,9 +58,6 @@ class Display {
         this.end = null; 
         this.auto_mode = false; // Is the reading mode in AUTO mode? (if not, in MANUAL)
         this.uiStatus = false; // Is the UI (Instructions & Customizations) ON or OFF?
-        // this.keywordSetting = null; 
-        // this.highlighterSetting = null; 
-        // this.shadowSetting = null; 
 
         this.keywordSetting = "Green"; // String: "Green", "Yellow", or "Off"
         this.highlighterSetting = "Blue"; // String: "Blue", Yellow", or "Green"
@@ -59,30 +68,58 @@ class Display {
         this.createDisplay(readableDomIds);
         this.updateSpeed(speed);
         this.setHtmlListeners(); 
-        this.setSettings();
+        this.updateSettings();
     }
     getSettings() {
+        // console.log([this.keywordSetting, this.highlighterSetting, this.shadowSetting]);
         return([this.keywordSetting, this.highlighterSetting, this.shadowSetting]);
     }
 
-    keywordSetting = null;
-    highlighterSetting = null;
-    shadowSetting = null;
-        
-
-    setSettings() {
-        var self = this; 
-        settings.getKeyword(function(settingsKeyword) {
-            self.keywordSetting = settingsKeyword
-        });
-        settings.getHighlighter(function(settingsHighlighter) {
-            self.highlighterSetting = settingsHighlighter
-        });
-        settings.getShadow(function(settingsShadow) {
-            self.shadowSetting = settingsShadow
-        });
+    /*
+    Called by onClick handler on each button of the customization UI. 
+    Given a setting and choice, it uses provides an array to setCustomizations containing
+    the two old customizations and the new customizations. 
+    It also gives a callback to updateSettings. 
+    */
+    changeSetting(setting, choice) {
+        var self = this;
+        if (setting == "keyword") {
+            settings.setCustomizations([choice, self.highlighterSetting, self.shadowSetting], function() {
+                self.updateSettings();
+            });
+        } else if (setting == "highlighter") {
+            console.log(self.keywordSetting, self.highlighterSetting,self.shadowSetting)
+            settings.setCustomizations([self.keywordSetting, choice, self.shadowSetting], function() {
+                self.updateSettings();
+            });
+        } else if (setting == "shadow") {
+            settings.setCustomizations([self.keywordSetting, self.highlighterSetting, choice], function() {
+                self.updateSettings();
+            });
+        } 
     }
 
+    
+     
+    // --> Gets called as cb from settings.setCustomizations --> 
+    updateSettings() {
+        var self = this;
+        settings.getCustomizations(function(customs) { // -->
+            self.setSettings(customs); // --> 
+        });
+    }
+    setSettings(customs) {
+        this.keywordSetting = customs[0];
+        this.highlighterSetting = customs[1];
+        this.shadowSetting = customs[2];
+        window.keywordStyle = "keyWord"+customs[0];
+        window.trackerStyle = "trackerHighlighter"+customs[1]+"Shadow"+customs[2]
+        // console.log(window.keywordStyle);
+        // console.log(window.trackerStyle);
+    }  
+    	/* Stored as array bc I need all 3 to proceed in content_script.js. 
+	So instead of waiting for three async calls, merging them into an array back here
+    */
 
 
     // Returns time remaining
@@ -143,6 +180,10 @@ class Display {
         document.getElementById("speedNumber").innerHTML = this.reading_speed;
     }
 
+    /*
+    Setup listeners on the inject HTML. 
+    Here, we just listen on the options button (the gear) to toggle the UI display.
+    */
     setHtmlListeners() {
         let optionsButton = document.getElementById("optionsButton");
         if (optionsButton) {
@@ -150,11 +191,11 @@ class Display {
         }
     }
 
-    toggleUI() {
-        console.log("Keyword setting: "+this.keywordSetting);
-        console.log("Highlighter setting: "+this.highlighterSetting);
-        console.log("Shadow setting: "+this.shadowSetting);
+    updateStyles() {
 
+    }
+
+    toggleUI() {
         var self = this; 
 
         if (this.uiStatus) {
@@ -163,7 +204,6 @@ class Display {
             let uiContainer = document.getElementById("uiContainer");
             uiContainer.remove();
             this.uiStatus = false;
-            console.log(this.getSettings());
         } else {
             // Load UI display
             settings.setSpeed(700);
@@ -178,7 +218,7 @@ class Display {
             // Setup customization buttons
             let keywordButtonGreen = document.getElementById("customKeywordGreen");
             let keywordButtonYellow = document.getElementById("customKeywordYellow");
-            let keywordButtonOff = document.getElementById("customKeywordOff");
+            let keywordButtonOff = document.getElementById("customKeywordOffBorder");
             let highlighterButtonBlue = document.getElementById("customHighlighterBlue");
             let highlighterButtonYellow = document.getElementById("customHighlighterYellow");
             let highlighterButtonGreen = document.getElementById("customHighlighterGreen");
@@ -186,28 +226,84 @@ class Display {
             let shadowButtonYellow = document.getElementById("customShadowYellow");
             let shadowButtonGreen = document.getElementById("customShadowGreen");
 
-            keywordButtonGreen.addEventListener("click", function () {changeSetting("keyword", "Green")});
-            keywordButtonYellow.addEventListener("click", function () {changeSetting("keyword", "Yellow")});
-            keywordButtonOff.addEventListener("click", function () {changeSetting("keyword", "Off")});
-            highlighterButtonBlue.addEventListener("click", function () {changeSetting("highlighter", "Blue")});
-            highlighterButtonYellow.addEventListener("click", function () {changeSetting("highlighter", "Yellow")});
-            highlighterButtonGreen.addEventListener("click", function () {changeSetting("highlighter", "Off")});
-            shadowButtonBlue.addEventListener("click", function () {changeSetting("shadow", "Blue")});
-            shadowButtonYellow.addEventListener("click", function () {changeSetting("shadow", "Yellow")});
-            shadowButtonGreen.addEventListener("click", function () {changeSetting("shadow", "Green")});
+            keywordButtonGreen.addEventListener("click", function () {
+                self.changeSetting("keyword", "Green");
+                self.updateStyles("keyword", "Green");
+            });
+            keywordButtonYellow.addEventListener("click", function () {
+                self.changeSetting("keyword", "Yellow");
+                self.updateStyles("keyword", "Green");
+            });
+            keywordButtonOff.addEventListener("click", function () {
+                self.changeSetting("keyword", "Off");
+                self.updateStyles("keyword", "Off");
+            });
+            highlighterButtonBlue.addEventListener("click", function () {
+                self.changeSetting("highlighter", "Blue");
+                self.updateStyles("highlighter", "Green");
+            });
+            highlighterButtonYellow.addEventListener("click", function () {
+                self.changeSetting("highlighter", "Yellow");
+                self.updateStyles("highlighter", "Yellow");
+            });
+            highlighterButtonGreen.addEventListener("click", function () {
+                self.changeSetting("highlighter", "Green");
+                self.updateStyles("highlighter", "Green");
+            });
+            shadowButtonBlue.addEventListener("click", function () {
+                self.changeSetting("shadow", "Blue");
+                self.updateStyles("keyword", "Blue");
+            });
+            shadowButtonYellow.addEventListener("click", function () {
+                self.changeSetting("shadow", "Yellow");
+                self.updateStyles("keyword", "Yellow");
+            });
+            shadowButtonGreen.addEventListener("click", function () {
+                self.changeSetting("shadow", "Green");
+                self.updateStyles("shadow", "Green");
+            });
 
-            function changeSetting(setting, choice) {
-                if (setting == "keyword") {
-                    console.log("Set KEYWORD to: " + choice);
-                    settings.setKeyword(choice);
-                } else if (setting == "highlighter") {
-                    console.log("Set HIGHLIGHTER to: " + choice);
-                    settings.setHighlighter(choice);
-                } else if (setting == "shadow") {
-                    console.log("Set SHADOW to: " + choice);
-                    settings.setShadow(choice);
-                }
-                self.setSettings(); // Refresh the attributes of this class representing settings
+            switch (this.keywordSetting) {
+                case "Green":
+                    console.log("1");
+                    document.getElementById("customKeywordGreen").style.fillOpacity = "1";
+                    break;
+                case "Blue":
+                    console.log("2");
+                    document.getElementById("customKeywordYellow").style.fillOpacity = "1";
+                    break;
+                case "Off":
+                    console.log("3");
+                    document.getElementById("customKeywordOffBorder").style.fillOpacity = "1";
+                    break;
+            }
+            switch (this.highlighterSetting) {
+                case "Blue":
+                    console.log("4");
+                    document.getElementById("customHighlighterBlue").style.fillOpacity = "1";
+                    break;
+                case "Yellow":
+                    console.log("5");
+                    document.getElementById("customHighlighterYellow").style.fillOpacity = "1";
+                    break;
+                case "Green":
+                    console.log("6");
+                    document.getElementById("customHighlighterGreen").style.fillOpacity = "1";
+                    break;
+            }
+            switch (this.shadowSetting) {
+                case "Blue":
+                    console.log("7");
+                    document.getElementById("customShadowBlue").style.fillOpacity = "1";
+                    break;
+                case "Yellow":
+                    console.log("8");
+                    document.getElementById("customShadowYellow").style.fillOpacity = "1";
+                    break;
+                case "Green":
+                    console.log("9");
+                    document.getElementById("customShadowGreen").style.fillOpacity = "1";
+                    break;
             }
 
             // Set UI status to true
