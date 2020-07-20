@@ -167,10 +167,19 @@ function moveDownOne() { // Sets start and end
 
 // Scroll up when tracker is above page
 function scrollUp() {
+	// Check to see if we should use old style or look for new
+	let tracker_style_current = null; // Depends on if style was just switched
+	if ($("."+trackerStyle)) {
+		tracker_style_current = trackerStyle
+	} else { 
+		let displaySettings = display.getSettings();
+		tracker_style_current = "trackerHighlighter"+displaySettings[1]+"Shadow"+displaySettings[2]; 
+	}
+
 	let verticalMargin = 200;
 	// Autoscroll if tracker is above top of page.
 	// Number of pixels from top of window to top of current container.
-	let markedTopAbsoluteOffset = $("."+trackerStyle).offset().top;
+	let markedTopAbsoluteOffset = $("."+tracker_style_current).offset().top;
 	let markedTopRelativeOffset = markedTopAbsoluteOffset - $(window).scrollTop();
 	if (markedTopRelativeOffset < 0) {
 		isScrolling = true;
@@ -187,13 +196,21 @@ function scrollUp() {
 
 // Scroll down when tracker is below a certain point
 function scrollDown() {
-	let displaySettings = display.getSettings();
-	let trackerStyle = "trackerHighlighter"+displaySettings[1]+"Shadow"+displaySettings[2]; // TODO: Refactor this color selection process
+	// Check to see if we should use old style or look for new
+	let tracker_style_current = null; // Depends on if style was just switched
+	if ($("."+trackerStyle)) {
+		tracker_style_current = trackerStyle
+	} else { 
+		let displaySettings = display.getSettings();
+		tracker_style_current = "trackerHighlighter"+displaySettings[1]+"Shadow"+displaySettings[2]; 
+	}
+	
 	let scrollThreshold = 500;
 	let verticalMargin = 200;
 	// Autoscroll if too far ahead.
 	// Number of pixels from top of window to top of current container.
-	let markedTopAbsoluteOffset = $("."+trackerStyle).offset().top;
+
+	let markedTopAbsoluteOffset = $("."+tracker_style_current).offset().top;
 	let markedTopRelativeOffset = markedTopAbsoluteOffset - $(window).scrollTop();
 	if (markedTopRelativeOffset > scrollThreshold) {
 		isScrolling = true;
@@ -212,9 +229,9 @@ function scrollDown() {
 Highlight portion pointed to by tracker.
 */
 function highlight(tracker) {
-	let displaySettings = display.getSettings();
-	let trackerStyle = "trackerHighlighter"+displaySettings[1]+"Shadow"+displaySettings[2]; // TODO: Refactor this color selection process
-
+	// Notice trackerStyle here is NOT immediately updated when user changes settings;
+	// We need the old trackerStyle name to be able to find and remove the styling, 
+	// since the next sentence will get a new style. 
 	let markEl = $("."+trackerStyle);
 	markEl.unmark();
 	markEl.removeClass(trackerStyle);

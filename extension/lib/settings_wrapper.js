@@ -53,8 +53,6 @@ class Settings {
 	So instead of waiting for three async calls, merging them into an array back here
 	*/
 	setCustomizations(customs,cb) { // string[] -> 1. Keyword 2. Highlighter 3. Shadow
-		// console.log("check if set setCustoms");
-		// console.log(customs)
 		chrome.storage.local.set({[settingKey.CUSTOMS]: customs}, function() {
 			if (chrome.runtime.lastError) {
 				console.log("Failed to save customization setting: " + chrome.runtime.lastError);

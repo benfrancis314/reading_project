@@ -63,6 +63,7 @@ mark {
 }
 .keyWordOff {
 	transition: all 0.5s ease;
+	background-color: rgba(255, 255, 0, 0) !important;
 	/* This purposely doesn't highlight anything
 	TODO: Instead of "doign nothing", disable the keyword process to increase efficiency. */
 }
@@ -168,10 +169,6 @@ mark {
 	z-index: 10002;
 	top: 2%;
 	right: 3%;
-	/* opacity: 0; */
-	/* display: none; */
-	/* visibility: hidden; */
-	/* transition: all 0.5s ease; */
 }
 #exitButton, #exitButtonBorder, #exitButtonText {
 	transition: all 0.5s ease;
@@ -186,7 +183,7 @@ mark {
 }
 #exitButton:hover #exitButtonText {
 }
-#customKeywordGreen,#customKeywordYellow,#customKeywordOff,#customKeywordOffBorder,
+#customKeywordGreen,#customKeywordYellow,#customKeywordOff,#customKeywordOffText,
 #customHighlighterBlue,#customHighlighterYellow,#customHighlighterGreen, 
 #customShadowBlue, #customShadowYellow, #customShadowGreen {
 	transition: all 0.5s ease;
@@ -199,12 +196,13 @@ mark {
 	fill-opacity: 1 !important;
 	cursor: pointer;
 }
-#customKeywordOffBorder:hover {
+#customKeywordOff:hover {
 	stroke-width: 5px !important;
 	stroke-opacity: 1 !important;
 	cursor: pointer;
+	fill-opacity: 0.5 !important;
 }
-#customKeywordOff:hover {
+#customKeywordOffText:hover {
 	fill-opacity: 0 !important;
 	fill: #00dcff !important;
 	font-size:45px;
