@@ -214,8 +214,6 @@ class Display {
     // Turn UI on and off. 
     // Also defines the eventListeners for the buttons on the UI display. 
     toggleUI() {
-        let displaySettings = this.getSettings();
-	    let trackerStyle = "trackerHighlighter"+displaySettings[1]+"Shadow"+displaySettings[2]; // TODO: Refactor this color selection process
         var self = this; 
 
         if (this.uiStatus) {
@@ -516,6 +514,8 @@ class Display {
 
     turnDownUI() {
         $("#displayContainer").remove();
+        $("#optionsButton").remove();
+        $("#uiContainer").remove();
     }
 }
 
