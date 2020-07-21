@@ -125,7 +125,7 @@ class Doc {
     getNumSentencesFromSentenceTilEnd(sentenceId) {
         return this.getNumSentences() - sentenceId;
     }
-    
+
     /*
     Returns: Total words in document (int)
     Calculates total words in the document

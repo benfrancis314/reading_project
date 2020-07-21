@@ -105,6 +105,8 @@ function trimDocWikipedia(doc) {
 	jdoc.find("#See_also").parent().prev().nextAll().remove();
 	// Remove all infoboxes.
 	jdoc.find("table.infobox").remove();
+	// Remove vertical box often to the right of articles apart of series/major scientific topics
+	jdoc.find("table.vertical-navbox").remove();
 }
 
 // Expose to global.
