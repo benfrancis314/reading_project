@@ -1,6 +1,9 @@
 // Prevent the usage of undeclared variables.
 "use strict";
 
+// Is this used anywhere?
+// const { UI } = require("winjs");
+
 (function(){
 var namespace = "content_script.js";
 if (window[namespace] === true) {
@@ -16,6 +19,8 @@ const trackerClass = "trackerClass" // Name of class for FINDING the tracker (no
 var tracker = null;
 // Creates display for time remaining and reading speed at top of page. Initialized by end of script load.
 var display = null;
+// Creates UI for users to see instructions & customize settings
+var ui = null;
 // Represents document the user is reading. Stores data about page, like keywords, total words, etc.
 var doc = null;
 // Whether or not there is a timer that triggers movement of tracker.
@@ -31,7 +36,7 @@ let settings = window.settings;
 var isScrolling = false;
 
 // Need the same $ reference for on and off of event handlers to be detectable.
-// Re-doing $(document) in an async context for somre reason doesn't allow you 
+// Re-doing $(document) in an async context for some reason doesn't allow you 
 // to detect previously attached event handlers.
 // Not sure why, but found this through experimentation.
 let jdoc = $(document);
@@ -276,7 +281,7 @@ function highlight(tracker) {
     */
 function highlightKeyWords(container, start, end) {
 	// TODO: Refactor this; this should be reset whenever it is changed, not checked every sentence
-	let displaySettings = display.getSettings();
+	let displaySettings = ui.getSettings();
 	let keywordStyle = "keyWord"+displaySettings[0]; 
 	// TODO: Mark.js is actually built to do this; migrate functionality to mark.js
 	$("."+keywordClass).unmark(); // Remove previous sentence keyword styling
@@ -418,7 +423,6 @@ function initializeTracker(settingsCustomizations) {
 REMOVE THIS
 */
 function updateDisplaySettings() {
-	let displaySettings = []; // Settings: 1: Keyword 2: Highlighter 3: Shadow
 	settings.getCustomizations(function(settingsCustomizations) {
 		initializeTracker(settingsCustomizations)
 	});
@@ -471,6 +475,7 @@ Render all the UI elements.
 */
 function setupUI() {
 	display = new Display(doc, speed);
+	ui = new Ui();
   
 	updateDisplaySettings();
   
@@ -490,6 +495,7 @@ function removeUI() {
 	tracker.reset();
 	display.turnDownUI();
 	display = null;
+	ui = null;
 }
 
 function toggleExtensionVisibility() {

@@ -65,6 +65,7 @@ chrome.browserAction.onClicked.addListener(function (tab) {
             "lib/tracker.js",
             "lib/display.js",
             "lib/doc.js",
+            "lib/ui.js",
             "content_script.js"
         )
         .then(s => s.injectCss("content.css"))
