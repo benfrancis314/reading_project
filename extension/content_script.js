@@ -10,7 +10,7 @@ if (window[namespace] === true) {
 }
 
 const keywordClass = "keywordClass" // Name of class for FINDING keywords (no styling)
-const trackerClass = "trackerClass" // Name of class for FINDING the tracker (no styling)
+const sentenceClass = "sentenceClass" // Name of class for FINDING the tracker (no styling)
 
 // Keeps track of the pointed text. Initialized by end of script load.
 var tracker = null;
@@ -18,6 +18,8 @@ var tracker = null;
 var timeTrackerView = null;
 // UI to see instructions & customize settings
 var settingsView = null;
+// Current styles of tracker
+var trackerStyle = null;
 // Represents document the user is reading. Stores data about page, like keywords, total words, etc.
 var doc = null;
 // Whether or not there is a timer that triggers movement of tracker.
@@ -44,10 +46,6 @@ TODO: Redo this using CSS variable or something.
 Problem is that highlighter and shadow need to be in the same ID;
 not scalable right now to more customizable settings that effect the tracker. 
 */
-var keywordStyle = null; // will be CSS ID of keywords
-var trackerStyle = null; // will be CSS ID of tracker
-window.keywordStyle = keywordStyle;
-window.trackerStyle = trackerStyle;
 
 // Possible reading directions.
 const direction = {
@@ -187,7 +185,7 @@ function scrollUp() {
 	let verticalMargin = 200;
 	// Autoscroll if tracker is above top of page.
 	// Number of pixels from top of window to top of current container.
-	let markedTopAbsoluteOffset = $("."+trackerClass).offset().top;
+	let markedTopAbsoluteOffset = $("."+sentenceClass).offset().top;
 	let markedTopRelativeOffset = markedTopAbsoluteOffset - $(window).scrollTop();
 	if (markedTopRelativeOffset < 0) {
 		isScrolling = true;
@@ -209,7 +207,7 @@ function scrollDown() {
 	// Autoscroll if too far ahead.
 	// Number of pixels from top of window to top of current container.
 
-	let markedTopAbsoluteOffset = $("."+trackerClass).offset().top;
+	let markedTopAbsoluteOffset = $("."+sentenceClass).offset().top;
 	let markedTopRelativeOffset = markedTopAbsoluteOffset - $(window).scrollTop();
 	if (markedTopRelativeOffset > scrollThreshold) {
 		isScrolling = true;
@@ -244,16 +242,15 @@ function unhighlightEverything() {
 Highlight portion pointed to by tracker.
 */
 function highlight(tracker) {
-	// Notice trackerStyle here is NOT immediately updated when user changes settings;
-	// We need the old trackerStyle name to be able to find and remove the styling, 
+	// Notice sentenceStyle here is NOT immediately updated when user changes settings;
+	// We need the old sentenceStyle name to be able to find and remove the styling, 
 	// since the next sentence will get a new style. 
-	let displaySettings = settingsView.getSettings();
-	let trackerStyle = "trackerHighlighter"+displaySettings[1]+"Shadow"+displaySettings[2]; // 1st element is highlighter type, 2nd element is shadow type
+	let sentenceStyle = trackerStyle.getSentenceStyle();
 
-	let markEl = $("."+trackerClass);
+	let markEl = $("."+sentenceClass);
 	markEl.unmark();
-	markEl.removeClass(trackerClass);
-	markEl.removeClass(trackerStyle);
+	markEl.removeClass(sentenceClass);
+	markEl.removeClass(sentenceStyle);
 	// Append the "mark" class (?) to the html corresponding to the interval
 	// The interval indices are w.r.t to the raw text.
 	// mark.js is smart enough to preserve the original html, and even provide
@@ -268,10 +265,10 @@ function highlight(tracker) {
     	length: end - start
 	}], {
 		// "trackerClass" is for finding current tracker
-		className: trackerClass
+		className: sentenceClass
 	});
-	// Find element with class "trackerClass", add on trackerStyle class:
-	$('.'+trackerClass).addClass(trackerStyle) 
+	// Find element with class "trackerClass", add on sentenceStyle class:
+	$('.'+sentenceClass).addClass(sentenceStyle) 
 	highlightKeyWords(container, start, end);
 };
 
@@ -280,10 +277,7 @@ function highlight(tracker) {
     Highlights the keywords within the tracked sentence. 
     */
 function highlightKeyWords(container, start, end) {
-	// TODO: Refactor this; this should be reset whenever it is changed, not checked every sentence
-	let displaySettings = settingsView.getSettings();
-	let keywordStyle = "keyWord"+displaySettings[0]; 
-	// TODO: Mark.js is actually built to do this; migrate functionality to mark.js
+	let keywordStyle = trackerStyle.getKeywordStyle(); 
 	$("."+keywordClass).unmark(); // Remove previous sentence keyword styling
 	$("."+keywordClass).removeClass(keywordStyle);
 	$("."+keywordStyle).removeClass(keywordStyle);
@@ -394,23 +388,9 @@ function setupKeyListeners() {
     });
 };
 
-
-
-/*
-Process of determining which style to use. 
-TODO: Redo this using CSS variable or something. 
-Problem is that highlighter and shadow need to be in the same ID;
-not scalable right now to more customizable settings that effect the tracker. 
-*/
-
-// var trackerStyle = "trackerHighlighter"+highlighterSetting+"Shadow"+shadowSetting; // TODO: Refactor this color selection process
-
 // Classname for keyword highlights.
 
 function initializeTracker(settingsCustomizations) {
-	keywordStyle = "keyWord"+settingsCustomizations[0]; // 0th element is the keyword type
-	// TODO: Refactor this color selection process; won't scale
-	trackerStyle = "trackerHighlighter"+settingsCustomizations[1]+"Shadow"+settingsCustomizations[2]; // 1st element is highlighter type, 2nd element is shadow type
 	startMove(direction.FORWARD); // Start reader on the first line
 	stopMove(); // Prevent from continuing to go forward
 }
@@ -473,7 +453,11 @@ Render all the UI elements.
 */
 function setupUI() {
 	timeTrackerView = new TimeTrackerView(doc, speed);
+	trackerStyle = new TrackerStyle(); // 
+	window.trackerStyle = trackerStyle; // Expose to global
 	settingsView = new SettingsView();
+	
+
   
 	updateDisplaySettings();
   
