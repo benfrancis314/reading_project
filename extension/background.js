@@ -63,9 +63,9 @@ chrome.browserAction.onClicked.addListener(function (tab) {
             "lib/settings_wrapper.js",
             "lib/document_parser.js",
             "lib/tracker.js",
-            "lib/display.js",
+            "lib/time_tracker_view.js",
             "lib/doc.js",
-            "lib/ui.js",
+            "lib/settings_view.js",
             "content_script.js"
         )
         .then(s => s.injectCss("content.css"))
