@@ -1,6 +1,6 @@
 "use strict";
 (function(){
-var namespace = "lib/display.js";
+var namespace = "lib/time_tracker_view.js";
 if (window[namespace] === true) {
     return;
 } else {
@@ -12,7 +12,7 @@ Creates a display overlaid on current web page that displays
 the estimated time remaining to read and the current speed of 
 the auto-read mode in WPM. 
 */
-class Display {
+class TimeTrackerView {
     
     /*
     Initialize a display with total time remaining and initial speed (~200 WPM).
@@ -136,5 +136,5 @@ class Display {
 
 
 // Expose to global.
-window.Display = Display;
+window.TimeTrackerView = TimeTrackerView;
 })(); // End of namespace
