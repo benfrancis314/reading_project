@@ -129,7 +129,7 @@ function startMove(dir) { // Note: I have combined the "moveUp" and "moveDown" f
 function calculateTrackerLife() {
 	/* Methodology of calculating tracker life: 
 		Each sentence has a minimum amount of time to stay on; i.e., a bias. 
-		The user specifies the WPM they want , and this calculates a time remaining. 
+		The user specifies the WPM they want, and this calculates a time remaining. 
 		This function then distributes the remaining time to each sentence according
 		to ratio of the sentence_words:total_words. 
 	*/
