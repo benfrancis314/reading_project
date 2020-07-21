@@ -149,7 +149,6 @@ class Doc {
                     termFreq[word] = 1;
                 }
             };
-            console.log(wordList);
             if ( wordList) { total_words += wordList.length; };
         }
         this.termFreq = termFreq; // Set class attribute "termFreq"
