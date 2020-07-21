@@ -270,7 +270,6 @@ function highlight(tracker) {
 		// "trackerClass" is for finding current tracker
 		className: trackerClass
 	});
-	console.log(trackerStyle);
 	// Find element with class "trackerClass", add on trackerStyle class:
 	$('.'+trackerClass).addClass(trackerStyle) 
 	highlightKeyWords(container, start, end);
@@ -412,8 +411,6 @@ function initializeTracker(settingsCustomizations) {
 	keywordStyle = "keyWord"+settingsCustomizations[0]; // 0th element is the keyword type
 	// TODO: Refactor this color selection process; won't scale
 	trackerStyle = "trackerHighlighter"+settingsCustomizations[1]+"Shadow"+settingsCustomizations[2]; // 1st element is highlighter type, 2nd element is shadow type
-	// console.log(keywordStyle);
-	// console.log(trackerStyle);
 	startMove(direction.FORWARD); // Start reader on the first line
 	stopMove(); // Prevent from continuing to go forward
 }
