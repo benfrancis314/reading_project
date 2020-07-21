@@ -129,7 +129,7 @@ function startMove(dir) { // Note: I have combined the "moveUp" and "moveDown" f
 function calculateTrackerLife() {
 	/* Methodology of calculating tracker life: 
 		Each sentence has a minimum amount of time to stay on; i.e., a bias. 
-		The user specifies the WPM they want, and this calculates a time remaining. 
+		The user specifies the WPM they want , and this calculates a time remaining. 
 		This function then distributes the remaining time to each sentence according
 		to ratio of the sentence_words:total_words. 
 	*/
@@ -139,12 +139,11 @@ function calculateTrackerLife() {
 	let sentences_remaining = doc.getNumSentencesFromSentenceTilEnd(sentenceId);
 	let sentence_words = doc.getNumWordsInSentence(sentenceId); // Words in current sentence
 	let total_words_remaining = doc.getNumWordsFromSentenceTilEnd(sentenceId);
-	let base_time_s = sentences_remaining * speed_bias_ms/1000; // Time from just speed_bias on each sentence. In seconds
-	let desired_time_s = timeTrackerView.getTimeRemaining() * 60; // Time we need to finish in
-	let distributable_time = desired_time_s - base_time_s; // Time left to distribute to sentences
+	let base_time_ms = sentences_remaining * speed_bias_ms; // Time from just speed_bias on each sentence. In seconds
+	let desired_time_ms = timeTrackerView.getTimeRemainingMs(); // Time we need to finish in
+	let distributable_time_ms = desired_time_ms - base_time_ms; // Time left to distribute to sentences
 	let word_ratio = sentence_words/total_words_remaining;
-	let linger_time_ms = distributable_time*(word_ratio)*1000 + speed_bias_ms; // convert from s to ms
-
+	let linger_time_ms = distributable_time_ms*(word_ratio) + speed_bias_ms;
 	return (linger_time_ms); 
 	// TODO: Use Moment.js
 }
