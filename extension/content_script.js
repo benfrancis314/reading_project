@@ -265,10 +265,9 @@ function highlight(tracker) {
     	length: end - start
 	}], {
 		// "trackerClass" is for finding current tracker
-		className: sentenceClass
+		className: sentenceClass+" "+sentenceStyle
 	});
 	// Find element with class "trackerClass", add on sentenceStyle class:
-	$('.'+sentenceClass).addClass(sentenceStyle) 
 	highlightKeyWords(container, start, end);
 };
 
@@ -299,10 +298,9 @@ function highlightKeyWords(container, start, end) {
 			start: word_start,
 			length: word_len
 		}], {
-			className: keywordClass
+			className: keywordClass+" "+keywordStyle
 		});
 	}
-	$('.'+keywordClass).addClass(keywordStyle) 
 };
 
 /*

@@ -26,10 +26,14 @@ class TrackerStyle {
         return this.keywordStyle;
     }
     setSentenceStyle(sentenceStyle) {
+        let oldSentenceStyle = this.sentenceStyle;
         this.sentenceStyle = sentenceStyle;
+        $("."+oldSentenceStyle).removeClass(oldSentenceStyle).addClass(sentenceStyle);;
     }
     setKeywordStyle(keywordStyle) {
+        let oldKeywordStyle = this.keywordStyle;
         this.keywordStyle = keywordStyle;
+        $("."+oldKeywordStyle).removeClass(oldKeywordStyle).addClass(keywordStyle);
     }
 }
 
