@@ -247,6 +247,9 @@ function highlight(tracker) {
 	// Notice trackerStyle here is NOT immediately updated when user changes settings;
 	// We need the old trackerStyle name to be able to find and remove the styling, 
 	// since the next sentence will get a new style. 
+	let displaySettings = settingsView.getSettings();
+	let trackerStyle = "trackerHighlighter"+displaySettings[1]+"Shadow"+displaySettings[2]; // 1st element is highlighter type, 2nd element is shadow type
+
 	let markEl = $("."+trackerClass);
 	markEl.unmark();
 	markEl.removeClass(trackerClass);
@@ -267,6 +270,7 @@ function highlight(tracker) {
 		// "trackerClass" is for finding current tracker
 		className: trackerClass
 	});
+	console.log(trackerStyle);
 	// Find element with class "trackerClass", add on trackerStyle class:
 	$('.'+trackerClass).addClass(trackerStyle) 
 	highlightKeyWords(container, start, end);
