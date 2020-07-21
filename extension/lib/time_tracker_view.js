@@ -68,7 +68,7 @@ class TimeTrackerView {
         this.time_remaining_ms = time_remaining_m * 60 * 1000;
 
         let m = Math.floor(time_remaining_m);
-        let s = Math.floor((time_remaining_m - m) * 60);
+        let s = Math.round((time_remaining_m - m) * 60);
         let s_str = (""+s).padStart(2, "0");
         document.getElementById("timerNumber").innerHTML = `${m}:${s_str}`;
     }
@@ -126,15 +126,6 @@ class TimeTrackerView {
         $('#uiContainer').remove();
     }
 }
-
-
-
-
-
-
-
-
-
 
 // Expose to global.
 window.TimeTrackerView = TimeTrackerView;
