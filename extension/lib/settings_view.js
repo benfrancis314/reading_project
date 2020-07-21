@@ -11,8 +11,6 @@ if (window[namespace] === true) {
 var settings = null;
 var trackerStyle = null;
 
-window.settings
-window.trackerStyle
 /*
 Contains style information about the tracker. 
 */
@@ -40,7 +38,6 @@ UI for showing instructions and customizing tracker and keyword colors.
 */
 class SettingsView {
     
-
     constructor() {
         this.uiStatus = false; // Is the UI (Instructions & Customizations) ON or OFF?
         this.uiHtml = null; // HTML for the UI (instructions & customizations)
