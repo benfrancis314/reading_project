@@ -1,9 +1,6 @@
 // Prevent the usage of undeclared variables.
 "use strict";
 
-// Is this used anywhere?
-// const { UI } = require("winjs");
-
 (function(){
 var namespace = "content_script.js";
 if (window[namespace] === true) {
@@ -17,10 +14,10 @@ const trackerClass = "trackerClass" // Name of class for FINDING the tracker (no
 
 // Keeps track of the pointed text. Initialized by end of script load.
 var tracker = null;
-// Creates display for time remaining and reading speed at top of page. Initialized by end of script load.
-var display = null;
-// Creates UI for users to see instructions & customize settings
-var ui = null;
+// UI to see time remaining and reading speed. Initialized by end of script load.
+var timeTrackerView = null;
+// UI to see instructions & customize settings
+var settingsView = null;
 // Represents document the user is reading. Stores data about page, like keywords, total words, etc.
 var doc = null;
 // Whether or not there is a timer that triggers movement of tracker.
@@ -66,7 +63,7 @@ function setupClickListeners() {
 		container.on("click", function () {
 			tracker.pointToContainer(containerId);
 			highlight(tracker);
-			display.updateTimer(tracker.getSentenceId());
+			timeTrackerView.updateTimer(tracker.getSentenceId());
 		});
 	}
 }
@@ -91,7 +88,7 @@ function stopMove() {
 		clearInterval(timer);
 		timer = null;
 	}	
-	display.updateAutoMode(false);
+	timeTrackerView.updateAutoMode(false);
 }
 
 /*
@@ -124,7 +121,7 @@ function startMove(dir) { // Note: I have combined the "moveUp" and "moveDown" f
 		// Immediately fade current tracker.
 		fadeTracker();
 	})();
-	display.updateAutoMode(true);
+	timeTrackerView.updateAutoMode(true);
 }
 
 // Calculate lingering time for current tracker in ms.
@@ -143,7 +140,7 @@ function calculateTrackerLife() {
 	let sentence_words = doc.getNumWordsInSentence(sentenceId); // Words in current sentence
 	let total_words_remaining = doc.getNumWordsFromSentenceTilEnd(sentenceId);
 	let base_time_s = sentences_remaining * speed_bias_ms/1000; // Time from just speed_bias on each sentence. In seconds
-	let desired_time_s = display.getTimeRemaining() * 60; // Time we need to finish in
+	let desired_time_s = timeTrackerView.getTimeRemaining() * 60; // Time we need to finish in
 	let distributable_time = desired_time_s - base_time_s; // Time left to distribute to sentences
 	let word_ratio = sentence_words/total_words_remaining;
 	let linger_time_ms = distributable_time*(word_ratio)*1000 + speed_bias_ms; // convert from s to ms
@@ -173,7 +170,7 @@ function moveOne(dir) { // Sets start and end
 	if (!hasMoved) {
 		return false;
 	}
-	display.updateTimer(tracker.getSentenceId());
+	timeTrackerView.updateTimer(tracker.getSentenceId());
 	highlight(tracker);
  
 
@@ -281,7 +278,7 @@ function highlight(tracker) {
     */
 function highlightKeyWords(container, start, end) {
 	// TODO: Refactor this; this should be reset whenever it is changed, not checked every sentence
-	let displaySettings = ui.getSettings();
+	let displaySettings = settingsView.getSettings();
 	let keywordStyle = "keyWord"+displaySettings[0]; 
 	// TODO: Mark.js is actually built to do this; migrate functionality to mark.js
 	$("."+keywordClass).unmark(); // Remove previous sentence keyword styling
@@ -345,7 +342,7 @@ Adjust current speed by speedDelta, and persist the setting.
 function adjustSpeed(speedDelta) {
 	speed += speedDelta;
 	settings.setSpeed(speed);
-	display.updateSpeed(speed);
+	timeTrackerView.updateSpeed(speed);
 }
 
 function setupKeyListeners() {
@@ -474,8 +471,8 @@ function oneTimeSetup() {
 Render all the UI elements.
 */
 function setupUI() {
-	display = new Display(doc, speed);
-	ui = new Ui();
+	timeTrackerView = new TimeTrackerView(doc, speed);
+	settingsView = new SettingsView();
   
 	updateDisplaySettings();
   
@@ -493,13 +490,13 @@ function removeUI() {
 	stopMove();
 	unhighlightEverything();
 	tracker.reset();
-	display.turnDownUI();
-	display = null;
-	ui = null;
+	timeTrackerView.turnDownUI();
+	timeTrackerView = null;
+	settingsView = null;
 }
 
 function toggleExtensionVisibility() {
-	if (display === null) {
+	if (timeTrackerView === null) {
 		setupUI();
 	} else {
 		removeUI();

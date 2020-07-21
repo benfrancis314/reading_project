@@ -148,8 +148,8 @@ class Doc {
                 } else {
                     termFreq[word] = 1;
                 }
-            }
-            total_words += wordList.length;
+            };
+            if ( wordList) { total_words += wordList.length; };
         }
         this.termFreq = termFreq; // Set class attribute "termFreq"
         return total_words // Set total words for use elsewhere (like Display)

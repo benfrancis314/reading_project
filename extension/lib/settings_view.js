@@ -1,6 +1,6 @@
 "use strict";
 (function(){
-var namespace = "lib/ui.js";
+var namespace = "lib/settings_view.js";
 if (window[namespace] === true) {
     return;
 } else {
@@ -11,10 +11,9 @@ if (window[namespace] === true) {
 let settings = window.settings;
 
 /*
-Creates a display that acts as the user interface for the user. 
-Currently, this is used to show instructions and customize tracker and keyword colors. 
+UI for showing instructions and customizing tracker and keyword colors. 
 */
-class Ui {
+class SettingsView {
     constructor() {
         this.uiStatus = false; // Is the UI (Instructions & Customizations) ON or OFF?
         this.uiHtml = null; // HTML for the UI (instructions & customizations)
@@ -414,5 +413,5 @@ class Ui {
 
 
 // Expose to global.
-window.Ui = Ui;
+window.SettingsView = SettingsView;
 })(); // End of namespace
