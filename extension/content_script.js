@@ -247,6 +247,9 @@ function highlight(tracker) {
 	// Notice trackerStyle here is NOT immediately updated when user changes settings;
 	// We need the old trackerStyle name to be able to find and remove the styling, 
 	// since the next sentence will get a new style. 
+	let displaySettings = settingsView.getSettings();
+	let trackerStyle = "trackerHighlighter"+displaySettings[1]+"Shadow"+displaySettings[2]; // 1st element is highlighter type, 2nd element is shadow type
+
 	let markEl = $("."+trackerClass);
 	markEl.unmark();
 	markEl.removeClass(trackerClass);
@@ -408,8 +411,6 @@ function initializeTracker(settingsCustomizations) {
 	keywordStyle = "keyWord"+settingsCustomizations[0]; // 0th element is the keyword type
 	// TODO: Refactor this color selection process; won't scale
 	trackerStyle = "trackerHighlighter"+settingsCustomizations[1]+"Shadow"+settingsCustomizations[2]; // 1st element is highlighter type, 2nd element is shadow type
-	// console.log(keywordStyle);
-	// console.log(trackerStyle);
 	startMove(direction.FORWARD); // Start reader on the first line
 	stopMove(); // Prevent from continuing to go forward
 }
