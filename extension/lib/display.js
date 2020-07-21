@@ -48,7 +48,7 @@ class Display {
     */
     createDisplay() {
         $(this.displayHtml).insertBefore($("body").children().first());
-        document.getElementById("displayContainer").style.opacity = 1; // For smoother transition
+        document.getElementById("readingDisplayContainer").style.opacity = 1; // For smoother transition
         document.getElementById("optionsButton").style.opacity = 1; // For smoother transition
     }
 
@@ -92,7 +92,7 @@ class Display {
     */
     defineDisplayHtml() {
         this.displayHtml = `
-            <div id="displayContainer">
+            <div id="readingDisplayContainer">
                 <div id="timerContainer">
                     <div id="timerInsideContainer">
                         <span id="timerNumber">${this.time_remaining}</span> min remaining
@@ -120,7 +120,9 @@ class Display {
     // Remove the widget UI elements from DOM.
 
     turnDownUI() {
-        $("#displayContainer").remove();
+        $("#readingDisplayContainer").remove();
+        $('#optionsButton').remove();
+        $('#uiContainer').remove();
     }
 }
 
