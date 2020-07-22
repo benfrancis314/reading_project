@@ -3,52 +3,52 @@ mark {
 }
 
 /* SHADOW, HIGHLIGHTER, and KEYWORD CSS */
-.trackerHighlighterBlueShadowBlue {
+.sentenceHighlighterBlueShadowBlue {
 	background-color:rgb(230, 239, 253); /* Light Blue highlighter */
 	box-shadow: 1pt 1pt 3pt 1pt rgb(0,220,255); /* Blue shadow */
 	transition: all 0.5s ease;
 }
-.trackerHighlighterBlueShadowYellow {
+.sentenceHighlighterBlueShadowYellow {
 	background-color:rgb(230, 239, 253); /* Light Blue highlighter */
 	box-shadow: 1pt 1pt 3pt 1pt yellow; /* Yellow shadow */
 	transition: all 0.5s ease;
 }
-.trackerHighlighterBlueShadowGreen {
+.sentenceHighlighterBlueShadowGreen {
 	background-color:rgb(230, 239, 253); /* Light Blue highlighter */
 	box-shadow: 1pt 1pt 3pt 1pt rgb(171, 252, 164); /* Green shadow */
 	transition: all 0.5s ease;
 }
-.trackerHighlighterYellowShadowBlue {
+.sentenceHighlighterYellowShadowBlue {
 	background-color:yellow; /* Yellow highlighter */
 	box-shadow: 1pt 1pt 3pt 1pt rgb(0,220,255); /* Blue shadow */
 	transition: all 0.5s ease;
 }
-.trackerHighlighterYellowShadowYellow {
+.sentenceHighlighterYellowShadowYellow {
 	background-color:yellow; /* Yellow highlighter */
 	box-shadow: 1pt 1pt 3pt 1pt yellow; /* Yellow shadow */
 	transition: all 0.5s ease;
 }
-.trackerHighlighterYellowShadowGreen {
+.sentenceHighlighterYellowShadowGreen {
 	background-color:yellow; /* Yellow highlighter */
 	box-shadow: 1pt 1pt 3pt 1pt rgb(171, 252, 164); /* Green shadow */
 	transition: all 0.5s ease;
 }
-.trackerHighlighterGreenShadowBlue {
+.sentenceHighlighterGreenShadowBlue {
 	background-color:rgb(171, 252, 164); /* Green highlighter */
 	box-shadow: 1pt 1pt 3pt 1pt rgb(0,220,255); /* Blue shadow */
 	transition: all 0.5s ease;
 }
-.trackerHighlighterGreenShadowYellow {
+.sentenceHighlighterGreenShadowYellow {
 	background-color:rgb(171, 252, 164); /* Green highlighter */
 	box-shadow: 1pt 1pt 3pt 1pt yellow; /* Yellow shadow */
 	transition: all 0.5s ease;
 }
-.trackerHighlighterGreenShadowGreen {
+.sentenceHighlighterGreenShadowGreen {
 	background-color:rgb(171, 252, 164); /* Green highlighter */
 	box-shadow: 1pt 1pt 3pt 1pt rgb(171, 252, 164); /* Green shadow */
 	transition: all 0.5s ease;
 }
-.trackerHighlighternullShadownull {
+.sentenceHighlighternullShadownull {
 	background-color:rgb(252, 185, 164); /* Green highlighter */
 	box-shadow: 1pt 1pt 3pt 1pt rgb(252, 164, 164); /* Green shadow */
 	transition: all 0.5s ease;
