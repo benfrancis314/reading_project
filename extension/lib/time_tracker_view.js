@@ -25,7 +25,7 @@ class TimeTrackerView {
     constructor(doc, speed) {
         this.doc = doc;
         this.displayhHtml = null; // HTML for the reading info display
-        this.time_remaining = null;
+        this.time_remaining_ms = null;
         this.reading_speed = speed;
         this.end = null; 
         this.auto_mode = false; // Is the reading mode in AUTO mode? (if not, in MANUAL)
@@ -36,11 +36,12 @@ class TimeTrackerView {
         this.defineDisplayHtml();
         this.createDisplay();
         this.updateSpeed(speed);
+        this.updateTimer(/*sentenceId=*/ 0);
     }  
 
-    // Returns time remaining
-    getTimeRemaining() {
-        return this.time_remaining;
+    // Returns time remaining in milliseconds
+    getTimeRemainingMs() {
+        return this.time_remaining_ms;
     }
 
     /*
@@ -61,15 +62,15 @@ class TimeTrackerView {
     Updates reading timer based on current sentence.
     */
     updateTimer(sentenceId) { // Call everytime the tracker moves.
-        // TODO: Should also update timer if a user is using the autoread mode. 
         let total_words = this.doc.getNumWordsFromSentenceTilEnd(sentenceId);
-        let currentSpeed = this.reading_speed;
         // if (this.auto_mode) { currentSpeed = this.reading_speed } else { currentSpeed = avg_read_speed };
-        // TODO: Update time_remaining to be in seconds than minutes.
-        // See https://github.com/benfrancis314/reading_project/issues/61
-        let time_remaining = total_words/currentSpeed; // in minutes
-        this.time_remaining = Math.ceil(time_remaining);
-        document.getElementById("timerNumber").innerHTML = this.time_remaining;
+        let time_remaining_m = total_words / this.reading_speed; // in minutes
+        this.time_remaining_ms = time_remaining_m * 60 * 1000;
+
+        let m = Math.floor(time_remaining_m);
+        let s = Math.round((time_remaining_m - m) * 60);
+        let s_str = (""+s).padStart(2, "0");
+        document.getElementById("timerNumber").innerHTML = `${m}:${s_str}`;
     }
 
     /* 
@@ -95,7 +96,7 @@ class TimeTrackerView {
             <div id="readingDisplayContainer">
                 <div id="timerContainer">
                     <div id="timerInsideContainer">
-                        <span id="timerNumber">${this.time_remaining}</span> min remaining
+                        <span id="timerNumber">Calculating...</span> remaining
                     </div>
                     
                 </div>
@@ -125,15 +126,6 @@ class TimeTrackerView {
         $('#uiContainer').remove();
     }
 }
-
-
-
-
-
-
-
-
-
 
 // Expose to global.
 window.TimeTrackerView = TimeTrackerView;

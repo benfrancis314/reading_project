@@ -10,7 +10,7 @@ if (window[namespace] === true) {
 }
 
 const keywordClass = "keywordClass" // Name of class for FINDING keywords (no styling)
-const trackerClass = "trackerClass" // Name of class for FINDING the tracker (no styling)
+const sentenceClass = "sentenceClass" // Name of class for FINDING the tracker (no styling)
 
 // Keeps track of the pointed text. Initialized by end of script load.
 var tracker = null;
@@ -18,6 +18,8 @@ var tracker = null;
 var timeTrackerView = null;
 // UI to see instructions & customize settings
 var settingsView = null;
+// Current styles of tracker
+var trackerStyle = null;
 // Represents document the user is reading. Stores data about page, like keywords, total words, etc.
 var doc = null;
 // Whether or not there is a timer that triggers movement of tracker.
@@ -44,10 +46,6 @@ TODO: Redo this using CSS variable or something.
 Problem is that highlighter and shadow need to be in the same ID;
 not scalable right now to more customizable settings that effect the tracker. 
 */
-var keywordStyle = null; // will be CSS ID of keywords
-var trackerStyle = null; // will be CSS ID of tracker
-window.keywordStyle = keywordStyle;
-window.trackerStyle = trackerStyle;
 
 // Possible reading directions.
 const direction = {
@@ -139,12 +137,11 @@ function calculateTrackerLife() {
 	let sentences_remaining = doc.getNumSentencesFromSentenceTilEnd(sentenceId);
 	let sentence_words = doc.getNumWordsInSentence(sentenceId); // Words in current sentence
 	let total_words_remaining = doc.getNumWordsFromSentenceTilEnd(sentenceId);
-	let base_time_s = sentences_remaining * speed_bias_ms/1000; // Time from just speed_bias on each sentence. In seconds
-	let desired_time_s = timeTrackerView.getTimeRemaining() * 60; // Time we need to finish in
-	let distributable_time = desired_time_s - base_time_s; // Time left to distribute to sentences
+	let base_time_ms = sentences_remaining * speed_bias_ms; // Time from just speed_bias on each sentence. In seconds
+	let desired_time_ms = timeTrackerView.getTimeRemainingMs(); // Time we need to finish in
+	let distributable_time_ms = desired_time_ms - base_time_ms; // Time left to distribute to sentences
 	let word_ratio = sentence_words/total_words_remaining;
-	let linger_time_ms = distributable_time*(word_ratio)*1000 + speed_bias_ms; // convert from s to ms
-
+	let linger_time_ms = distributable_time_ms*(word_ratio) + speed_bias_ms;
 	return (linger_time_ms); 
 	// TODO: Use Moment.js
 }
@@ -187,7 +184,7 @@ function scrollUp() {
 	let verticalMargin = 200;
 	// Autoscroll if tracker is above top of page.
 	// Number of pixels from top of window to top of current container.
-	let markedTopAbsoluteOffset = $("."+trackerClass).offset().top;
+	let markedTopAbsoluteOffset = $("."+sentenceClass).offset().top;
 	let markedTopRelativeOffset = markedTopAbsoluteOffset - $(window).scrollTop();
 	if (markedTopRelativeOffset < 0) {
 		isScrolling = true;
@@ -199,7 +196,7 @@ function scrollUp() {
 				isScrolling = false;
 			}
 		);
-	}
+	} 
 }
 
 // Scroll down when tracker is below a certain point
@@ -209,7 +206,7 @@ function scrollDown() {
 	// Autoscroll if too far ahead.
 	// Number of pixels from top of window to top of current container.
 
-	let markedTopAbsoluteOffset = $("."+trackerClass).offset().top;
+	let markedTopAbsoluteOffset = $("."+sentenceClass).offset().top;
 	let markedTopRelativeOffset = markedTopAbsoluteOffset - $(window).scrollTop();
 	if (markedTopRelativeOffset > scrollThreshold) {
 		isScrolling = true;
@@ -244,13 +241,15 @@ function unhighlightEverything() {
 Highlight portion pointed to by tracker.
 */
 function highlight(tracker) {
-	// Notice trackerStyle here is NOT immediately updated when user changes settings;
-	// We need the old trackerStyle name to be able to find and remove the styling, 
+	// Notice sentenceStyle here is NOT immediately updated when user changes settings;
+	// We need the old sentenceStyle name to be able to find and remove the styling, 
 	// since the next sentence will get a new style. 
-	let markEl = $("."+trackerClass);
+	let sentenceStyle = trackerStyle.getSentenceStyle();
+
+	let markEl = $("."+sentenceClass);
 	markEl.unmark();
-	markEl.removeClass(trackerClass);
-	markEl.removeClass(trackerStyle);
+	markEl.removeClass(sentenceClass);
+	markEl.removeClass(sentenceStyle);
 	// Append the "mark" class (?) to the html corresponding to the interval
 	// The interval indices are w.r.t to the raw text.
 	// mark.js is smart enough to preserve the original html, and even provide
@@ -265,10 +264,10 @@ function highlight(tracker) {
     	length: end - start
 	}], {
 		// "trackerClass" is for finding current tracker
-		className: trackerClass
+		className: sentenceClass
 	});
-	// Find element with class "trackerClass", add on trackerStyle class:
-	$('.'+trackerClass).addClass(trackerStyle) 
+	// Find element with class "trackerClass", add on sentenceStyle class:
+	$('.'+sentenceClass).addClass(sentenceStyle) 
 	highlightKeyWords(container, start, end);
 };
 
@@ -277,10 +276,7 @@ function highlight(tracker) {
     Highlights the keywords within the tracked sentence. 
     */
 function highlightKeyWords(container, start, end) {
-	// TODO: Refactor this; this should be reset whenever it is changed, not checked every sentence
-	let displaySettings = settingsView.getSettings();
-	let keywordStyle = "keyWord"+displaySettings[0]; 
-	// TODO: Mark.js is actually built to do this; migrate functionality to mark.js
+	let keywordStyle = trackerStyle.getKeywordStyle(); 
 	$("."+keywordClass).unmark(); // Remove previous sentence keyword styling
 	$("."+keywordClass).removeClass(keywordStyle);
 	$("."+keywordStyle).removeClass(keywordStyle);
@@ -339,8 +335,19 @@ function fadeElement(el) {
 /*
 Adjust current speed by speedDelta, and persist the setting.
 */
+const MIN_SPEED_WPM = 100;
+const MAX_SPEED_WPM = 2000;
 function adjustSpeed(speedDelta) {
-	speed += speedDelta;
+	let newSpeed = speed + speedDelta;
+	if (newSpeed < MIN_SPEED_WPM) {
+		newSpeed = MIN_SPEED_WPM;
+	} else if (newSpeed > MAX_SPEED_WPM) {
+		newSpeed = MAX_SPEED_WPM;
+	}
+	if (speed === newSpeed) {
+		return;
+	}
+	speed = newSpeed;
 	settings.setSpeed(speed);
 	timeTrackerView.updateSpeed(speed);
 }
@@ -391,34 +398,13 @@ function setupKeyListeners() {
     });
 };
 
-
-
-/*
-Process of determining which style to use. 
-TODO: Redo this using CSS variable or something. 
-Problem is that highlighter and shadow need to be in the same ID;
-not scalable right now to more customizable settings that effect the tracker. 
-*/
-
-// var trackerStyle = "trackerHighlighter"+highlighterSetting+"Shadow"+shadowSetting; // TODO: Refactor this color selection process
-
 // Classname for keyword highlights.
 
-function initializeTracker(settingsCustomizations) {
-	keywordStyle = "keyWord"+settingsCustomizations[0]; // 0th element is the keyword type
-	// TODO: Refactor this color selection process; won't scale
-	trackerStyle = "trackerHighlighter"+settingsCustomizations[1]+"Shadow"+settingsCustomizations[2]; // 1st element is highlighter type, 2nd element is shadow type
-	// console.log(keywordStyle);
-	// console.log(trackerStyle);
+function initializeTracker() {
 	startMove(direction.FORWARD); // Start reader on the first line
 	stopMove(); // Prevent from continuing to go forward
 }
 
-
-
-/*
-REMOVE THIS
-*/
 function updateDisplaySettings() {
 	settings.getCustomizations(function(settingsCustomizations) {
 		initializeTracker(settingsCustomizations)
@@ -472,7 +458,11 @@ Render all the UI elements.
 */
 function setupUI() {
 	timeTrackerView = new TimeTrackerView(doc, speed);
+	trackerStyle = new TrackerStyle(); // 
+	window.trackerStyle = trackerStyle; // Expose to global
 	settingsView = new SettingsView();
+	
+
   
 	updateDisplaySettings();
   

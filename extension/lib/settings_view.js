@@ -8,12 +8,36 @@ if (window[namespace] === true) {
 }
 
 // Access to settings
-let settings = window.settings;
+var settings = null;
+var trackerStyle = null;
+
+/*
+Contains style information about the tracker. 
+*/
+class TrackerStyle {
+    constructor() {
+        this.sentenceStyle = null; // CSS class for current sentence style
+        this.keywordStyle = null; // CSS class for current keyword style
+    }
+    getSentenceStyle() {
+        return this.sentenceStyle;
+    }
+    getKeywordStyle() {
+        return this.keywordStyle;
+    }
+    setSentenceStyle(sentenceStyle) {
+        this.sentenceStyle = sentenceStyle;
+    }
+    setKeywordStyle(keywordStyle) {
+        this.keywordStyle = keywordStyle;
+    }
+}
 
 /*
 UI for showing instructions and customizing tracker and keyword colors. 
 */
 class SettingsView {
+    
     constructor() {
         this.uiStatus = false; // Is the UI (Instructions & Customizations) ON or OFF?
         this.uiHtml = null; // HTML for the UI (instructions & customizations)
@@ -22,15 +46,16 @@ class SettingsView {
         this.highlighterSetting = "Blue"; // str: "Blue", Yellow", or "Green"
         this.shadowSetting = "Blue"; // str: "Blue", "Yellow", or "Green"
         
+        // TODO: Do this in a better way
+        // Setting these here instead of beginning of file bc need to wait due to async problems,
+        // window.trackerStyle is not ready if set in beginning of file, is ready if set here
+        settings = window.settings;
+        trackerStyle = window.trackerStyle;
+
         this.defineUiHtml();
         this.setHtmlListeners(); 
         this.updateSettings();
     }
-
-        // Returns: str[], current settings as stored in Display
-        getSettings() {
-            return([this.keywordSetting, this.highlighterSetting, this.shadowSetting]);
-        }
 
             /*
     Called by onClick handler on each button of the customization UI. 
@@ -67,18 +92,21 @@ class SettingsView {
     // Sets the attributes of Display to reflect the new settings. 
     // Updates global variables used for tracker and keyword styling. 
     setSettings(customs) {
-        this.keywordSetting = customs[0];
-        this.highlighterSetting = customs[1];
-        this.shadowSetting = customs[2];
-        window.keywordStyle = "keyWord"+customs[0];
-        window.trackerStyle = "trackerHighlighter"+customs[1]+"Shadow"+customs[2]
-    }
+        let keywordSetting = customs[0];
+        let highlighterSetting = customs[1];
+        let shadowSetting = customs[2];
+        this.keywordSetting = keywordSetting;
+        this.highlighterSetting = highlighterSetting;
+        this.shadowSetting = shadowSetting;
+        trackerStyle.setKeywordStyle("keyWord"+keywordSetting);
+        trackerStyle.setSentenceStyle("sentenceHighlighter"+highlighterSetting+"Shadow"+shadowSetting);
+    };
 
     /*
     Setup listeners on the inject HTML. 
     Here, we just listen on the options button (the gear) to toggle the UI display.
     */
-   setHtmlListeners() {
+    setHtmlListeners() {
         let optionsButton = document.getElementById("optionsButton"); // TODO: Replace with $("#optionsButton")[0]
         if (optionsButton) {
             optionsButton.addEventListener("click", this.toggleUI.bind(this));
@@ -414,4 +442,5 @@ class SettingsView {
 
 // Expose to global.
 window.SettingsView = SettingsView;
+window.TrackerStyle = TrackerStyle;
 })(); // End of namespace
