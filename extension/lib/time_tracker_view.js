@@ -88,7 +88,7 @@ class TimeTrackerView {
 
         switch (this.time_remaining_granularity) {
             case timeRemainingGranularity.MINUTE:
-                return `${Math.ceil(time_remaining_m)}m`;
+                return `${Math.ceil(time_remaining_m)}`;
             break;
             case timeRemainingGranularity.SECOND:
                 return `${m_floor}:${s_str}`;
@@ -122,9 +122,8 @@ class TimeTrackerView {
             <div id="readingDisplayContainer">
                 <div id="timerContainer">
                     <div id="timerInsideContainer">
-                        <span id="timerNumber">Calculating...</span> remaining
+                        <span id="timerNumber">Calculating...</span> min remaining
                     </div>
-                    
                 </div>
                 <div id="speedContainer">
                     <div id="speedInsideContainer">
