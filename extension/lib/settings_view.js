@@ -28,7 +28,7 @@ class TrackerStyle {
     setSentenceStyle(sentenceStyle) {
         let oldSentenceStyle = this.sentenceStyle;
         this.sentenceStyle = sentenceStyle;
-        $("."+oldSentenceStyle).removeClass(oldSentenceStyle).addClass(sentenceStyle);;
+        $("."+oldSentenceStyle).removeClass(oldSentenceStyle).addClass(sentenceStyle);
     }
     setKeywordStyle(keywordStyle) {
         let oldKeywordStyle = this.keywordStyle;
