@@ -5,9 +5,6 @@ mark {
 .sentenceClass {
 	border-radius: 3px;
 }
-.keywordClass {
-	border-radius: 3px;
-}
 
 /* SHADOW, HIGHLIGHTER, and KEYWORD CSS */
 .sentenceHighlighterBlueShadowBlue {
