@@ -114,17 +114,16 @@ function startMove(dir) { // Note: I have combined the "moveUp" and "moveDown" f
 			stopMove();
 			return;
 		}
-
-		timer = setTimeout(repeat, calculateTrackerLife());
+		let trackerLifeMs = calculateTrackerLifeMs();
+		timer = setTimeout(repeat, trackerLifeMs);
 		// Immediately fade current tracker.
-		fadeTracker();
+		fadeTracker(trackerLifeMs);
 	})();
 	timeTrackerView.updateAutoMode(true);
 }
 
 // Calculate lingering time for current tracker in ms.
-// TODO: Why does this get called twice?
-function calculateTrackerLife() {
+function calculateTrackerLifeMs() {
 	/* Methodology of calculating tracker life: 
 		Each sentence has a minimum amount of time to stay on; i.e., a bias. 
 		The user specifies the WPM they want, and this calculates a time remaining. 
@@ -167,10 +166,10 @@ function moveOne(dir) { // Sets start and end
 	if (!hasMoved) {
 		return false;
 	}
+
 	timeTrackerView.updateTimer(tracker.getSentenceId());
 	highlight(tracker);
  
-
 	if (dir == direction.BACKWARD) {
 		scrollUp();
 	} else if (dir == direction.FORWARD) {
@@ -232,8 +231,7 @@ $(window).scroll(function() {
 Undo all actions by highlight() and highlightKeyWords().
 */
 function unhighlightEverything() {
-  // TODO: If this is broken, make a tracker class that never changes. Then use the ID for styling
-	$("." + trackerClass).unmark(); 
+	$("." + sentenceClass).unmark(); 
 	$("." + keywordClass).unmark();
 }
 
@@ -245,7 +243,6 @@ function highlight(tracker) {
 	// We need the old sentenceStyle name to be able to find and remove the styling, 
 	// since the next sentence will get a new style. 
 	let sentenceStyle = trackerStyle.getSentenceStyle();
-
 	let markEl = $("."+sentenceClass);
 	markEl.unmark();
 	markEl.removeClass(sentenceClass);
@@ -264,10 +261,9 @@ function highlight(tracker) {
     	length: end - start
 	}], {
 		// "trackerClass" is for finding current tracker
-		className: sentenceClass
+		className: sentenceClass+" "+sentenceStyle
 	});
 	// Find element with class "trackerClass", add on sentenceStyle class:
-	$('.'+sentenceClass).addClass(sentenceStyle) 
 	highlightKeyWords(container, start, end);
 };
 
@@ -298,30 +294,34 @@ function highlightKeyWords(container, start, end) {
 			start: word_start,
 			length: word_len
 		}], {
-			className: keywordClass
+			className: keywordClass+" "+keywordStyle
 		});
 	}
-	$('.'+keywordClass).addClass(keywordStyle) 
 };
 
 /*
 Fade the current tracker indicator according to the calculated speed.
+Parameters:
+- fadeMs (int) ms for the fade animation speed.
 */
-function fadeTracker() {
-	fadeElement($("mark"));
-	fadeElement($("."+keywordClass));
+function fadeTracker(fadeMs) {
+	fadeElement($("."+sentenceClass), fadeMs);
+	fadeElement($("."+keywordClass), fadeMs);
 }
 
 /*
 Stop all animations related to fading.
 */
 function stopFadeTracker() {
-	$("mark").stop();
+	$("."+sentenceClass).stop();
 	$("."+keywordClass).stop();
 }
 
 
-function fadeElement(el) {
+/*
+Fade jquery element el over fadeMs ms.
+*/
+function fadeElement(el, fadeMs) {
 	// Some async issue. If marker already gets deleted but not initialized.
 	if (!el) {
 		return;
@@ -329,7 +329,15 @@ function fadeElement(el) {
 	let rgb = jQuery.Color(el.css('backgroundColor'));
 	// Set alpha to 0, and animate towards this, to simulate bg fade of same color.
 	let newRgba = `rgba(${rgb.red()}, ${rgb.green()}, ${rgb.blue()}, 0)`
-	el.animate({ 'background-color': newRgba }, calculateTrackerLife());
+	el.animate(
+		{ 'background-color': newRgba },
+		fadeMs,
+		// The fade outs are barely noticeable until the last .1 period
+		// So, used higher powers of ease out to extend the close-to-fade
+		// period so user has enough heads up that a movement will happen soon.
+		// See this for the full list
+		// https://www.tutorialspoint.com/jqueryui/jqueryui_easings.htm
+		'easeOutQuint');
 }
 
 /*

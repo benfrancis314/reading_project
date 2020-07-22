@@ -65,7 +65,7 @@ mark {
 	transition: all 0.5s ease;
 }
 .keyWordYellow {
-	background-color: yellow !important;
+	background-color: yellow;
 	transition: all 0.5s ease;
 }
 .keyWordOff {
