@@ -232,8 +232,7 @@ $(window).scroll(function() {
 Undo all actions by highlight() and highlightKeyWords().
 */
 function unhighlightEverything() {
-  // TODO: If this is broken, make a tracker class that never changes. Then use the ID for styling
-	$("." + trackerClass).unmark(); 
+	$("." + sentenceClass).unmark(); 
 	$("." + keywordClass).unmark();
 }
 
