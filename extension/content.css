@@ -2,6 +2,13 @@ mark {
 	color: inherit !important;
 }
 
+.sentenceClass {
+	border-radius: 3px;
+}
+.keywordClass {
+	border-radius: 3px;
+}
+
 /* SHADOW, HIGHLIGHTER, and KEYWORD CSS */
 .sentenceHighlighterBlueShadowBlue {
 	background-color:rgb(230, 239, 253); /* Light Blue highlighter */
@@ -58,7 +65,7 @@ mark {
 	transition: all 0.5s ease;
 }
 .keyWordYellow {
-	background-color: yellow !important;
+	background-color: yellow;
 	transition: all 0.5s ease;
 }
 .keyWordOff {
