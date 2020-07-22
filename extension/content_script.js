@@ -198,7 +198,7 @@ function scrollUp() {
 				isScrolling = false;
 			}
 		);
-	}
+	} 
 }
 
 // Scroll down when tracker is below a certain point
@@ -341,8 +341,19 @@ function fadeElement(el) {
 /*
 Adjust current speed by speedDelta, and persist the setting.
 */
+const MIN_SPEED_WPM = 100;
+const MAX_SPEED_WPM = 2000;
 function adjustSpeed(speedDelta) {
-	speed += speedDelta;
+	let newSpeed = speed + speedDelta;
+	if (newSpeed < MIN_SPEED_WPM) {
+		newSpeed = MIN_SPEED_WPM;
+	} else if (newSpeed > MAX_SPEED_WPM) {
+		newSpeed = MAX_SPEED_WPM;
+	}
+	if (speed === newSpeed) {
+		return;
+	}
+	speed = newSpeed;
 	settings.setSpeed(speed);
 	timeTrackerView.updateSpeed(speed);
 }
