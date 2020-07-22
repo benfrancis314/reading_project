@@ -46,6 +46,7 @@ class SettingsView {
         this.highlighterSetting = "Blue"; // str: "Blue", Yellow", or "Green"
         this.shadowSetting = "Blue"; // str: "Blue", "Yellow", or "Green"
         
+        // TODO: Do this in a better way
         // Setting these here instead of beginning of file bc need to wait due to async problems,
         // window.trackerStyle is not ready if set in beginning of file, is ready if set here
         settings = window.settings;

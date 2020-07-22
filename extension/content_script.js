@@ -390,16 +390,11 @@ function setupKeyListeners() {
 
 // Classname for keyword highlights.
 
-function initializeTracker(settingsCustomizations) {
+function initializeTracker() {
 	startMove(direction.FORWARD); // Start reader on the first line
 	stopMove(); // Prevent from continuing to go forward
 }
 
-
-
-/*
-REMOVE THIS
-*/
 function updateDisplaySettings() {
 	settings.getCustomizations(function(settingsCustomizations) {
 		initializeTracker(settingsCustomizations)
