@@ -7,6 +7,15 @@ if (window[namespace] === true) {
     window[namespace] = true;
 }
 
+
+// How granular you want time remaining to be
+const timeRemainingGranularity = {
+    // 3m remaining
+    MINUTE: 0,
+    // 3:00 remaining
+    SECOND: 1
+}
+
 /*
 Creates a display overlaid on current web page that displays
 the estimated time remaining to read and the current speed of 
@@ -29,8 +38,7 @@ class TimeTrackerView {
         this.reading_speed = speed;
         this.end = null; 
         this.auto_mode = false; // Is the reading mode in AUTO mode? (if not, in MANUAL)
-
-
+        this.time_remaining_granularity = timeRemainingGranularity.MINUTE;
 
         // this.setSettings();
         this.defineDisplayHtml();
@@ -64,13 +72,31 @@ class TimeTrackerView {
     updateTimer(sentenceId) { // Call everytime the tracker moves.
         let total_words = this.doc.getNumWordsFromSentenceTilEnd(sentenceId);
         // if (this.auto_mode) { currentSpeed = this.reading_speed } else { currentSpeed = avg_read_speed };
-        let time_remaining_m = total_words / this.reading_speed; // in minutes
-        this.time_remaining_ms = time_remaining_m * 60 * 1000;
+        this.time_remaining_ms = total_words / this.reading_speed * 60 * 1000;
+        document.getElementById("timerNumber").innerHTML = this.getTimeRemainingText();
+    }
 
-        let m = Math.floor(time_remaining_m);
-        let s = Math.round((time_remaining_m - m) * 60);
-        let s_str = (""+s).padStart(2, "0");
-        document.getElementById("timerNumber").innerHTML = `${m}:${s_str}`;
+    /*
+    Return: string. Time remaining text like "3m" or "3:00" depending on
+    the chosen granularity.
+    */
+    getTimeRemainingText() {
+        let time_remaining_m = this.time_remaining_ms / 1000 / 60;
+        let m_floor = Math.floor(time_remaining_m);
+        let s_remain = Math.round((time_remaining_m - m_floor) * 60);
+        let s_str = (""+s_remain).padStart(2, "0");
+
+        switch (this.time_remaining_granularity) {
+            case timeRemainingGranularity.MINUTE:
+                return `${Math.ceil(time_remaining_m)}m`;
+            break;
+            case timeRemainingGranularity.SECOND:
+                return `${m_floor}:${s_str}`;
+            break;
+            default:
+                 throw `Invalid granularity: ${time_remaining_granularity}`;
+            break;
+        }
     }
 
     /* 
