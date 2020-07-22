@@ -167,10 +167,10 @@ function moveOne(dir) { // Sets start and end
 	if (!hasMoved) {
 		return false;
 	}
+
 	timeTrackerView.updateTimer(tracker.getSentenceId());
 	highlight(tracker);
  
-
 	if (dir == direction.BACKWARD) {
 		scrollUp();
 	} else if (dir == direction.FORWARD) {
@@ -245,7 +245,6 @@ function highlight(tracker) {
 	// We need the old sentenceStyle name to be able to find and remove the styling, 
 	// since the next sentence will get a new style. 
 	let sentenceStyle = trackerStyle.getSentenceStyle();
-
 	let markEl = $("."+sentenceClass);
 	markEl.unmark();
 	markEl.removeClass(sentenceClass);
@@ -264,10 +263,9 @@ function highlight(tracker) {
     	length: end - start
 	}], {
 		// "trackerClass" is for finding current tracker
-		className: sentenceClass
+		className: sentenceClass+" "+sentenceStyle
 	});
 	// Find element with class "trackerClass", add on sentenceStyle class:
-	$('.'+sentenceClass).addClass(sentenceStyle) 
 	highlightKeyWords(container, start, end);
 };
 
@@ -298,10 +296,9 @@ function highlightKeyWords(container, start, end) {
 			start: word_start,
 			length: word_len
 		}], {
-			className: keywordClass
+			className: keywordClass+" "+keywordStyle
 		});
 	}
-	$('.'+keywordClass).addClass(keywordStyle) 
 };
 
 /*
