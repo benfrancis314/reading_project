@@ -168,10 +168,10 @@ function moveOne(dir) { // Sets start and end
 	if (!hasMoved) {
 		return false;
 	}
+
 	timeTrackerView.updateTimer(tracker.getSentenceId());
 	highlight(tracker);
  
-
 	if (dir == direction.BACKWARD) {
 		scrollUp();
 	} else if (dir == direction.FORWARD) {
@@ -246,7 +246,6 @@ function highlight(tracker) {
 	// We need the old sentenceStyle name to be able to find and remove the styling, 
 	// since the next sentence will get a new style. 
 	let sentenceStyle = trackerStyle.getSentenceStyle();
-
 	let markEl = $("."+sentenceClass);
 	markEl.unmark();
 	markEl.removeClass(sentenceClass);
