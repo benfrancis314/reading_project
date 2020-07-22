@@ -137,12 +137,11 @@ function calculateTrackerLife() {
 	let sentences_remaining = doc.getNumSentencesFromSentenceTilEnd(sentenceId);
 	let sentence_words = doc.getNumWordsInSentence(sentenceId); // Words in current sentence
 	let total_words_remaining = doc.getNumWordsFromSentenceTilEnd(sentenceId);
-	let base_time_s = sentences_remaining * speed_bias_ms/1000; // Time from just speed_bias on each sentence. In seconds
-	let desired_time_s = timeTrackerView.getTimeRemaining() * 60; // Time we need to finish in
-	let distributable_time = desired_time_s - base_time_s; // Time left to distribute to sentences
+	let base_time_ms = sentences_remaining * speed_bias_ms; // Time from just speed_bias on each sentence. In seconds
+	let desired_time_ms = timeTrackerView.getTimeRemainingMs(); // Time we need to finish in
+	let distributable_time_ms = desired_time_ms - base_time_ms; // Time left to distribute to sentences
 	let word_ratio = sentence_words/total_words_remaining;
-	let linger_time_ms = distributable_time*(word_ratio)*1000 + speed_bias_ms; // convert from s to ms
-
+	let linger_time_ms = distributable_time_ms*(word_ratio) + speed_bias_ms;
 	return (linger_time_ms); 
 	// TODO: Use Moment.js
 }
@@ -197,7 +196,7 @@ function scrollUp() {
 				isScrolling = false;
 			}
 		);
-	}
+	} 
 }
 
 // Scroll down when tracker is below a certain point
@@ -333,8 +332,19 @@ function fadeElement(el) {
 /*
 Adjust current speed by speedDelta, and persist the setting.
 */
+const MIN_SPEED_WPM = 100;
+const MAX_SPEED_WPM = 2000;
 function adjustSpeed(speedDelta) {
-	speed += speedDelta;
+	let newSpeed = speed + speedDelta;
+	if (newSpeed < MIN_SPEED_WPM) {
+		newSpeed = MIN_SPEED_WPM;
+	} else if (newSpeed > MAX_SPEED_WPM) {
+		newSpeed = MAX_SPEED_WPM;
+	}
+	if (speed === newSpeed) {
+		return;
+	}
+	speed = newSpeed;
 	settings.setSpeed(speed);
 	timeTrackerView.updateSpeed(speed);
 }
@@ -387,16 +397,11 @@ function setupKeyListeners() {
 
 // Classname for keyword highlights.
 
-function initializeTracker(settingsCustomizations) {
+function initializeTracker() {
 	startMove(direction.FORWARD); // Start reader on the first line
 	stopMove(); // Prevent from continuing to go forward
 }
 
-
-
-/*
-REMOVE THIS
-*/
 function updateDisplaySettings() {
 	settings.getCustomizations(function(settingsCustomizations) {
 		initializeTracker(settingsCustomizations)
