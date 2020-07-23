@@ -333,8 +333,19 @@ function stopFadeTracker() {
 	let keywords_el = $("."+keywordClass)
 	let sentence_color = sentence_el.css('backgroundColor');
 	let keywords_color = keywords_el.css('backgroundColor');
-	sentence_el.stop().animate({'background-color': sentence_color});
-	keywords_el.stop().animate({'background-color': keywords_color});
+	// TODO: Look into this
+	sentence_el.stop().animate({'background-color': sentence_color},
+		{	duration: 300,
+			complete: function() { 
+				sentence_el.removeAttr('style');
+		}
+		});
+	keywords_el.stop().animate({'background-color': keywords_color},
+		{	duration: 300,
+			complete: function() { 
+				keywords_el.removeAttr('style');
+		}
+		});
 }
 
 

@@ -1,6 +1,6 @@
 {
     "name": "ReaderEase",
-    "version": "1.0",
+    "version": "0.0.0.1",
     "description": "Read online with ease.",
     "permissions": ["activeTab", "declarativeContent", "storage"],
     "background": {
@@ -16,6 +16,11 @@
             }
         }
     },
+    "icons": { 
+        "16": "images/logo16.png",
+        "32": "images/logo32.png",
+        "48": "images/logo48.png",
+       "128": "images/logo128.png" },
     "browser_action": {
         "default_icon": {
             "16": "images/logo16.png",
