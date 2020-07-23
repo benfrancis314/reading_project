@@ -30,9 +30,5 @@
         },
         "default_title": "ReaderEase"
     },
-    "web_accessible_resources": [
-        "gear.svg",
-        "ui_instructions_customizations.svg"
-    ],
     "manifest_version": 2
 }
