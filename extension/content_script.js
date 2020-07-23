@@ -168,6 +168,7 @@ function moveOne(dir) { // Sets start and end
 	}
 
 	timeTrackerView.updateTimer(tracker.getSentenceId());
+	console.log(doc.getSentence(tracker.getSentenceId()));
 	highlight(tracker);
  
 	if (dir == direction.BACKWARD) {
@@ -320,6 +321,7 @@ function stopFadeTracker() {
 	let keywords_el = $("."+keywordStyle)
 	let sentence_color = sentence_el.css('backgroundColor');
 	let keywords_color = keywords_el.css('backgroundColor');
+	// TODO: Look into this
 	sentence_el.stop().animate({'background-color': sentence_color},
 		{	duration: 300,
 			complete: function() { 

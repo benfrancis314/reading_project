@@ -181,7 +181,6 @@ class Doc {
     Returns: int[] container_sentences_map. container_sentences_map[i] = number of sentences in container id i.
     */
     calcSentencePerContainer(sentences) {
-        let total_sentences = 0;
         let container_sentences_map = []; // For each container, add # of sentences in it
         for (let container_id = 0; container_id < this.getNumContainers(); container_id++) {
             let first_sentence_id = this.containerIdToFirstSentenceId[container_id];
