@@ -184,7 +184,6 @@ function moveOne(dir) { // Sets start and end
 	}
 
 	timeTrackerView.updateTimer(tracker.getSentenceId());
-	console.log(doc.getSentence(tracker.getSentenceId()));
 	highlight(tracker);
  
 	if (dir == direction.BACKWARD) {
