@@ -39,8 +39,11 @@ function parseDocument() {
 	let docClone = document.cloneNode(/* deep= */true);
 	trimDocBasedOnSite(docClone, hostname);
 
-	// TODO: Handle readability failures.
 	let article = new Readability(docClone).parse();
+	if (article === null) {
+		return [];
+	}
+
 	// Readability.js converts all readable elements into <p>
 	$(article.content).find("p,h1,h2,h3,li").each(function() {
 		let id = $(this).attr('id');
