@@ -313,12 +313,25 @@ function fadeTracker(fadeMs) {
 Stop all animations related to fading.
 */
 function stopFadeTracker() {
-	let sentence_el = $("."+sentenceClass)
-	let keywords_el = $("."+keywordClass)
+	let sentenceStyle = trackerStyle.getSentenceStyle();
+	let keywordStyle = trackerStyle.getKeywordStyle(); 
+
+	let sentence_el = $("."+sentenceStyle)
+	let keywords_el = $("."+keywordStyle)
 	let sentence_color = sentence_el.css('backgroundColor');
 	let keywords_color = keywords_el.css('backgroundColor');
-	sentence_el.stop().animate({'background-color': sentence_color});
-	keywords_el.stop().animate({'background-color': keywords_color});
+	sentence_el.stop().animate({'background-color': sentence_color},
+		{	duration: 300,
+			complete: function() { 
+				sentence_el.removeAttr('style');
+		}
+		});
+	keywords_el.stop().animate({'background-color': keywords_color},
+		{	duration: 300,
+			complete: function() { 
+				keywords_el.removeAttr('style');
+		}
+		});
 }
 
 
