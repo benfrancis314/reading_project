@@ -357,7 +357,8 @@ function adjustSpeed(speedDelta) {
 	}
 	speed = newSpeed;
 	settings.setSpeed(speed);
-	timeTrackerView.updateSpeed(speed);
+	let sentence_id = tracker.getSentenceId()
+	timeTrackerView.updateSpeed(speed,sentence_id);
 }
 
 function setupKeyListeners() {
