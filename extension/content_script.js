@@ -9,6 +9,15 @@ if (window[namespace] === true) {
 	window[namespace] = true;
 }
 
+// If true, all debugging statements would show.
+// TODO: Use a proper logging library.
+window.DEBUG = true;
+window.debug = function(str) {
+	if (DEBUG) {
+		console.log("DEBUG: " + str);
+	}
+}
+
 const keywordClass = "keywordClass" // Name of class for FINDING keywords (no styling)
 const sentenceClass = "sentenceClass" // Name of class for FINDING the tracker (no styling)
 
@@ -130,7 +139,7 @@ function calculateTrackerLifeMs() {
 		This function then distributes the remaining time to each sentence according
 		to ratio of the sentence_words:total_words. 
 	*/
-	const speed_bias_ms = 500; // Half of a second; is this too long?
+	const speed_bias_ms = 200; // Half of a second; is this too long?
 
 	let sentenceId = tracker.getSentenceId();
 	let sentences_remaining = doc.getNumSentencesFromSentenceTilEnd(sentenceId);
@@ -139,8 +148,14 @@ function calculateTrackerLifeMs() {
 	let base_time_ms = sentences_remaining * speed_bias_ms; // Time from just speed_bias on each sentence. In seconds
 	let desired_time_ms = timeTrackerView.getTimeRemainingMs(); // Time we need to finish in
 	let distributable_time_ms = desired_time_ms - base_time_ms; // Time left to distribute to sentences
+	if (distributable_time_ms < 0) {
+		// Possible because base time per sentence sets a lower bound.
+		// https://github.com/benfrancis314/reading_project/issues/104
+		distributable_time_ms = 0;
+	}
 	let word_ratio = sentence_words/total_words_remaining;
 	let linger_time_ms = distributable_time_ms*(word_ratio) + speed_bias_ms;
+	debug("calculateTrackerLifeMs = " + linger_time_ms);
 	return (linger_time_ms); 
 	// TODO: Use Moment.js
 }
