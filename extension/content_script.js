@@ -11,7 +11,7 @@ if (window[namespace] === true) {
 
 // If true, all debugging statements would show.
 // TODO: Use a proper logging library.
-window.DEBUG = true;
+window.DEBUG = false;
 window.debug = function(str) {
 	if (DEBUG) {
 		console.log("DEBUG: " + str);
@@ -481,6 +481,11 @@ In the INACTIVE state, the widgets are not visible, and no event handlers are at
 function oneTimeSetup() {
 	let readableDomEls = window.parseDocument();
 	doc = new Doc(readableDomEls);
+	// If page is not readable, stop setting up the rest of the app.
+	if (doc.sentences.length === 0) {
+		debug("Stopping app init because page is not readable");
+		return;
+	}
 	tracker = new Tracker(doc);
 	// TODO: Refactor using promise logic so this is more readable.
 	// Load all the persistent settings, then render the UI.
@@ -505,8 +510,6 @@ function setupUI() {
 	window.trackerStyle = trackerStyle; // Expose to global
 	settingsView = new SettingsView();
 	
-
-  
 	updateDisplaySettings();
   
 	setupClickListeners();
