@@ -88,6 +88,8 @@ class Doc {
     Initializes [sentences, containerIdToFirstSentenceId]
     */
     detectSentenceBoundaries() {
+        debug("Detecting sentence boundaries");
+        let startTime = new Date();
         this.sentences = [];
         this.containerIdToFirstSentenceId = [];
         for(let container_id = 0; container_id < this.getNumContainers(); container_id++) {
@@ -102,6 +104,10 @@ class Doc {
                 this.sentences.push(new SentencePointer(container_id, start, end));
             }
         }
+        debug("Number of sentences = " + this.sentences.length);
+        let endTime = new Date();
+        let elapsedTimeS =  (endTime - startTime ) / 1000;
+        debug(`Detecting sentence boundaries done in ${elapsedTimeS} s`);
     }
 
     /*
