@@ -20,6 +20,7 @@ window.debug = function(str) {
 
 const keywordClass = "keywordClass" // Name of class for FINDING keywords (no styling)
 const sentenceClass = "sentenceClass" // Name of class for FINDING the tracker (no styling)
+const SCROLL_DURATION_MS = 500;
 
 // Keeps track of the pointed text. Initialized by end of script load.
 var tracker = null;
@@ -117,6 +118,11 @@ function startMove(dir) { // Note: I have combined the "moveUp" and "moveDown" f
 
 	// Schedule continuous movement, with the first move being run immediately.
 	(function repeat() { // Allows speed to be updated WHILE moving
+		// Let scrolling finish before any movement.
+		if (isScrolling) {
+			timer = setTimeout(repeat, SCROLL_DURATION_MS);
+			return;
+		}
 		// If there is no more movement to be made, stop autoscroll.
 		let hasMoved = moveOne(dir);
 		if (!hasMoved) {
@@ -166,11 +172,6 @@ Return:
 - Boolean: True iff tracker successfully moved. False if there is no more element to move to.
 */
 function moveOne(dir) { // Sets start and end
-	// Let scrolling finish before any movement.
-	if (isScrolling) {
-		return;
-	}
-
 	let hasMoved = false;
 
 	if (dir == direction.BACKWARD) {
@@ -205,7 +206,7 @@ function scrollUp() {
 		$('html, body').animate(
 			// Leave some vertical margin before the container.
 			{scrollTop: (markedTopAbsoluteOffset - verticalMargin)},
-			500, /* duration(ms) */
+			SCROLL_DURATION_MS,
 			function() {
 				isScrolling = false;
 			}
@@ -227,7 +228,7 @@ function scrollDown() {
 		$('html, body').animate(
 			// Leave some vertical margin before the container.
 			{scrollTop: (markedTopAbsoluteOffset - verticalMargin)},
-			500, /* duration(ms) */
+			SCROLL_DURATION_MS,
 			function() {
 				isScrolling = false;
 			}
