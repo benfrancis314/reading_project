@@ -61,7 +61,7 @@ class SettingsView {
         this.updateSettings();
     }
 
-            /*
+    /*
     Called by onClick handler on each button of the customization UI. 
     Given a setting and choice, it uses provides an array to setCustomizations containing
     two unchanged customizations settings and one changed customization setting. 
@@ -102,8 +102,9 @@ class SettingsView {
         this.keywordSetting = keywordSetting;
         this.highlighterSetting = highlighterSetting;
         this.shadowSetting = shadowSetting;
-        trackerStyle.setKeywordStyle("keyWord"+keywordSetting);
+        // TODO: It shouldn't have to call both of these; in future only call whichever is needed
         trackerStyle.setSentenceStyle("sentenceHighlighter"+highlighterSetting+"Shadow"+shadowSetting);
+        trackerStyle.setKeywordStyle("keyWord"+keywordSetting);
     };
 
     /*
