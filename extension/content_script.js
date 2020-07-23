@@ -100,7 +100,7 @@ Parameters:
 - dir. See direction enum.
 */
 
-// TODO: Maybe refactor so it doesn't when turn on automode?
+// TODO: Maybe refactor so it doesn't [____?] when turn on automode?
 function startMove(dir) { // Note: I have combined the "moveUp" and "moveDown" functions here
 	if (timer) {
 		return;
@@ -313,8 +313,12 @@ function fadeTracker(fadeMs) {
 Stop all animations related to fading.
 */
 function stopFadeTracker() {
-	$("."+sentenceClass).stop();
-	$("."+keywordClass).stop();
+	let sentence_el = $("."+sentenceClass)
+	let keywords_el = $("."+keywordClass)
+	let sentence_color = sentence_el.css('backgroundColor');
+	let keywords_color = keywords_el.css('backgroundColor');
+	sentence_el.stop().animate({'background-color': sentence_color});
+	keywords_el.stop().animate({'background-color': keywords_color});
 }
 
 
@@ -374,9 +378,11 @@ function setupKeyListeners() {
 
 		switch (evt.code) {
 			case 'ArrowLeft': // Move back
+				stopFadeTracker();
                 startMove(direction.BACKWARD);
                 break;
 			case 'ArrowRight': // Move forward
+				stopFadeTracker();
                 startMove(direction.FORWARD);
 				break;
 			case 'KeyD':	// Increase velocity
@@ -387,6 +393,7 @@ function setupKeyListeners() {
 				break;
 			case 'Space': // Switch to auto mode
 				if (timer) {
+					stopFadeTracker();
 					stopMove();
 				} else {
 					startMove(direction.FORWARD);
