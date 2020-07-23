@@ -18,6 +18,7 @@ How:
 - Return back the leftover unique ids.
 Returns:
 - readableDomEls - jquery dom elements of readable content to initialize the tracker with.
+  Or empty array if page is not readable.
 */
 function parseDocument() {
 	let hostname = $(location).attr('hostname');
@@ -39,8 +40,11 @@ function parseDocument() {
 	let docClone = document.cloneNode(/* deep= */true);
 	trimDocBasedOnSite(docClone, hostname);
 
-	// TODO: Handle readability failures.
 	let article = new Readability(docClone).parse();
+	if (article === null) {
+		return [];
+	}
+
 	// Readability.js converts all readable elements into <p>
 	$(article.content).find("p,h1,h2,h3,li").each(function() {
 		let id = $(this).attr('id');

@@ -9,8 +9,18 @@ if (window[namespace] === true) {
 	window[namespace] = true;
 }
 
+// If true, all debugging statements would show.
+// TODO: Use a proper logging library.
+window.DEBUG = false;
+window.debug = function(str) {
+	if (DEBUG) {
+		console.log("DEBUG: " + str);
+	}
+}
+
 const keywordClass = "keywordClass" // Name of class for FINDING keywords (no styling)
 const sentenceClass = "sentenceClass" // Name of class for FINDING the tracker (no styling)
+const SCROLL_DURATION_MS = 500;
 
 // Keeps track of the pointed text. Initialized by end of script load.
 var tracker = null;
@@ -108,6 +118,11 @@ function startMove(dir) { // Note: I have combined the "moveUp" and "moveDown" f
 
 	// Schedule continuous movement, with the first move being run immediately.
 	(function repeat() { // Allows speed to be updated WHILE moving
+		// Let scrolling finish before any movement.
+		if (isScrolling) {
+			timer = setTimeout(repeat, SCROLL_DURATION_MS);
+			return;
+		}
 		// If there is no more movement to be made, stop autoscroll.
 		let hasMoved = moveOne(dir);
 		if (!hasMoved) {
@@ -130,7 +145,7 @@ function calculateTrackerLifeMs() {
 		This function then distributes the remaining time to each sentence according
 		to ratio of the sentence_words:total_words. 
 	*/
-	const speed_bias_ms = 500; // Half of a second; is this too long?
+	const speed_bias_ms = 200; // Half of a second; is this too long?
 
 	let sentenceId = tracker.getSentenceId();
 	let sentences_remaining = doc.getNumSentencesFromSentenceTilEnd(sentenceId);
@@ -139,8 +154,14 @@ function calculateTrackerLifeMs() {
 	let base_time_ms = sentences_remaining * speed_bias_ms; // Time from just speed_bias on each sentence. In seconds
 	let desired_time_ms = timeTrackerView.getTimeRemainingMs(); // Time we need to finish in
 	let distributable_time_ms = desired_time_ms - base_time_ms; // Time left to distribute to sentences
+	if (distributable_time_ms < 0) {
+		// Possible because base time per sentence sets a lower bound.
+		// https://github.com/benfrancis314/reading_project/issues/104
+		distributable_time_ms = 0;
+	}
 	let word_ratio = sentence_words/total_words_remaining;
 	let linger_time_ms = distributable_time_ms*(word_ratio) + speed_bias_ms;
+	debug("calculateTrackerLifeMs = " + linger_time_ms);
 	return (linger_time_ms); 
 	// TODO: Use Moment.js
 }
@@ -151,11 +172,6 @@ Return:
 - Boolean: True iff tracker successfully moved. False if there is no more element to move to.
 */
 function moveOne(dir) { // Sets start and end
-	// Let scrolling finish before any movement.
-	if (isScrolling) {
-		return;
-	}
-
 	let hasMoved = false;
 
 	if (dir == direction.BACKWARD) {
@@ -191,7 +207,7 @@ function scrollUp() {
 		$('html, body').animate(
 			// Leave some vertical margin before the container.
 			{scrollTop: (markedTopAbsoluteOffset - verticalMargin)},
-			500, /* duration(ms) */
+			SCROLL_DURATION_MS,
 			function() {
 				isScrolling = false;
 			}
@@ -213,7 +229,7 @@ function scrollDown() {
 		$('html, body').animate(
 			// Leave some vertical margin before the container.
 			{scrollTop: (markedTopAbsoluteOffset - verticalMargin)},
-			500, /* duration(ms) */
+			SCROLL_DURATION_MS,
 			function() {
 				isScrolling = false;
 			}
@@ -469,6 +485,11 @@ In the INACTIVE state, the widgets are not visible, and no event handlers are at
 function oneTimeSetup() {
 	let readableDomEls = window.parseDocument();
 	doc = new Doc(readableDomEls);
+	// If page is not readable, stop setting up the rest of the app.
+	if (doc.sentences.length === 0) {
+		debug("Stopping app init because page is not readable");
+		return;
+	}
 	tracker = new Tracker(doc);
 	// TODO: Refactor using promise logic so this is more readable.
 	// Load all the persistent settings, then render the UI.
@@ -493,8 +514,6 @@ function setupUI() {
 	window.trackerStyle = trackerStyle; // Expose to global
 	settingsView = new SettingsView();
 	
-
-  
 	updateDisplaySettings();
   
 	setupClickListeners();
