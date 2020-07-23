@@ -471,7 +471,7 @@ function oneTimeSetup() {
 	doc = new Doc(readableDomEls);
 	// If page is not readable, stop setting up the rest of the app.
 	if (doc.sentences.length === 0) {
-		// TODO:
+		debug("Stopping app init because page is not readable");
 		return;
 	}
 	tracker = new Tracker(doc);

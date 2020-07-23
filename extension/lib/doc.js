@@ -7,6 +7,9 @@ if (window[namespace] === true) {
     window[namespace] = true;
 }
 
+// If the number of sentences in the doc exceeds this, mark the document as unreadable.
+const MAX_NUM_SENTENCE = 1000;
+
 /*
 All NLP <-> DOM preprocessing logic should reside in this file.
 There are two main core concepts, each concept having an NLP meaning, along with DOM binding.
@@ -86,6 +89,7 @@ class Doc {
     /*
     Find all sentence boundaries within containers.
     Initializes [sentences, containerIdToFirstSentenceId]
+    If document is not readable, sentences will be empty array.
     */
     detectSentenceBoundaries() {
         debug("Detecting sentence boundaries");
@@ -102,6 +106,13 @@ class Doc {
                 let start = sentenceBoundary.index;
                 let end = start + sentenceBoundary.offset;
                 this.sentences.push(new SentencePointer(container_id, start, end));
+            }
+            if (this.sentences.length > MAX_NUM_SENTENCE) {
+                debug("Too many sentences found = " + this.sentences.length);
+                this.containers = [];
+                this.sentences = [];
+                this.containerIdToFirstSentenceId = [];
+                break;
             }
         }
         debug("Number of sentences = " + this.sentences.length);

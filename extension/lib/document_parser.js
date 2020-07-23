@@ -18,6 +18,7 @@ How:
 - Return back the leftover unique ids.
 Returns:
 - readableDomEls - jquery dom elements of readable content to initialize the tracker with.
+  Or empty array if page is not readable.
 */
 function parseDocument() {
 	let hostname = $(location).attr('hostname');
