@@ -108,7 +108,7 @@ class Doc {
                 this.sentences.push(new SentencePointer(container_id, start, end));
             }
             if (this.sentences.length > MAX_NUM_SENTENCE) {
-                debug("Too many sentences found = " + this.sentences.length);
+                alert("Sorry, we don't support big documents yet :(");
                 this.containers = [];
                 this.sentences = [];
                 this.containerIdToFirstSentenceId = [];
