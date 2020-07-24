@@ -12,11 +12,24 @@ if (window[namespace] === true) {
 // List of chrome storage keys.
 const settingKey = {
 	SPEED: "speed", // WPM
-	CUSTOMS: "customs"
-	// KEYWORD: "green", // Keywords color/active: "green", "yellow", "off"
-	// HIGHLIGHTER: "blue", // Highlighter color: "blue", "yellow", "green"
-	// SHADOW: "blue" // Shadow color: "blue", "yellow", "green"
+	TRACKER_CUSTOM: "tracker_custom"
 };
+
+// Tracker settings customize the appearance of the tracker.
+// It is represented by the dictionary {trackerSettingKey : trackerSettingValue}
+// All of the keys are mapped to a value.
+const trackerSettingKey = {
+	KEYWORD: "keyword",
+	HIGHLIGHTER: "highlighter",
+	SHADOW: "shadow"
+}
+const trackerSettingValue = {
+	GREEN: "green",
+	YELLOW: "yellow",
+	BLUE: "blue",
+	OFF: "off"
+}
+
 
 /*
 Wrapper for persistent storage of user's settings.
@@ -47,13 +60,15 @@ class Settings {
 		});
 
 	}
-	// I AM USING A COPY OF THIS IN DISPLAY.JS JUST FOR NOW FOR POC;
 	// TODO: MOVE CALLBACK FLOW TO GO BACK THROUGH HERE
-	/* Stored as array bc I need all 3 to proceed in content_script.js. 
-	So instead of waiting for three async calls, merging them into an array back here
+	/*
+	Save the tracker settings
+	Parameters:
+	- trackerSettings: {trackerSettingKey : trackerSettingValue}
+	- cb. Callback fcn to be called when saving is complete.
 	*/
-	setCustomizations(customs,cb) { // string[] -> 1. Keyword 2. Highlighter 3. Shadow
-		chrome.storage.local.set({[settingKey.CUSTOMS]: customs}, function() {
+	setCustomizations(trackerSettings, cb) {
+		chrome.storage.local.set({[settingKey.TRACKER_CUSTOM]: trackerSettings}, function() {
 			if (chrome.runtime.lastError) {
 				console.log("Failed to save customization setting: " + chrome.runtime.lastError);
 				return;
@@ -81,26 +96,36 @@ class Settings {
 				speed = settingsDict[key];
 			} 
 			cb(speed);
-		});
+		})
 	}
+
+	getDefaultTrackerSettings() {
+		return {
+			[trackerSettingKey.KEYWORD] : trackerSettingValue.GREEN,
+			[trackerSettingKey.HIGHLIGHTER]: trackerSettingValue.BLUE,
+			[trackerSettingKey.SHADOW]: trackerSettingValue.BLUE
+		};
+	}	
+
 	/*
 	See setCustomizations().
-	If not set yet, return default value of ["Green", "Blue", "Blue"].
+	If not set yet, return getDefaultTrackerSettings()
 	Parameters;
-	- cb: func(int). A callback function which accepts the retrieved customizations status.
+	- cb: func({trackerSettingKey : trackerSettingValue}).
+	  A callback function which accepts the retrieved customizations status.
 	*/
 	getCustomizations(cb) {
-		let key = settingKey.CUSTOMS;
+		let key = settingKey.TRACKER_CUSTOM;
+		let that = this;
 		let val = chrome.storage.local.get(key, function(settingsDict) {
 			if (chrome.runtime.lastError) {
 				console.log("Failed to retrieve customization setting: " + chrome.runtime.lastError);
 				return;
 			}
-			// Default keyword color.
-			let customs = ["Green", "Blue", "Blue"]
+			let customs = that.getDefaultTrackerSettings();
 			if (key in settingsDict) {
 				customs = settingsDict[key];
-			} 
+			}
 			cb(customs);
 		});
 	}
@@ -108,5 +133,7 @@ class Settings {
 
 // Expose to global.
 window.settings = new Settings();
+window.trackerSettingKey = trackerSettingKey;
+window.trackerSettingValue = trackerSettingValue;
 
 })(); // End of namespace
