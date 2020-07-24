@@ -45,10 +45,6 @@ class SettingsView {
     constructor() {
         this.uiStatus = false; // Is the UI (Instructions & Customizations) ON or OFF?
         this.uiHtml = null; // HTML for the UI (instructions & customizations)
-
-        this.keywordSetting = "Green"; // str: "Green", "Yellow", or "Off"
-        this.highlighterSetting = "Blue"; // str: "Blue", Yellow", or "Green"
-        this.shadowSetting = "Blue"; // str: "Blue", "Yellow", or "Green"
         
         // TODO: Do this in a better way
         // Setting these here instead of beginning of file bc need to wait due to async problems,
@@ -56,53 +52,70 @@ class SettingsView {
         settings = window.settings;
         trackerStyle = window.trackerStyle;
 
+        this.trackerSetting = settings.getDefaultTrackerSettings();
         this.defineUiHtml();
         this.setHtmlListeners(); 
-        this.updateSettings();
+        this.loadSettings();
     }
 
-    /*
-    Called by onClick handler on each button of the customization UI. 
-    Given a setting and choice, it uses provides an array to setCustomizations containing
-    two unchanged customizations settings and one changed customization setting. 
-    It also gives a callback to updateSettings. 
+    /* 
+    Given a tracker setting key the chosen value, update just that setting key
+    while leaving other tracker settings unchanged.
+
+    Save this preference in storage, then redraw the tracker and settings UI
+
+    Called by onClick handler on each button of the customization UI.
+    
+    Parameters:
+    - settingKey: trackerSettingKey
+    - settingValue: trackerSettingValue 
     */
-    changeSetting(setting, choice) {
+    changeSetting(settingKey, settingValue) {
+        let oldSettingValue = this.trackerSetting[settingKey];
+        this.trackerSetting[settingKey] = settingValue;
         var self = this;
-        if (setting == "keyword") {
-            settings.setCustomizations([choice, self.highlighterSetting, self.shadowSetting], function() {
-                self.updateSettings();
-            });
-        } else if (setting == "highlighter") {
-            settings.setCustomizations([self.keywordSetting, choice, self.shadowSetting], function() {
-                self.updateSettings();
-            });
-        } else if (setting == "shadow") {
-            settings.setCustomizations([self.keywordSetting, self.highlighterSetting, choice], function() {
-                self.updateSettings();
-            });
-        } 
+        settings.setCustomizations(this.trackerSetting, function() {
+            self.redrawTracker();
+            self.redrawOneSetting(settingKey, oldSettingValue, settingValue);
+        });
     }
      
-    // --> Gets called as cb from settings.setCustomizations --> 
-    // Updates the settings stored by chrome
-    updateSettings() {
+    /*
+    Read settings from storage, then redraw the entire settings UI and tracker.
+    */
+    loadSettings() {
         var self = this;
-        settings.getCustomizations(function(customs) { // --> 
-            self.setSettings(customs); // --> Callback of getCustomizations
+        settings.getCustomizations(function(trackerSetting) {
+            self.trackerSetting = trackerSetting;            
+            self.redrawTracker();
+            for (const [key, value] of Object.entries(trackerSettingKey)) {
+                self.redrawOneSetting(key, null, self.trackerSetting[value]);
+            }
         });
     }
 
-    // Sets the attributes of Display to reflect the new settings. 
-    // Updates global variables used for tracker and keyword styling. 
-    setSettings(customs) {
-        let keywordSetting = customs[0];
-        let highlighterSetting = customs[1];
-        let shadowSetting = customs[2];
-        this.keywordSetting = keywordSetting;
-        this.highlighterSetting = highlighterSetting;
-        this.shadowSetting = shadowSetting;
-        // TODO: It shouldn't have to call both of these; in future only call whichever is needed
+    // Get the el id of the button element corresponding to a single
+    // value in a single setting row.
+    getSettingEl(settingKey, settingValue) {
+        return $(`#custom${pascalCase(settingKey)}${pascalCase(settingValue)}`);
+    }
+
+    // Redraw only the row corresponding to settingKey
+    // Dims the old value, light up the new value.
+    // if oldSettingValue is null, then no dimming happens.
+    redrawOneSetting(settingKey, oldSettingValue, newSettingValue) {
+        if (oldSettingValue !== null) {
+            this.getSettingEl(settingKey, oldSettingValue).css("fillOpacity", 0.28);
+        }
+        this.getSettingEl(settingKey, newSettingValue).css("fillOpacity", 1);
+    }
+
+    redrawTracker() {
+        let keywordSetting = pascalCase(this.trackerSetting[trackerSettingKey.KEYWORD]);
+        let highlighterSetting = pascalCase(this.trackerSetting[trackerSettingKey.HIGHLIGHTER]);
+        let shadowSetting = pascalCase(this.trackerSetting[trackerSettingKey.SHADOW]);
+
+        // TODO: Autogenerate the css instead of keeping track of exponential number of classes.
         trackerStyle.setSentenceStyle("sentenceHighlighter"+highlighterSetting+"Shadow"+shadowSetting);
         trackerStyle.setKeywordStyle("keyWord"+keywordSetting);
     };
@@ -115,66 +128,6 @@ class SettingsView {
         let optionsButton = document.getElementById("optionsButton"); // TODO: Replace with $("#optionsButton")[0]
         if (optionsButton) {
             optionsButton.addEventListener("click", this.toggleUI.bind(this));
-        }
-    }
-
-    // Update styles of customization buttons so that the one that is lighted up switches
-    // when the user clicks on another one
-    updateCustomizationButtonStyles(setting, choice) {
-        let current_keyword_setting = this.keywordSetting;
-        let current_highlighter_setting = this.highlighterSetting;
-        let current_shadow_setting = this.shadowSetting;
-        switch(setting) {
-            case "keyword":
-                switch(choice) {
-                    case "Green":
-                        // Turn new one to high opacity, old one to low opacity
-                        document.getElementById("customKeywordGreen").style.fillOpacity = "1";
-                        document.getElementById("customKeyword"+current_keyword_setting).style.fillOpacity = "0.28";
-                        break;
-                    case "Yellow":
-                        document.getElementById("customKeywordYellow").style.fillOpacity = "1";
-                        document.getElementById("customKeyword"+current_keyword_setting).style.fillOpacity = "0.28";
-                        break;
-                    case "Off":
-                        // This one is actually an exception case
-                        document.getElementById("customKeywordOff").style.fillOpacity = "0.5";
-                        document.getElementById("customKeyword"+current_keyword_setting).style.fillOpacity = "0.28";
-                        break;
-                }
-            break;
-            case "highlighter":
-                switch(choice) {
-                    case "Blue":
-                        document.getElementById("customHighlighterBlue").style.fillOpacity = "1";
-                        document.getElementById("customHighlighter"+current_highlighter_setting).style.fillOpacity = "0.28";
-                        break;
-                    case "Yellow":
-                        document.getElementById("customHighlighterYellow").style.fillOpacity = "1";
-                        document.getElementById("customHighlighter"+current_highlighter_setting).style.fillOpacity = "0.28";
-                        break;
-                    case "Green":
-                        document.getElementById("customHighlighterGreen").style.fillOpacity = "1";
-                        document.getElementById("customHighlighter"+current_highlighter_setting).style.fillOpacity = "0.28";
-                        break;
-                }
-            break;
-            case "shadow": 
-                switch(choice) {
-                    case "Blue":
-                        document.getElementById("customShadowBlue").style.fillOpacity = "1";
-                        document.getElementById("customShadow"+current_shadow_setting).style.fillOpacity = "0.28";
-                        break;
-                    case "Yellow":
-                        document.getElementById("customShadowYellow").style.fillOpacity = "1";
-                        document.getElementById("customShadow"+current_shadow_setting).style.fillOpacity = "0.28";
-                        break;
-                    case "Green":
-                        document.getElementById("customShadowGreen").style.fillOpacity = "1";
-                        document.getElementById("customShadow"+current_shadow_setting).style.fillOpacity = "0.28";
-                        break;
-                }
-            break;
         }
     }
 
@@ -196,90 +149,19 @@ class SettingsView {
             let exitButton = document.getElementById("exitButton");
             exitButton.addEventListener("click", this.toggleUI.bind(this));
 
-            // Setup customization buttons
-            let keywordButtonGreen = document.getElementById("customKeywordGreen");
-            let keywordButtonYellow = document.getElementById("customKeywordYellow");
-            let keywordButtonOff = document.getElementById("customKeywordOff");
-            let highlighterButtonBlue = document.getElementById("customHighlighterBlue");
-            let highlighterButtonYellow = document.getElementById("customHighlighterYellow");
-            let highlighterButtonGreen = document.getElementById("customHighlighterGreen");
-            let shadowButtonBlue = document.getElementById("customShadowBlue");
-            let shadowButtonYellow = document.getElementById("customShadowYellow");
-            let shadowButtonGreen = document.getElementById("customShadowGreen");
-
-            // Define event listeners
-            keywordButtonGreen.addEventListener("click", function () {
-                self.changeSetting("keyword", "Green");
-                self.updateCustomizationButtonStyles("keyword", "Green");
-            });
-            keywordButtonYellow.addEventListener("click", function () {
-                self.changeSetting("keyword", "Yellow");
-                self.updateCustomizationButtonStyles("keyword", "Yellow");
-            });
-            keywordButtonOff.addEventListener("click", function () {
-                self.changeSetting("keyword", "Off");
-                self.updateCustomizationButtonStyles("keyword", "Off");
-            });
-            highlighterButtonBlue.addEventListener("click", function () {
-                self.changeSetting("highlighter", "Blue");
-                self.updateCustomizationButtonStyles("highlighter", "Blue");
-            });
-            highlighterButtonYellow.addEventListener("click", function () {
-                self.changeSetting("highlighter", "Yellow");
-                self.updateCustomizationButtonStyles("highlighter", "Yellow");
-            });
-            highlighterButtonGreen.addEventListener("click", function () {
-                self.changeSetting("highlighter", "Green");
-                self.updateCustomizationButtonStyles("highlighter", "Green");
-            });
-            shadowButtonBlue.addEventListener("click", function () {
-                self.changeSetting("shadow", "Blue");
-                self.updateCustomizationButtonStyles("shadow", "Blue");
-            });
-            shadowButtonYellow.addEventListener("click", function () {
-                self.changeSetting("shadow", "Yellow");
-                self.updateCustomizationButtonStyles("shadow", "Yellow");
-            });
-            shadowButtonGreen.addEventListener("click", function () {
-                self.changeSetting("shadow", "Green");
-                self.updateCustomizationButtonStyles("shadow", "Green");
-            });
-
-            // Initialize customization button styling
-            switch (this.keywordSetting) {
-                case "Green":
-                    document.getElementById("customKeywordGreen").style.fillOpacity = "1";
-                    break;
-                case "Blue":
-                    document.getElementById("customKeywordYellow").style.fillOpacity = "1";
-                    break;
-                case "Off":
-                    document.getElementById("customKeywordOff").style.fillOpacity = "0.5";
-                    break;
-            }
-            switch (this.highlighterSetting) {
-                case "Blue":
-                    document.getElementById("customHighlighterBlue").style.fillOpacity = "1";
-                    break;
-                case "Yellow":
-                    document.getElementById("customHighlighterYellow").style.fillOpacity = "1";
-                    break;
-                case "Green":
-                    document.getElementById("customHighlighterGreen").style.fillOpacity = "1";
-                    break;
-            }
-            switch (this.shadowSetting) {
-                case "Blue":
-                    document.getElementById("customShadowBlue").style.fillOpacity = "1";
-                    break;
-                case "Yellow":
-                    document.getElementById("customShadowYellow").style.fillOpacity = "1";
-                    break;
-                case "Green":
-                    document.getElementById("customShadowGreen").style.fillOpacity = "1";
-                    break;
+            // Setup click listeners for all setting buttons.
+            for (const [k1, settingKeyStr] of Object.entries(trackerSettingKey)) {
+                for (const [k2, settingValStr] of Object.entries(trackerSettingValue)) {
+                    if(!isSettingPairSupported(settingKeyStr, settingValStr)) {
+                        continue;
+                    }
+                    self.getSettingEl(settingKeyStr, settingValStr).on("click", function() {
+                        self.changeSetting(settingKeyStr, settingValStr);
+                    });
+                }
             }
 
+            this.loadSettings();
             // Set UI status to true
             this.uiStatus = true;
         };
@@ -444,6 +326,34 @@ class SettingsView {
     
 }
 
+// TODO: Support all combinations after refacotring is complete.
+// Supported values for each setting key.
+var SUPPORTED_SETTINGS = {
+    [trackerSettingKey.KEYWORD]: new Set([
+        trackerSettingValue.GREEN,
+        trackerSettingValue.YELLOW,
+        trackerSettingValue.OFF
+        ]),
+    [trackerSettingKey.HIGHLIGHTER]: new Set([
+        trackerSettingValue.BLUE,
+        trackerSettingValue.YELLOW,
+        trackerSettingValue.GREEN
+        ]),
+    [trackerSettingKey.SHADOW]: new Set([
+        trackerSettingValue.BLUE,
+        trackerSettingValue.YELLOW,
+        trackerSettingValue.GREEN
+        ])
+};
+function isSettingPairSupported(settingKey, settingValue) {
+    return SUPPORTED_SETTINGS[settingKey].has(settingValue);
+}
+
+
+// Capitalize the first letter and lower case the rest.
+function pascalCase(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
 
 // Expose to global.
 window.SettingsView = SettingsView;
