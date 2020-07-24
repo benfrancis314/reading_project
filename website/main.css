@@ -47,15 +47,15 @@ body {
 
 
 #demoContainer {
-    height: 32%;
-    width: 30%;
+    /* height: 32%; */
+    width: 40%;
     margin: 0 auto;
-    margin-top: 3%;
+    margin-top: 2%;
     margin-bottom: 4%;
-    background: url("./assets/noise_background.svg");
     border-radius: 50px;
     border: 1px solid rgba(0,220,255,1);
     box-shadow: 0pt 0pt 3pt 3pt rgba(0,220,255,0.5);
+    transition: all 2s ease 0s;
 }
 
 #installButton {
@@ -64,6 +64,7 @@ body {
     padding: 0.5% 3.5%;
     background-color: rgba(0,220,255,0.05);
     border: 1px solid rgba(0,220,255,0.5);
+    border: 1px solid #515151;
     box-shadow: 0pt 0pt 1pt 2pt rgba(0,220,255,0.5),
                 0px 8px 10px #000000;
     border-radius: 15px;
@@ -71,6 +72,7 @@ body {
     -webkit-animation: glow 1.5s ease-in-out infinite alternate;
     -moz-animation: glow 1.5s ease-in-out infinite alternate;
     animation: glow 1s ease-in-out infinite alternate;
+    text-decoration: none;
 }
 
 #installButton:hover {
@@ -90,4 +92,3 @@ body {
         border-color: rgba(0, 220, 255,1);
     }
 }
-
