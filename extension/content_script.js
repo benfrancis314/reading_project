@@ -298,17 +298,18 @@ function highlightKeyWords(container, start, end) {
 	let wordRegex = /\b\w+\b/g;
 	let wordList = sentenceText.match(wordRegex);
 	let keywords = doc.getKeyWords();
+	// Look where keyword is in sentence AFTER last search. Guaranteed to be after. Init to start. 
+	let keyword_search_start_pointer = start; 
 	for (var i in wordList) { // Accentuate keywords
-		// TODO: This only gets the first occurence of each word in the sentence; should get all
 		let word = wordList[i];
 		if (keywords.has(word.toLowerCase())) { // See if each word is a keyword
-			var word_start = containerText.indexOf(word, start);
-			var word_len = word.length;
+			var word_start = containerText.indexOf(word, keyword_search_start_pointer);
+			keyword_search_start_pointer = word_start + word.length;
 		};
 		// Normal mark.js procedure
 		container.markRanges([{ 
 			start: word_start,
-			length: word_len
+			length: word.length
 		}], {
 			className: keywordClass+" "+keywordStyle
 		});
