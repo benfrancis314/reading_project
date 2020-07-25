@@ -12,7 +12,8 @@ if (window[namespace] === true) {
 // List of chrome storage keys.
 const settingKey = {
 	SPEED: "speed", // WPM
-	TRACKER_CUSTOM: "tracker_custom"
+	TRACKER_CUSTOM: "tracker_custom",
+	TERM_DOCUMENT_FREQ: "termDocumentFreq"
 };
 
 // Tracker settings customize the appearance of the tracker.
@@ -78,6 +79,23 @@ class Settings {
 	}
 
 	/*
+	Save the term document frequencies. 
+	This is a map of all words user has ever read to the number of documents they have occured in. 
+	Every time they read a new document, it adds one to each word in the dict, or adds the word to the dict
+	initialized at 1. 
+		- trackerSettings: {trackerSettingKey : termDocumentFreq}
+		Note termDocumentFreq is a dict. 
+	*/
+	setTermDocumentFreq(termDocumentFreq) {
+		chrome.storage.local.set({[settingKey.TERM_DOCUMENT_FREQ]: termDocumentFreq}, function() {
+			if (chrome.runtime.lastError) {
+				console.log("Failed to save term document frequencies: " + chrome.runtime.lastError);
+				return;
+			}
+		});
+	}
+
+	/*
 	See setSpeed().
 	If not set yet, return default value of 20.
 	Parameters;
@@ -98,7 +116,7 @@ class Settings {
 			cb(speed);
 		})
 	}
-
+	// See setDefaultTrackerSettigns().
 	getDefaultTrackerSettings() {
 		return {
 			[trackerSettingKey.KEYWORD] : trackerSettingValue.GREEN,
@@ -128,6 +146,23 @@ class Settings {
 			}
 			cb(customs);
 		});
+	}
+
+	// See setTermDocumentFreq()
+	getTermDocumentFreq(cb) {
+		let key = settingKey.TERM_DOCUMENT_FREQ;
+		chrome.storage.local.get(key, function(settingsDict) {
+			if (chrome.runtime.lastError) {
+				console.log("Failed to retrieve term document frequencies: " + chrome.runtime.lastError);
+				return;
+			}
+			// Default termDocumentFreq (empty map)
+			let termDocumentFreq = {};
+			if (key in settingsDict) {
+				termDocumentFreq = settingsDict[key];
+			} 
+			cb(termDocumentFreq);
+		})
 	}
 }
 
