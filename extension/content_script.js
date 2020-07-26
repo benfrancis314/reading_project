@@ -145,7 +145,10 @@ function calculateTrackerLifeMs() {
 		This function then distributes the remaining time to each sentence according
 		to ratio of the sentence_words:total_words. 
 	*/
-	const speed_bias_ms = 200; // Half of a second; is this too long?
+	// Please see the writeup for more details on the parameter values.
+	// https://docs.google.com/document/d/14ub4PZGhGHOMvDLFr1nVkBIWFzQyujJHkuK_HB1fDM8/edit#
+	// To account for saccade and fixation time to new sentence.
+	const speed_bias_ms = 300;
 
 	let sentenceId = tracker.getSentenceId();
 	let sentences_remaining = doc.getNumSentencesFromSentenceTilEnd(sentenceId);
