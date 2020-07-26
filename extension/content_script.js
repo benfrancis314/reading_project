@@ -82,8 +82,9 @@ function setupSentenceClickListeners() {
 Undo setupClickListeners()
 */
 function removeClickListeners() {
-	for (let containerId = 0; containerId < doc.getNumContainers(); containerId++) {
-		doc.getContainer(containerId).off("click");
+	// TODO: Why isn't this working?
+	for (let sentenceId = 0; sentenceId < doc.sentences.length; sentenceId++) {
+		$(".sentence"+sentenceId).off("click");
 	}
 }
 
