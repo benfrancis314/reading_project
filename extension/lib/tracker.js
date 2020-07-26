@@ -52,6 +52,13 @@ class Tracker {
     pointToContainer(containerId) {
         this.sentenceId = this.doc.getFirstSentenceIdInContainer(containerId);
     }
+
+    /*
+    Point to a sentence given its ID. 
+    */
+   pointToSentence(sentenceId) {
+        this.sentenceId = sentenceId;
+   }
     
     /*
     Move tracker to the next readable portion, moving across containers if necessary.

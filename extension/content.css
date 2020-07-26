@@ -1,5 +1,6 @@
 mark {
 	color: inherit !important;
+	background-color: inherit !important;
 }
 
 .sentenceClass {
@@ -8,61 +9,61 @@ mark {
 
 /* SHADOW, HIGHLIGHTER, and KEYWORD CSS */
 .sentenceHighlighterBlueShadowBlue {
-	background-color:rgb(230, 239, 253); /* Light Blue highlighter */
+	background-color:rgb(230, 239, 253) !important; /* Light Blue highlighter */
 	box-shadow: 1pt 1pt 3pt 1pt rgb(187, 187, 187); /* Blue shadow */
 	transition: all 0.5s ease;
 }
 .sentenceHighlighterBlueShadowYellow {
-	background-color:rgb(230, 239, 253); /* Light Blue highlighter */
+	background-color:rgb(230, 239, 253) !important; /* Light Blue highlighter */
 	box-shadow: 1pt 1pt 3pt 1pt yellow; /* Yellow shadow */
 	transition: all 0.5s ease;
 }
 .sentenceHighlighterBlueShadowGreen {
-	background-color:rgb(230, 239, 253); /* Light Blue highlighter */
+	background-color:rgb(230, 239, 253) !important; /* Light Blue highlighter */
 	box-shadow: 1pt 1pt 3pt 1pt rgb(171, 252, 164); /* Green shadow */
 	transition: all 0.5s ease;
 }
 .sentenceHighlighterYellowShadowBlue {
-	background-color:yellow; /* Yellow highlighter */
+	background-color:yellow !important; /* Yellow highlighter */
 	box-shadow: 1pt 1pt 3pt 1pt rgb(0,220,255); /* Blue shadow */
 	transition: all 0.5s ease;
 }
 .sentenceHighlighterYellowShadowYellow {
-	background-color:yellow; /* Yellow highlighter */
+	background-color:yellow !important; /* Yellow highlighter */
 	box-shadow: 1pt 1pt 3pt 1pt yellow; /* Yellow shadow */
 	transition: all 0.5s ease;
 }
 .sentenceHighlighterYellowShadowGreen {
-	background-color:yellow; /* Yellow highlighter */
+	background-color:yellow !important; /* Yellow highlighter */
 	box-shadow: 1pt 1pt 3pt 1pt rgb(171, 252, 164); /* Green shadow */
 	transition: all 0.5s ease;
 }
 .sentenceHighlighterGreenShadowBlue {
-	background-color:rgb(171, 252, 164); /* Green highlighter */
+	background-color:rgb(171, 252, 164) !important; /* Green highlighter */
 	box-shadow: 1pt 1pt 3pt 1pt rgb(0,220,255); /* Blue shadow */
 	transition: all 0.5s ease;
 }
 .sentenceHighlighterGreenShadowYellow {
-	background-color:rgb(171, 252, 164); /* Green highlighter */
+	background-color:rgb(171, 252, 164) !important; /* Green highlighter */
 	box-shadow: 1pt 1pt 3pt 1pt yellow; /* Yellow shadow */
 	transition: all 0.5s ease;
 }
 .sentenceHighlighterGreenShadowGreen {
-	background-color:rgb(171, 252, 164); /* Green highlighter */
+	background-color:rgb(171, 252, 164) !important; /* Green highlighter */
 	box-shadow: 1pt 1pt 3pt 1pt rgb(171, 252, 164); /* Green shadow */
 	transition: all 0.5s ease;
 }
 .sentenceHighlighternullShadownull {
-	background-color:rgb(252, 185, 164); /* Green highlighter */
+	background-color:rgb(252, 185, 164) !important; /* Green highlighter */
 	box-shadow: 1pt 1pt 3pt 1pt rgb(252, 164, 164); /* Green shadow */
 	transition: all 0.5s ease;
 }
 .keyWordGreen {
-	background-color:rgb(171, 252, 164); /* Nancy personally chose this green color: */
+	background-color:rgb(171, 252, 164) !important; /* Nancy personally chose this green color: */
 	transition: all 0.5s ease;
 }
 .keyWordYellow {
-	background-color: yellow;
+	background-color: yellow !important;
 	transition: all 0.5s ease;
 }
 .keyWordOff {

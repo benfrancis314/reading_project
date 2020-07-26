@@ -1,1 +1,0 @@
-console.log("New version is up");

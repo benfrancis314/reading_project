@@ -63,15 +63,17 @@ const direction = {
     FORWARD: 1
 }
 /*
-Handle click events for each readable item.
+Handle click events for each sentence.
 */
-function setupClickListeners() {
-	for (let containerId = 0; containerId < doc.getNumContainers(); containerId++) {
-		let container = doc.getContainer(containerId);
-		container.on("click", function () {
-			tracker.pointToContainer(containerId);
-			highlight(tracker);
-			timeTrackerView.updateTimer(tracker.getSentenceId());
+function setupSentenceClickListeners() {
+	for (let sentenceId = 0; sentenceId < doc.sentences.length; sentenceId++) {
+		$(".sentence"+sentenceId).on("click", function(e) {
+			// Move tracker to here
+			// Slice to 8th char bc the classname is ".sentence#", where # is the sentenceId
+			let sentenceId = e.target.className.slice(8);
+			// TODO: Check if this is a number; if it has another class, could get this                    
+			highlight(sentenceId);
+			tracker.pointToSentence(sentenceId);
 		});
 	}
 }
@@ -184,7 +186,7 @@ function moveOne(dir) { // Sets start and end
 	}
 
 	timeTrackerView.updateTimer(tracker.getSentenceId());
-	highlight(tracker);
+	highlight(tracker.getSentenceId());
  
 	if (dir == direction.BACKWARD) {
 		scrollUp();
@@ -254,7 +256,7 @@ function unhighlightEverything() {
 /*
 Highlight portion pointed to by tracker.
 */
-function highlight(tracker) {
+function highlight(sentenceId) {
 	// Notice sentenceStyle here is NOT immediately updated when user changes settings;
 	// We need the old sentenceStyle name to be able to find and remove the styling, 
 	// since the next sentence will get a new style. 
@@ -267,7 +269,6 @@ function highlight(tracker) {
 	// The interval indices are w.r.t to the raw text.
 	// mark.js is smart enough to preserve the original html, and even provide
 	// multiple consecutive spans to cover embedded htmls
-	let sentenceId = tracker.getSentenceId();
 	let sentencePtr = doc.getSentence(sentenceId);
 	let container = doc.getContainer(sentencePtr.containerId);
 	let start = sentencePtr.start;
@@ -515,7 +516,7 @@ function setupUI() {
 	
 	updateDisplaySettings();
   
-	setupClickListeners();
+	setupSentenceClickListeners();
 	setupKeyListeners();
   
 }
