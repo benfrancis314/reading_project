@@ -11,8 +11,12 @@ mark {
 
 /* SHADOW, HIGHLIGHTER, and KEYWORD CSS */
 .sentenceHighlighterBlueShadowBlue {
+	/* TODO: Integrate different color scheme. Keeping values here for near-term future use */
 	background-color:rgb(230, 239, 253) !important; /* Light Blue highlighter */
-	box-shadow: 1pt 1pt 3pt 1pt rgb(187, 187, 187); /* Blue shadow */
+	/* TODO: Integrate different color scheme. Keeping values here for near-term future use */
+	/* box-shadow: 1pt 1pt 3pt 1pt rgb(187, 187, 187); Gray shadow */
+	box-shadow: 1pt 1pt 3pt 1pt rgb(0,220,255); /* Blue shadow */
+
 	transition: all 0.5s ease;
 }
 .sentenceHighlighterBlueShadowYellow {
