@@ -1,6 +1,8 @@
 mark {
 	color: inherit !important;
 	background-color: inherit !important;
+	font-style: inherit !important;
+	font-weight: inherit !important;
 }
 
 .sentenceClass {
