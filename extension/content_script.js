@@ -257,6 +257,7 @@ function unhighlightEverything() {
 	}
 	$("." + keywordClass).unmark();
 	highlightedSentenceId = null;
+	$(".persistentHighlight").removeClass("persistentHighlight");
 }
 
 /*
