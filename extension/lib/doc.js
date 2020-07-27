@@ -109,7 +109,7 @@ class Doc {
                 let sentenceId = this.sentences.length - 1;
                 container.markRanges([{ 
                     start: start,
-                    length: end
+                    length: sentenceBoundary.offset
                 }], {
                     className: "sentence"+sentenceId
                 });
