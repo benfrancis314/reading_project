@@ -56,10 +56,10 @@ class Tracker {
     /*
     Point to a sentence given its ID. 
     */
-   pointToSentence(sentenceId) {
+    pointToSentence(sentenceId) {
         this.sentenceId = sentenceId;
-   }
-    
+    }
+
     /*
     Move tracker to the next readable portion, moving across containers if necessary.
     If not currently tracking, will point to the first sentence.
