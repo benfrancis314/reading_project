@@ -10,6 +10,10 @@ mark {
 	border-radius: 3px;
 }
 
+.persistentHighlight {
+	background-color: yellow;
+}
+
 /* SHADOW, HIGHLIGHTER, and KEYWORD CSS */
 .sentenceHighlighterBlueShadowBlue {
 	/* TODO: Integrate different color scheme. Keeping values here for near-term future use */

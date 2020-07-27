@@ -281,6 +281,18 @@ function highlight(sentenceId) {
 	highlightedSentenceId = sentenceId;
 };
 
+function persistentHighlight() {
+	let sentenceId = tracker.getSentenceId();
+	var el = doc.getSentenceEls(sentenceId)
+	console.log(el.attr('class'));
+	if (el.attr('class').includes("persistentHighlight")) {
+		el.removeClass("persistentHighlight")
+	}
+	else { 
+		el.addClass("persistentHighlight"); 
+	}
+}
+
 	/*
     Params: Current container, start and end of tracker (jQuery element, int, int)
     Highlights the keywords within the tracked sentence. 
@@ -421,6 +433,8 @@ function setupKeyListeners() {
 				} else {
 					startMove(direction.FORWARD);
 				}
+			case 'ShiftRight':
+				persistentHighlight();
 			default:
                 break;
 		}
