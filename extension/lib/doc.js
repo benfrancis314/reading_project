@@ -66,6 +66,7 @@ class Doc {
         // - SentencePointer[] sentences. All the sentences in the document.
         // - int[] containerIdToFirstSentenceId. Given a container id, what is the sentence id of the
         //   first sentence?
+        // - $list [] sentenceEls. See getSentenceEls().
         this.detectSentenceBoundaries(this.containers);
         this.termFreq = null; // { str : int } , Frequency of terms in document. Set in calcTotalWords function
         this.total_words = this.calcTotalWords(readableDomEls); // int; Total number of words in document;
@@ -88,13 +89,14 @@ class Doc {
 
     /*
     Find all sentence boundaries within containers.
-    Initializes [sentences, containerIdToFirstSentenceId]
+    Initializes [sentences, containerIdToFirstSentenceId, sentenceEls]
     If document is not readable, sentences will be empty array.
     */
     detectSentenceBoundaries() {
         debug("Detecting sentence boundaries");
         let startTime = new Date();
         this.sentences = [];
+        this.sentenceEls = [];
         this.containerIdToFirstSentenceId = [];
         for(let container_id = 0; container_id < this.getNumContainers(); container_id++) {
             this.containerIdToFirstSentenceId.push(this.sentences.length);
@@ -107,12 +109,14 @@ class Doc {
                 let end = start + sentenceBoundary.offset;
                 this.sentences.push(new SentencePointer(container_id, start, end));
                 let sentenceId = this.sentences.length - 1;
+                let sentenceClassName = "sentence"+sentenceId;
                 container.markRanges([{ 
                     start: start,
                     length: sentenceBoundary.offset
                 }], {
-                    className: "sentence"+sentenceId
+                    className: sentenceClassName
                 });
+                this.sentenceEls.push($("." + sentenceClassName));
             }
             if (this.sentences.length > MAX_NUM_SENTENCE) {
                 alert("Sorry, we don't support big documents yet :(");
@@ -268,6 +272,18 @@ class Doc {
             throw `Invalid ${sentenceId}, should be [0, ${this.getNumSentences()})`;
         }
         return this.sentences[sentenceId];
+    }
+
+    /*
+    sentenceEls[sentenceId] gives you a jquerylist, where you can do things like
+    jquerylist.on("click", ...)
+    Each sentence ID may correspond to MULTIPLE DOM elements.
+    E.g. <div> <S1> Hi my name is </S1><span> <S1> Arnold . </S1> Also, I go by Ar.</span>
+    Note how there are multiple <S1> elements to account for the sentence boundary
+    not aligning with HTML boundaries.
+    */
+    getSentenceEls(sentenceId) {
+        return this.sentenceEls[sentenceId];
     }
 };
 
