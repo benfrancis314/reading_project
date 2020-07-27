@@ -86,6 +86,7 @@ class Settings {
 		- trackerSettings: {trackerSettingKey : termDocumentFreq}
 		Note termDocumentFreq is a dict. 
 	*/
+	// TODO: Build in safeguard against exceeding storage limit
 	setTermDocumentFreq(termDocumentFreq) {
 		chrome.storage.local.set({[settingKey.TERM_DOCUMENT_FREQ]: termDocumentFreq}, function() {
 			if (chrome.runtime.lastError) {
@@ -148,7 +149,6 @@ class Settings {
 		});
 	}
 
-	// See setTermDocumentFreq()
 	getTermDocumentFreq(cb) {
 		let key = settingKey.TERM_DOCUMENT_FREQ;
 		chrome.storage.local.get(key, function(settingsDict) {
