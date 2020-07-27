@@ -287,9 +287,7 @@ function persistentHighlight() {
 	if (el.attr('class').includes("persistentHighlight")) {
 		el.removeClass("persistentHighlight")
 	}
-	else { 
-		el.addClass("persistentHighlight"); 
-	}
+	else { el.addClass("persistentHighlight"); };
 }
 
 	/*
