@@ -67,11 +67,7 @@ Handle click events for each sentence.
 */
 function setupSentenceClickListeners() {
 	for (let sentenceId = 0; sentenceId < doc.sentences.length; sentenceId++) {
-		$(".sentence"+sentenceId).on("click", function(e) {
-			// Move tracker to here
-			// Slice to 8th char bc the classname is ".sentence#", where # is the sentenceId
-			let sentenceId = e.target.className.slice(8);
-			// TODO: Check if this is a number; if it has another class, could get this                    
+		doc.getSentenceEls(sentenceId).on("click", function(e) {          
 			highlight(sentenceId);
 			tracker.pointToSentence(sentenceId);
 		});
@@ -82,9 +78,8 @@ function setupSentenceClickListeners() {
 Undo setupClickListeners()
 */
 function removeClickListeners() {
-	// TODO: Why isn't this working?
 	for (let sentenceId = 0; sentenceId < doc.sentences.length; sentenceId++) {
-		$(".sentence"+sentenceId).off("click");
+		doc.getSentenceEls(sentenceId).off("click");
 	}
 }
 
