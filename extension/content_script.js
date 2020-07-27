@@ -63,15 +63,17 @@ const direction = {
     FORWARD: 1
 }
 /*
-Handle click events for each readable item.
+Handle click events for each sentence.
 */
-function setupClickListeners() {
-	for (let containerId = 0; containerId < doc.getNumContainers(); containerId++) {
-		let container = doc.getContainer(containerId);
-		container.on("click", function () {
-			tracker.pointToContainer(containerId);
-			highlight(tracker);
-			timeTrackerView.updateTimer(tracker.getSentenceId());
+function setupSentenceClickListeners() {
+	for (let sentenceId = 0; sentenceId < doc.sentences.length; sentenceId++) {
+		$(".sentence"+sentenceId).on("click", function(e) {
+			// Move tracker to here
+			// Slice to 8th char bc the classname is ".sentence#", where # is the sentenceId
+			let sentenceId = e.target.className.slice(8);
+			// TODO: Check if this is a number; if it has another class, could get this                    
+			highlight(sentenceId);
+			tracker.pointToSentence(sentenceId);
 		});
 	}
 }
@@ -80,8 +82,9 @@ function setupClickListeners() {
 Undo setupClickListeners()
 */
 function removeClickListeners() {
-	for (let containerId = 0; containerId < doc.getNumContainers(); containerId++) {
-		doc.getContainer(containerId).off("click");
+	// TODO: Why isn't this working?
+	for (let sentenceId = 0; sentenceId < doc.sentences.length; sentenceId++) {
+		$(".sentence"+sentenceId).off("click");
 	}
 }
 
@@ -145,7 +148,10 @@ function calculateTrackerLifeMs() {
 		This function then distributes the remaining time to each sentence according
 		to ratio of the sentence_words:total_words. 
 	*/
-	const speed_bias_ms = 200; // Half of a second; is this too long?
+	// Please see the writeup for more details on the parameter values.
+	// https://docs.google.com/document/d/14ub4PZGhGHOMvDLFr1nVkBIWFzQyujJHkuK_HB1fDM8/edit#
+	// To account for saccade and fixation time to new sentence.
+	const speed_bias_ms = 300;
 
 	let sentenceId = tracker.getSentenceId();
 	let sentences_remaining = doc.getNumSentencesFromSentenceTilEnd(sentenceId);
@@ -184,7 +190,7 @@ function moveOne(dir) { // Sets start and end
 	}
 
 	timeTrackerView.updateTimer(tracker.getSentenceId());
-	highlight(tracker);
+	highlight(tracker.getSentenceId());
  
 	if (dir == direction.BACKWARD) {
 		scrollUp();
@@ -254,7 +260,7 @@ function unhighlightEverything() {
 /*
 Highlight portion pointed to by tracker.
 */
-function highlight(tracker) {
+function highlight(sentenceId) {
 	// Notice sentenceStyle here is NOT immediately updated when user changes settings;
 	// We need the old sentenceStyle name to be able to find and remove the styling, 
 	// since the next sentence will get a new style. 
@@ -267,7 +273,6 @@ function highlight(tracker) {
 	// The interval indices are w.r.t to the raw text.
 	// mark.js is smart enough to preserve the original html, and even provide
 	// multiple consecutive spans to cover embedded htmls
-	let sentenceId = tracker.getSentenceId();
 	let sentencePtr = doc.getSentence(sentenceId);
 	let container = doc.getContainer(sentencePtr.containerId);
 	let start = sentencePtr.start;
@@ -298,17 +303,18 @@ function highlightKeyWords(container, start, end) {
 	let wordRegex = /\b\w+\b/g;
 	let wordList = sentenceText.match(wordRegex);
 	let keywords = doc.getKeyWords();
+	// Look where keyword is in sentence AFTER last search. Guaranteed to be after. Init to start. 
+	let keyword_search_start_pointer = start; 
 	for (var i in wordList) { // Accentuate keywords
-		// TODO: This only gets the first occurence of each word in the sentence; should get all
 		let word = wordList[i];
 		if (keywords.has(word.toLowerCase())) { // See if each word is a keyword
-			var word_start = containerText.indexOf(word, start);
-			var word_len = word.length;
+			var word_start = containerText.indexOf(word, keyword_search_start_pointer);
+			keyword_search_start_pointer = word_start + word.length;
 		};
 		// Normal mark.js procedure
 		container.markRanges([{ 
 			start: word_start,
-			length: word_len
+			length: word.length
 		}], {
 			className: keywordClass+" "+keywordStyle
 		});
@@ -515,7 +521,7 @@ function setupUI() {
 	
 	updateDisplaySettings();
   
-	setupClickListeners();
+	setupSentenceClickListeners();
 	setupKeyListeners();
   
 }

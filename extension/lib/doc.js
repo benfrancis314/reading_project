@@ -106,6 +106,13 @@ class Doc {
                 let start = sentenceBoundary.index;
                 let end = start + sentenceBoundary.offset;
                 this.sentences.push(new SentencePointer(container_id, start, end));
+                let sentenceId = this.sentences.length - 1;
+                container.markRanges([{ 
+                    start: start,
+                    length: end
+                }], {
+                    className: "sentence"+sentenceId
+                });
             }
             if (this.sentences.length > MAX_NUM_SENTENCE) {
                 alert("Sorry, we don't support big documents yet :(");
