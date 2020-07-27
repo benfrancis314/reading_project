@@ -19,7 +19,6 @@ window.debug = function(str) {
 }
 
 const keywordClass = "keywordClass" // Name of class for FINDING keywords (no styling)
-const sentenceClass = "sentenceClass" // Name of class for FINDING the tracker (no styling)
 const SCROLL_DURATION_MS = 500;
 
 // Keeps track of the pointed text. Initialized by end of script load.
@@ -49,6 +48,11 @@ var isScrolling = false;
 // to detect previously attached event handlers.
 // Not sure why, but found this through experimentation.
 let jdoc = $(document);
+// Sentence Id that is being highlighted right now.
+// Null if nothing is highlighted right now.
+// Thix extra variable is so we don't have to do an extra jquery dom traversal
+// based on css class name.
+let highlightedSentenceId = null;
 
 /*
 Process of determining which style to use. 
@@ -174,7 +178,6 @@ Return:
 */
 function moveOne(dir) { // Sets start and end
 	let hasMoved = false;
-
 	if (dir == direction.BACKWARD) {
 		hasMoved = tracker.movePrevious();
 	} else if (dir == direction.FORWARD) {
@@ -200,7 +203,7 @@ function scrollUp() {
 	let verticalMargin = 200;
 	// Autoscroll if tracker is above top of page.
 	// Number of pixels from top of window to top of current container.
-	let markedTopAbsoluteOffset = $("."+sentenceClass).offset().top;
+	let markedTopAbsoluteOffset = doc.getSentenceEls(tracker.getSentenceId()).offset().top;
 	let markedTopRelativeOffset = markedTopAbsoluteOffset - $(window).scrollTop();
 	if (markedTopRelativeOffset < 0) {
 		isScrolling = true;
@@ -222,7 +225,7 @@ function scrollDown() {
 	// Autoscroll if too far ahead.
 	// Number of pixels from top of window to top of current container.
 
-	let markedTopAbsoluteOffset = $("."+sentenceClass).offset().top;
+	let markedTopAbsoluteOffset = doc.getSentenceEls(tracker.getSentenceId()).offset().top;
 	let markedTopRelativeOffset = markedTopAbsoluteOffset - $(window).scrollTop();
 	if (markedTopRelativeOffset > scrollThreshold) {
 		isScrolling = true;
@@ -248,39 +251,34 @@ $(window).scroll(function() {
 Undo all actions by highlight() and highlightKeyWords().
 */
 function unhighlightEverything() {
-	$("." + sentenceClass).unmark(); 
+	if (tracker.isTracking()) {
+		let sentenceId = tracker.getSentenceId();
+		doc.getSentenceEls(tracker.getSentenceId()).removeClass(trackerStyle.getSentenceStyle());
+	}
 	$("." + keywordClass).unmark();
+	highlightedSentenceId = null;
 }
 
 /*
-Highlight portion pointed to by tracker.
+Highlight portion pointed to by tracker, and unhighlight previous sentence (if not null).
 */
 function highlight(sentenceId) {
-	// Notice sentenceStyle here is NOT immediately updated when user changes settings;
-	// We need the old sentenceStyle name to be able to find and remove the styling, 
-	// since the next sentence will get a new style. 
 	let sentenceStyle = trackerStyle.getSentenceStyle();
-	let markEl = $("."+sentenceClass);
-	markEl.unmark();
-	markEl.removeClass(sentenceClass);
-	markEl.removeClass(sentenceStyle);
-	// Append the "mark" class (?) to the html corresponding to the interval
-	// The interval indices are w.r.t to the raw text.
-	// mark.js is smart enough to preserve the original html, and even provide
-	// multiple consecutive spans to cover embedded htmls
+	// Unhighlight if previous highlight already exists.
+	if (highlightedSentenceId !== null) {
+		doc.getSentenceEls(highlightedSentenceId).removeClass(sentenceStyle);
+	}
+
+	// Highlight the sentence.
+	doc.getSentenceEls(sentenceId).addClass(sentenceStyle);
+
+	// Highlight they keywords.
 	let sentencePtr = doc.getSentence(sentenceId);
 	let container = doc.getContainer(sentencePtr.containerId);
 	let start = sentencePtr.start;
 	let end = sentencePtr.end;
-	container.markRanges([{
-    	start: start,
-    	length: end - start
-	}], {
-		// "trackerClass" is for finding current tracker
-		className: sentenceClass+" "+sentenceStyle
-	});
-	// Find element with class "trackerClass", add on sentenceStyle class:
 	highlightKeyWords(container, start, end);
+	highlightedSentenceId = sentenceId;
 };
 
 	/*
@@ -306,6 +304,7 @@ function highlightKeyWords(container, start, end) {
 			var word_start = containerText.indexOf(word, keyword_search_start_pointer);
 			keyword_search_start_pointer = word_start + word.length;
 		};
+		// TODO: Consider optimizing by preprocessing all the keywords and u just add / remove classes.
 		// Normal mark.js procedure
 		container.markRanges([{ 
 			start: word_start,
@@ -322,7 +321,7 @@ Parameters:
 - fadeMs (int) ms for the fade animation speed.
 */
 function fadeTracker(fadeMs) {
-	fadeElement($("."+sentenceClass), fadeMs);
+	fadeElement(doc.getSentenceEls(tracker.getSentenceId()), fadeMs);
 	fadeElement($("."+keywordClass), fadeMs);
 }
 
@@ -330,20 +329,13 @@ function fadeTracker(fadeMs) {
 Stop all animations related to fading.
 */
 function stopFadeTracker() {
-	let sentenceStyle = trackerStyle.getSentenceStyle();
-	let keywordStyle = trackerStyle.getKeywordStyle(); 
+	// TODO: Fix transition animations.
+	let sentence_els = doc.getSentenceEls(tracker.getSentenceId());
+	sentence_els.stop();
 
-	let sentence_el = $("."+sentenceStyle)
+	let keywordStyle = trackerStyle.getKeywordStyle(); 
 	let keywords_el = $("."+keywordStyle)
-	let sentence_color = sentence_el.css('backgroundColor');
 	let keywords_color = keywords_el.css('backgroundColor');
-	// TODO: Look into this
-	sentence_el.stop().animate({'background-color': sentence_color},
-		{	duration: 300,
-			complete: function() { 
-				sentence_el.removeAttr('style');
-		}
-		});
 	keywords_el.stop().animate({'background-color': keywords_color},
 		{	duration: 300,
 			complete: function() { 
@@ -392,7 +384,7 @@ function adjustSpeed(speedDelta) {
 	}
 	speed = newSpeed;
 	settings.setSpeed(speed);
-	let sentence_id = tracker.getSentenceId()
+	let sentence_id = tracker.getSentenceId();
 	timeTrackerView.updateSpeed(speed,sentence_id);
 }
 

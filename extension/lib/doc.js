@@ -114,7 +114,8 @@ class Doc {
                     start: start,
                     length: sentenceBoundary.offset
                 }], {
-                    className: sentenceClassName
+                    className: sentenceClassName,
+                    element: "readerease-sentence"
                 });
                 this.sentenceEls.push($("." + sentenceClassName));
             }
