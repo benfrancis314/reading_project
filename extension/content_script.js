@@ -18,6 +18,18 @@ window.debug = function(str) {
 	}
 }
 
+
+// Mutually exclusive current animation state.
+const animationEnum = {
+	// No animation right now. Everything is static
+	NONE: "none",
+	// Page is scrolling
+	SCROLL: "scroll",
+	// Intersentence transition
+	// TODO: Use this when implementing sentence transition.
+	TRANSITION: "transition"
+}
+
 const keywordClass = "keywordClass" // Name of class for FINDING keywords (no styling)
 const SCROLL_DURATION_MS = 500;
 
@@ -40,8 +52,8 @@ var timer = null;
 let speed = null; // WPM, Base speed, not accounting for sentence length; adjustable w/ D/S
 // Persistent settings.
 let settings = window.settings;
-// If the screen is currently scrolling. If it is, pause the tracker.
-var isScrolling = false;
+// Current animation state, to ensure we are not doing multiple animations at once.
+var animationState = animationEnum.NONE;
 
 // Need the same $ reference for on and off of event handlers to be detectable.
 // Re-doing $(document) in an async context for some reason doesn't allow you 
@@ -53,6 +65,8 @@ let jdoc = $(document);
 // Thix extra variable is so we don't have to do an extra jquery dom traversal
 // based on css class name.
 let highlightedSentenceId = null;
+// Class for persistent highlighter
+const persistentHighlightClass = "persistentHighlight"
 
 /*
 Process of determining which style to use. 
@@ -120,8 +134,8 @@ function startMove(dir) { // Note: I have combined the "moveUp" and "moveDown" f
 
 	// Schedule continuous movement, with the first move being run immediately.
 	(function repeat() { // Allows speed to be updated WHILE moving
-		// Let scrolling finish before any movement.
-		if (isScrolling) {
+		// When there is animation ongoing, wait for it to finish before doing any movement.
+		if (animationState !== animationEnum.NONE) {
 			timer = setTimeout(repeat, SCROLL_DURATION_MS);
 			return;
 		}
@@ -206,13 +220,13 @@ function scrollUp() {
 	let markedTopAbsoluteOffset = doc.getSentenceEls(tracker.getSentenceId()).offset().top;
 	let markedTopRelativeOffset = markedTopAbsoluteOffset - $(window).scrollTop();
 	if (markedTopRelativeOffset < 0) {
-		isScrolling = true;
+		animationState = animationEnum.SCROLL;
 		$('html, body').animate(
 			// Leave some vertical margin before the container.
 			{scrollTop: (markedTopAbsoluteOffset - verticalMargin)},
 			SCROLL_DURATION_MS,
 			function() {
-				isScrolling = false;
+				animationState = animationEnum.NONE;
 			}
 		);
 	} 
@@ -228,13 +242,13 @@ function scrollDown() {
 	let markedTopAbsoluteOffset = doc.getSentenceEls(tracker.getSentenceId()).offset().top;
 	let markedTopRelativeOffset = markedTopAbsoluteOffset - $(window).scrollTop();
 	if (markedTopRelativeOffset > scrollThreshold) {
-		isScrolling = true;
+		animationState = animationEnum.SCROLL;
 		$('html, body').animate(
 			// Leave some vertical margin before the container.
 			{scrollTop: (markedTopAbsoluteOffset - verticalMargin)},
 			SCROLL_DURATION_MS,
 			function() {
-				isScrolling = false;
+				animationState = animationEnum.NONE;
 			}
 		);
 	}
@@ -257,6 +271,7 @@ function unhighlightEverything() {
 	}
 	$("." + keywordClass).unmark();
 	highlightedSentenceId = null;
+	$("."+persistentHighlightClass).removeClass(persistentHighlightClass);
 }
 
 /*
@@ -281,6 +296,14 @@ function highlight(sentenceId) {
 	highlightedSentenceId = sentenceId;
 };
 
+// Toggles the persistent highlight on the currently tracked sentence
+function persistentHighlight() {
+	if (!tracker.isTracking()) { return; }
+	let sentenceId = tracker.getSentenceId();
+	var el = doc.getSentenceEls(sentenceId);
+	el.toggleClass(persistentHighlightClass)
+}
+
 	/*
     Params: Current container, start and end of tracker (jQuery element, int, int)
     Highlights the keywords within the tracked sentence. 
@@ -289,7 +312,7 @@ function highlightKeyWords(container, start, end) {
 	let keywordStyle = trackerStyle.getKeywordStyle(); 
 	$("."+keywordClass).unmark(); // Remove previous sentence keyword styling
 	$("."+keywordClass).removeClass(keywordStyle);
-	$("."+keywordStyle).removeClass(keywordStyle);
+	
 	// Get list of words in interval
 	let containerText = container.text();
 	let sentenceText = containerText.slice(start,end);
@@ -388,8 +411,20 @@ function adjustSpeed(speedDelta) {
 	timeTrackerView.updateSpeed(speed,sentence_id);
 }
 
-function setupKeyListeners() {
+/* Change reading speed display. This has two types:
+	1. Update - Show WPM display when users change their speed setting
+	2. Toggle - Toggle WPM display when auto-mode is turned ON/OFF
+*/
+function changeReadingSpeedDisplay(type) {
 	let wpmDisplay = $("#speedContainer");
+	if (type === "update") {
+		if (!timer) { wpmDisplay.stop(true).fadeIn(250).delay(750).fadeOut(1000); }
+	} else if (type === "toggle") {
+		wpmDisplay.fadeToggle(500)
+	};
+}
+
+function setupKeyListeners() {
 	jdoc.on("keydown", function(evt) {
 		if (!document.hasFocus()) {
 		  return true;
@@ -409,13 +444,14 @@ function setupKeyListeners() {
 				stopFadeTracker();
                 startMove(direction.FORWARD);
 				break;
-			case 'KeyD':	// Increase velocity
-				wpmDisplay.animate({"opacity": "1"}, 250);
-				adjustSpeed(40);
+			// IMPLEMENT MUTUALLY EXCLUSIVE ANIMATION STRATEGY
+			case 'KeyD':	// Increase velocity	
+				changeReadingSpeedDisplay("update");
+				adjustSpeed(40);			
 				break;
 			case 'KeyS':	// Slow velocity
-				wpmDisplay.animate({"opacity": "1"}, 250);
-				adjustSpeed(-40);
+				changeReadingSpeedDisplay("update");
+				adjustSpeed(-40);			
 				break;
 			case 'Space': // Switch to auto mode
 				if (timer) {
@@ -424,6 +460,10 @@ function setupKeyListeners() {
 				} else {
 					startMove(direction.FORWARD);
 				}
+				changeReadingSpeedDisplay("toggle");
+				break;
+			case 'ShiftRight':
+				persistentHighlight();
 			default:
                 break;
 		}
@@ -435,9 +475,9 @@ function setupKeyListeners() {
 			case 'ArrowRight':
 				stopMove();
 				break;
-		}
-		return true;
-    });
+		};		
+	});
+	
 };
 
 // Classname for keyword highlights.

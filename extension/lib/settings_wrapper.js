@@ -114,7 +114,7 @@ class Settings {
 	setVisitedUrls(visitedUrls) {
 		chrome.storage.local.set({[settingKey.VISITED_URLS]: visitedUrls}, function() {
 			if (chrome.runtime.lastError) {
-				console.log("Failed to save speed setting: " + chrome.runtime.lastError);
+				console.log("Failed to save visited URLs list: " + chrome.runtime.lastError);
 				return;
 			}
 		});
