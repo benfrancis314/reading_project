@@ -53,6 +53,8 @@ let jdoc = $(document);
 // Thix extra variable is so we don't have to do an extra jquery dom traversal
 // based on css class name.
 let highlightedSentenceId = null;
+// Class for persistent highlighter
+const persistentHighlightClass = "persistentHighlight"
 
 /*
 Process of determining which style to use. 
@@ -257,6 +259,7 @@ function unhighlightEverything() {
 	}
 	$("." + keywordClass).unmark();
 	highlightedSentenceId = null;
+	$("."+persistentHighlightClass).removeClass(persistentHighlightClass);
 }
 
 /*
@@ -280,6 +283,14 @@ function highlight(sentenceId) {
 	highlightKeyWords(container, start, end);
 	highlightedSentenceId = sentenceId;
 };
+
+// Toggles the persistent highlight on the currently tracked sentence
+function persistentHighlight() {
+	if (!tracker.isTracking()) { return; }
+	let sentenceId = tracker.getSentenceId();
+	var el = doc.getSentenceEls(sentenceId);
+	el.toggleClass(persistentHighlightClass)
+}
 
 	/*
     Params: Current container, start and end of tracker (jQuery element, int, int)
@@ -421,6 +432,8 @@ function setupKeyListeners() {
 				} else {
 					startMove(direction.FORWARD);
 				}
+			case 'ShiftRight':
+				persistentHighlight();
 			default:
                 break;
 		}

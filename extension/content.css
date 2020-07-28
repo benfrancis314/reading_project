@@ -6,8 +6,16 @@ mark {
 	font-weight: inherit !important;
 }
 
+readerease-sentence {
+	background-color: inherit !important;
+}
+
 .sentenceClass {
 	border-radius: 3px;
+}
+
+.persistentHighlight {
+	background-color: yellow !important;
 }
 
 /* SHADOW, HIGHLIGHTER, and KEYWORD CSS */
