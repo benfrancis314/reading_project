@@ -220,8 +220,8 @@ function scrollUp() {
 
 // Scroll down when tracker is below a certain point
 function scrollDown() {
-	let scrollThreshold = 500;
-	let verticalMargin = 200;
+	let scrollThreshold = 200;
+	let verticalMargin = 100;
 	// Autoscroll if too far ahead.
 	// Number of pixels from top of window to top of current container.
 
