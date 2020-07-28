@@ -413,9 +413,7 @@ function adjustSpeed(speedDelta) {
 
 function setupKeyListeners() {
 	jdoc.on("keydown", function(evt) {
-		if (!document.hasFocus()
-			// Swallow up all inputs while an animation is ongoing to prevent edge cases.
-			|| animationState !== animationEnum.NONE) {
+		if (!document.hasFocus()) {
 		  return true;
 		}
 
