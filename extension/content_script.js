@@ -88,6 +88,7 @@ function setupSentenceClickListeners() {
 		doc.getSentenceEls(sentenceId).on("click", function(e) {          
 			highlight(sentenceId);
 			tracker.pointToSentence(sentenceId);
+			scrollToTracker();
 		});
 	}
 }
@@ -203,23 +204,32 @@ function moveOne(dir) { // Sets start and end
 
 	timeTrackerView.updateTimer(tracker.getSentenceId());
 	highlight(tracker.getSentenceId());
- 
-	if (dir == direction.BACKWARD) {
-		scrollUp();
-	} else if (dir == direction.FORWARD) {
-		scrollDown();
-	}
+	scrollToTracker();
 	return true;
 }
 
-// Scroll up when tracker is above page
-function scrollUp() {
-	let verticalMargin = 200;
+// Manual movement is limited to once 200ms, or else if user taps arrow keys really quickly,
+// or presses down on them, there will be
+// too many UI events (e.g. highlighting, etc.) happening at once, making things very slow.
+// Debounce note: Will execute only after this function is uncalled for that amount of time.
+// The inactivity timer gets reset when function gets called while it is 'recovering'.
+let moveOneDebounced = _.debounce(moveOne, 200);
+
+// Scroll page so tracker is in view.
+function scrollToTracker() {
+	// One animation at a time.
+	if (animationState !== animationEnum.NONE) {
+		return;
+	}
+	let verticalMargin = 100;
+	// The viewing band is from top of the page (0) down to scrollThreshold away
+	let scrollThreshold = 200;
 	// Autoscroll if tracker is above top of page.
 	// Number of pixels from top of window to top of current container.
 	let markedTopAbsoluteOffset = doc.getSentenceEls(tracker.getSentenceId()).offset().top;
 	let markedTopRelativeOffset = markedTopAbsoluteOffset - $(window).scrollTop();
-	if (markedTopRelativeOffset < 0) {
+	if (markedTopRelativeOffset < 0
+		|| markedTopRelativeOffset > scrollThreshold) {
 		animationState = animationEnum.SCROLL;
 		$('html, body').animate(
 			// Leave some vertical margin before the container.
@@ -232,27 +242,6 @@ function scrollUp() {
 	} 
 }
 
-// Scroll down when tracker is below a certain point
-function scrollDown() {
-	let scrollThreshold = 200;
-	let verticalMargin = 100;
-	// Autoscroll if too far ahead.
-	// Number of pixels from top of window to top of current container.
-
-	let markedTopAbsoluteOffset = doc.getSentenceEls(tracker.getSentenceId()).offset().top;
-	let markedTopRelativeOffset = markedTopAbsoluteOffset - $(window).scrollTop();
-	if (markedTopRelativeOffset > scrollThreshold) {
-		animationState = animationEnum.SCROLL;
-		$('html, body').animate(
-			// Leave some vertical margin before the container.
-			{scrollTop: (markedTopAbsoluteOffset - verticalMargin)},
-			SCROLL_DURATION_MS,
-			function() {
-				animationState = animationEnum.NONE;
-			}
-		);
-	}
-}
 // Uncomment this if you want to see the relative y offsets of current container
 // so you can tweak the auto-scroll feature.
 /*
@@ -424,12 +413,12 @@ function setupKeyListeners() {
 
 		switch (evt.code) {
 			case 'ArrowLeft': // Move back
-				stopFadeTracker();
-                startMove(direction.BACKWARD);
+				stopMove();
+                moveOneDebounced(direction.BACKWARD);
                 break;
 			case 'ArrowRight': // Move forward
-				stopFadeTracker();
-                startMove(direction.FORWARD);
+				stopMove();
+                moveOneDebounced(direction.FORWARD);
 				break;
 			case 'KeyD':	// Increase velocity
 				adjustSpeed(40);
@@ -439,7 +428,6 @@ function setupKeyListeners() {
 				break;
 			case 'Space': // Switch to auto mode
 				if (timer) {
-					stopFadeTracker();
 					stopMove();
 				} else {
 					startMove(direction.FORWARD);
@@ -447,20 +435,12 @@ function setupKeyListeners() {
 				break;
 			case 'ShiftRight':
 				persistentHighlight();
+				break;
 			default:
                 break;
 		}
 		return true;
 	});
-	jdoc.on("keyup", function(evt) {
-		switch (evt.code) {
-			case 'ArrowLeft':
-			case 'ArrowRight':
-				stopMove();
-				break;
-		}
-		return true;
-    });
 };
 
 // Classname for keyword highlights.
