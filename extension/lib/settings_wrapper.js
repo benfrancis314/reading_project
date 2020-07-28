@@ -13,6 +13,8 @@ if (window[namespace] === true) {
 const settingKey = {
 	SPEED: "speed", // WPM
 	TRACKER_CUSTOM: "tracker_custom",
+	// TODO: After testing and erased Ben's local storage, change this key to "documentFreq"
+	// to match rest of naming schema. 
 	DOCUMENT_FREQ: "termDocumentFreq",
 	VISITED_URLS: "urls"
 };
