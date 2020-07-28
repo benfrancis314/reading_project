@@ -140,10 +140,8 @@ readerease-sentence {
 	text-align: center;
 	letter-spacing: 1px;
 	font-size: 60%;
-	text-transform: uppercase;
 	font-family: 'Montserrat', sans-serif;
 	font-weight: 400;
-	border-radius: 5px;
 }
 #optionsButton {
 	position: fixed; 
@@ -159,7 +157,6 @@ readerease-sentence {
 	width: 100%;
 	height: 100%;
 }
-
 #optionsButton:hover {
 	cursor: pointer !important;
 	transform: rotate(180deg);

@@ -419,9 +419,9 @@ function changeReadingSpeedDisplay(type) {
 	// TODO: Implement mutually exclusive animation strategy
 	let wpmDisplay = $("#speedContainer");
 	if (type === "update") {
-		if (!timer) { wpmDisplay.stop(true).fadeIn(250).delay(750).fadeOut(1000); }
+		if (!timer) { wpmDisplay.stop(true).fadeIn(250).delay(750).fadeOut(1000); };
 	} else if (type === "toggle") {
-		wpmDisplay.fadeToggle(500)
+		wpmDisplay.fadeToggle(500);
 	};
 }
 
