@@ -66,7 +66,8 @@ let jdoc = $(document);
 // based on css class name.
 let highlightedSentenceId = null;
 // Class for persistent highlighter
-const persistentHighlightClass = "persistentHighlight"
+const persistentHighlightClass = "persistentHighlight";
+
 
 /*
 Process of determining which style to use. 
@@ -384,7 +385,8 @@ Adjust current speed by speedDelta, and persist the setting.
 */
 const MIN_SPEED_WPM = 100;
 const MAX_SPEED_WPM = 2000;
-function adjustSpeed(speedDelta) {
+function adjustSpeed(speedDelta, wpmDisplay) {
+	if (!timer) { wpmDisplay.stop(true).fadeIn(250).delay(750).fadeOut(1000); };
 	let newSpeed = speed + speedDelta;
 	if (newSpeed < MIN_SPEED_WPM) {
 		newSpeed = MIN_SPEED_WPM;
@@ -401,6 +403,7 @@ function adjustSpeed(speedDelta) {
 }
 
 function setupKeyListeners() {
+	let wpmDisplay = $("#speedContainer");
 	jdoc.on("keydown", function(evt) {
 		if (!document.hasFocus()) {
 		  return true;
@@ -421,15 +424,19 @@ function setupKeyListeners() {
                 moveOneDebounced(direction.FORWARD);
 				break;
 			case 'KeyD':	// Increase velocity
-				adjustSpeed(40);
+				adjustSpeed(40, wpmDisplay);			
 				break;
 			case 'KeyS':	// Slow velocity
-				adjustSpeed(-40);
+				adjustSpeed(-40, wpmDisplay);			
 				break;
 			case 'Space': // Switch to auto mode
 				if (timer) {
+					// TODO: Make more robut for possible race conditions w animations in adjustSpeed;
+					// see: https://github.com/benfrancis314/reading_project/pull/135#discussion_r461689438
+					wpmDisplay.fadeOut(500);
 					stopMove();
 				} else {
+					wpmDisplay.fadeIn(500);
 					startMove(direction.FORWARD);
 				}
 				break;
