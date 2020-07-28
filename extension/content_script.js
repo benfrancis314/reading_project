@@ -286,9 +286,9 @@ function highlight(sentenceId) {
 
 function persistentHighlight() {
 	let sentenceId = tracker.getSentenceId();
-	var el = doc.getSentenceEls(sentenceId)
+	var el = doc.getSentenceEls(sentenceId);
 	if (el.attr('class').includes(persistentHighlightClass)) {
-		el.removeClass(persistentHighlightClass)
+		el.removeClass(persistentHighlightClass);
 	}
 	else { el.addClass(persistentHighlightClass); };
 }
