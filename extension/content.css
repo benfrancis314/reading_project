@@ -114,12 +114,12 @@ mark {
 	color: #00dcff;
 	text-align: center;
 	letter-spacing: 1px;
-	font-size: 60%;
+	font-size: 90%;
 	text-transform: uppercase;
 	/* font-family: 'Montserrat Subrayada', sans-serif; */
 	font-family: 'Montserrat', sans-serif;
 	/* font-weight: 700; */
-	border-radius: 5px 5px 25% 25%;
+	border-radius: 5px 5px 15% 15%;
 }
 #timerNumber {
 	font-size: 125%;
@@ -132,15 +132,15 @@ mark {
 	padding: 2px 0px;
 	margin: 0 auto;
 	width: 100%;
-	/* background-color: rgba(0, 220, 255, 0.25); */
+	background-color: rgba(0, 220, 255, 0.25);
 	color: #0f131c;
 	text-align: center;
 	letter-spacing: 1px;
-	font-size: 80%;
+	font-size: 60%;
 	text-transform: uppercase;
 	font-family: 'Montserrat', sans-serif;
 	font-weight: 400;
-	/* border-radius: 5px 5px 25% 25%; */
+	border-radius: 5px 5px 25% 25%;
 }
 #optionsButton {
 	position: fixed; 
