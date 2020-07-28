@@ -425,7 +425,7 @@ function setupKeyListeners() {
 				break;
 			case 'KeyS':	// Slow velocity
 				adjustSpeed(-40);
-				break;dd
+				break;
 			case 'Space': // Switch to auto mode
 				if (timer) {
 					stopMove();
