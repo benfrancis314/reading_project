@@ -432,6 +432,7 @@ function setupKeyListeners() {
 				} else {
 					startMove(direction.FORWARD);
 				}
+				break;
 			case 'ShiftRight':
 				persistentHighlight();
 			default:
