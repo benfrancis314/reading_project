@@ -414,6 +414,9 @@ function adjustSpeed(speedDelta) {
 /* Change reading speed display. This has two types:
 	1. Update - Show WPM display when users change their speed setting
 	2. Toggle - Toggle WPM display when auto-mode is turned ON/OFF
+
+	Params: 
+	- type (str)
 */
 function changeReadingSpeedDisplay(type) {
 	// TODO: Implement mutually exclusive animation strategy
