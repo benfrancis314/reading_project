@@ -53,6 +53,8 @@ let jdoc = $(document);
 // Thix extra variable is so we don't have to do an extra jquery dom traversal
 // based on css class name.
 let highlightedSentenceId = null;
+// Class for persistent highlighter
+const persistentHighlightClass = "persistentHighlight"
 
 /*
 Process of determining which style to use. 
@@ -257,7 +259,7 @@ function unhighlightEverything() {
 	}
 	$("." + keywordClass).unmark();
 	highlightedSentenceId = null;
-	$(".persistentHighlight").removeClass("persistentHighlight");
+	$("."+persistentHighlightClass).removeClass(persistentHighlightClass);
 }
 
 /*
@@ -285,10 +287,10 @@ function highlight(sentenceId) {
 function persistentHighlight() {
 	let sentenceId = tracker.getSentenceId();
 	var el = doc.getSentenceEls(sentenceId)
-	if (el.attr('class').includes("persistentHighlight")) {
-		el.removeClass("persistentHighlight")
+	if (el.attr('class').includes(persistentHighlightClass)) {
+		el.removeClass(persistentHighlightClass)
 	}
-	else { el.addClass("persistentHighlight"); };
+	else { el.addClass(persistentHighlightClass); };
 }
 
 	/*
