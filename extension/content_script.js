@@ -134,7 +134,7 @@ function startMove(dir) { // Note: I have combined the "moveUp" and "moveDown" f
 
 	// Schedule continuous movement, with the first move being run immediately.
 	(function repeat() { // Allows speed to be updated WHILE moving
-		// Let scrolling finish before any movement.
+		// When there is animation ongoing, wait for it to finish before doing any movement.
 		if (animationState !== animationEnum.NONE) {
 			timer = setTimeout(repeat, SCROLL_DURATION_MS);
 			return;
