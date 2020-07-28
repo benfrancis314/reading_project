@@ -66,7 +66,8 @@ let jdoc = $(document);
 // based on css class name.
 let highlightedSentenceId = null;
 // Class for persistent highlighter
-const persistentHighlightClass = "persistentHighlight"
+const persistentHighlightClass = "persistentHighlight";
+
 
 /*
 Process of determining which style to use. 
@@ -395,7 +396,8 @@ Adjust current speed by speedDelta, and persist the setting.
 */
 const MIN_SPEED_WPM = 100;
 const MAX_SPEED_WPM = 2000;
-function adjustSpeed(speedDelta) {
+function adjustSpeed(speedDelta, wpmDisplay) {
+	if (!timer) { wpmDisplay.stop(true).fadeIn(250).delay(750).fadeOut(1000); };
 	let newSpeed = speed + speedDelta;
 	if (newSpeed < MIN_SPEED_WPM) {
 		newSpeed = MIN_SPEED_WPM;
@@ -411,24 +413,8 @@ function adjustSpeed(speedDelta) {
 	timeTrackerView.updateSpeed(speed,sentence_id);
 }
 
-/* Change reading speed display. This has two types:
-	1. Update - Show WPM display when users change their speed setting
-	2. Toggle - Toggle WPM display when auto-mode is turned ON/OFF
-
-	Params: 
-	- type (str)
-*/
-function changeReadingSpeedDisplay(type) {
-	// TODO: Implement mutually exclusive animation strategy
-	let wpmDisplay = $("#speedContainer");
-	if (type === "update") {
-		if (!timer) { wpmDisplay.stop(true).fadeIn(250).delay(750).fadeOut(1000); };
-	} else if (type === "toggle") {
-		wpmDisplay.fadeToggle(500);
-	};
-}
-
 function setupKeyListeners() {
+	let wpmDisplay = $("#speedContainer");
 	jdoc.on("keydown", function(evt) {
 		if (!document.hasFocus()) {
 		  return true;
@@ -448,22 +434,23 @@ function setupKeyListeners() {
 				stopFadeTracker();
                 startMove(direction.FORWARD);
 				break;
-			case 'KeyD':	// Increase velocity	
-				changeReadingSpeedDisplay("update");
-				adjustSpeed(40);			
+			case 'KeyD':	// Increase velocity
+				adjustSpeed(40, wpmDisplay);			
 				break;
 			case 'KeyS':	// Slow velocity
-				changeReadingSpeedDisplay("update");
-				adjustSpeed(-40);			
+				adjustSpeed(-40, wpmDisplay);			
 				break;
 			case 'Space': // Switch to auto mode
 				if (timer) {
+					// TODO: Make more robut for possible race conditions w animations in adjustSpeed;
+					// see: https://github.com/benfrancis314/reading_project/pull/135#discussion_r461689438
+					wpmDisplay.fadeOut(500);
 					stopFadeTracker();
 					stopMove();
 				} else {
+					wpmDisplay.fadeIn(500);
 					startMove(direction.FORWARD);
 				}
-				changeReadingSpeedDisplay("toggle");
 				break;
 			case 'ShiftRight':
 				persistentHighlight();
