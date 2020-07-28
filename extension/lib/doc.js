@@ -10,14 +10,10 @@ if (window[namespace] === true) {
 var settings = window.settings;
 
 // If the number of sentences in the doc exceeds this, mark the document as unreadable.
-<<<<<<< HEAD
 const MAX_NUM_SENTENCE = 4000;
 // Any word with a TF-IDF score above this frequency is a keyword
 // 0.001-0.005 give reasonable values; high filter, less keywords
 const keywordFilter = 0.001; 
-=======
-const MAX_NUM_SENTENCE = 2000;
->>>>>>> a16bffe0680a32782be66dc6404f874766735e82
 
 /*
 All NLP <-> DOM preprocessing logic should reside in this file.
@@ -169,13 +165,17 @@ class Doc {
     Returns: Total words in document (int)
     Updates TF-IDF model, counts words, calls setKeyWords
     */
-    // TODO: Refactor using promises
-    updateWordModel(readableDomEls, cb) {
-        var self = this;
-        var termFreq = {};
-        var total_words = 0;
-        var stop_words = new Set(["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "about", "above", "after", "again", "against", "all", "am", "an", "and", "any", "are", "aren't", "as", "at", "be", "because", "been", "before", "being", "below", "between", "both", "but", "by", "can't", "cannot ", "could", "couldn't", "did", "didn't", "do", "does", "doesn't", "doing", "don't", "down", "during", "each", "few", "for", "from", "further", "had", "hadn't", "has", "hasn't", "have", "haven't", "having", "he", "he'd", "he'll", "he's", "her", "here", "here's", "hers", "herself ", "him", "himself", "his", "how", "however", "how's", "i", "i'd", "i'll", "i'm", "i've", "if", "in", "into", "is", "isn't", "it", "it's", "its", "itself", "let's", "me", "more", "most", "mustn't", "my", "myself", "no", "nor", "not", "of", "off ", "on", "once", "only", "or", "other", "ought", "our", "ours", "ourselves", "out", "over", "own", "same", "shan’t", "she", "she'd", "she'll", "she's", "should", "shouldn't", "so", "some", "such", "than", "that", "that's", "the", "their", "theirs", "them", "themselves", "then", "there", "there's", "these", "they", "they'd", "they'll", "they're", "they've", "this", "those", "through", "to", "too", "under", "until", "up", "very", "was", "wasn't", "we", "we'd", "we'll", "we're", "we've", "were", "weren't", "what", "what's", "when", "when's", "where", "where's", "which", "while", "who", "who's", "whom", "why", "why's", "with", "won't", "would", "wouldn't", "you", "you'd", "you'll", "you're", "you've", "your", "yours", "yourself", "yourselves"]);
-        var documentFreq = null;
+    /*
+    TODO: Refactor using promises, or refactor in general. Too much tied to this one func
+    Currently like this to make sure the getting/setting from settings doesn't hold up sequence of actions
+    to get keywords
+    */
+    updateWordModel(readableDomEls) {
+        let self = this;
+        let termFreq = {};
+        let total_words = 0;
+        let stop_words = new Set(["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "about", "above", "after", "again", "against", "all", "am", "an", "and", "any", "are", "aren't", "as", "at", "be", "because", "been", "before", "being", "below", "between", "both", "but", "by", "can't", "cannot ", "could", "couldn't", "did", "didn't", "do", "does", "doesn't", "doing", "don't", "down", "during", "each", "few", "for", "from", "further", "had", "hadn't", "has", "hasn't", "have", "haven't", "having", "he", "he'd", "he'll", "he's", "her", "here", "here's", "hers", "herself ", "him", "himself", "his", "how", "however", "how's", "i", "i'd", "i'll", "i'm", "i've", "if", "in", "into", "is", "isn't", "it", "it's", "its", "itself", "let's", "me", "more", "most", "mustn't", "my", "myself", "no", "nor", "not", "of", "off ", "on", "once", "only", "or", "other", "ought", "our", "ours", "ourselves", "out", "over", "own", "same", "shan’t", "she", "she'd", "she'll", "she's", "should", "shouldn't", "so", "some", "such", "than", "that", "that's", "the", "their", "theirs", "them", "themselves", "then", "there", "there's", "these", "they", "they'd", "they'll", "they're", "they've", "this", "those", "through", "to", "too", "under", "until", "up", "very", "was", "wasn't", "we", "we'd", "we'll", "we're", "we've", "were", "weren't", "what", "what's", "when", "when's", "where", "where's", "which", "while", "who", "who's", "whom", "why", "why's", "with", "won't", "would", "wouldn't", "you", "you'd", "you'll", "you're", "you've", "your", "yours", "yourself", "yourselves"]);
+        let documentFreq = null;
         // Update term frequencies dict
         for (var section in readableDomEls) {
             let text = readableDomEls[section].text();
@@ -190,12 +190,11 @@ class Doc {
                     termFreq[word]++;
                 } else {
                     termFreq[word] = 1;
-                }
+                };
             };
             if ( wordList) { total_words += wordList.length; };
         }
 
-<<<<<<< HEAD
         // Get/update document frequency dict, set keywords
         settings.getDocumentFreq(function(settingsDocumentFreq) {
             documentFreq = settingsDocumentFreq;
@@ -214,24 +213,6 @@ class Doc {
                     visitedUrls[window.location] = 1;
                     settings.setVisitedUrls(visitedUrls);
                 }
-=======
-        // Update term document frequency object: 
-        settings.getTermDocumentFreq(function(settingsTermDocumentFreq) {
-            termDocumentFreq = settingsTermDocumentFreq;
-            // This console.log is for monitoring the total word count as I go, to see how it progresses
-            debug("Number of words in document frequency dictionary: "+Object.keys(termDocumentFreq).length);
-            settings.getVisitedUrls(function(settingsVisitedUrls) {
-                let visitedUrls = settingsVisitedUrls;
-                if (visitedUrls[window.location]) { // Check if been to site before
-                    // Do nothing
-                } else {
-                    self.updateTermDocumentFreq(termFreq, termDocumentFreq, settings.setTermDocumentFreq);
-                    visitedUrls[window.location] = 1;
-                    settings.setVisitedUrls(visitedUrls);
-                }
-                let num_docs = Object.keys(visitedUrls).length;
-                self.num_docs = num_docs;
->>>>>>> a16bffe0680a32782be66dc6404f874766735e82
             })
         });
 
@@ -239,22 +220,21 @@ class Doc {
         this.total_words = total_words; // Set total words for use elsewhere (like Display)
     }
 
+    /*
+    Update document frequency dict; if haven't seen before, add to dict. 
+    If have, increase frequency + 1
+    Params: 
+    - Term frequency dictionary: {}
+    - Document frequency dictionary: {}
+    - cb: function()
+    */
     updateDocumentFreq(termFreq, documentFreq, cb) {
-        // For each unique word in doc; add to documentFreq dict or add one to its frequency
         for (const word in termFreq) {
-<<<<<<< HEAD
             let wordLowerCase = word.toLowerCase();
             if (word in documentFreq) {
                 documentFreq[wordLowerCase]++;
             } else {
                 documentFreq[wordLowerCase] = 1;
-=======
-            let wordLowerCase = word.toLowerCase()
-            if (word in termDocumentFreq) {
-                termDocumentFreq[wordLowerCase]++
-            } else {
-                termDocumentFreq[wordLowerCase] = 1;
->>>>>>> a16bffe0680a32782be66dc6404f874766735e82
             }
         }
         cb();
