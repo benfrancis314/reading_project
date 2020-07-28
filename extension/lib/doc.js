@@ -10,7 +10,10 @@ if (window[namespace] === true) {
 var settings = window.settings;
 
 // If the number of sentences in the doc exceeds this, mark the document as unreadable.
-const MAX_NUM_SENTENCE = 2000;
+const MAX_NUM_SENTENCE = 4000;
+// Any word with a TF-IDF score above this frequency is a keyword
+// 0.001-0.005 give reasonable values; high filter, less keywords
+const keywordFilter = 0.001; 
 
 /*
 All NLP <-> DOM preprocessing logic should reside in this file.
@@ -70,14 +73,13 @@ class Doc {
         //   first sentence?
         // - $list [] sentenceEls. See getSentenceEls().
         this.detectSentenceBoundaries(this.containers);
-        this.termFreq = null; // { str : int } , Frequency of terms in document. Set in calcTotalWords function
-        this.total_words = this.calcTotalWords(readableDomEls); // int; Total number of words in document;
-        this.keywords = this.setKeyWords(this.termFreq); // string[] keywords of document
+        this.termFreq = null; // { str : int } , Frequency of terms in document. Set in updateWordModel function
+        this.total_words = null; // int; Total number of words in document;
+        this.keywords = null; // string[] keywords of document
         // int[], Index[i] is # of words in the ith sentence.
         this.num_words_per_sentence = this.calcNumWordsPerSentence(this.sentences);
         // int[], Index[i] is the total # of words from ith sentence til the end of document.
         this.num_words_per_sentence_suffix_sum = suffix_sum(this.num_words_per_sentence);
-        this.num_docs = null // The number of docs used in the document frequency dict (DF in TF-IDF)
     };
 
     // Returns: Total words in doc (int)
@@ -160,14 +162,16 @@ class Doc {
 
     /*
     Returns: Total words in document (int)
-    Calculates total words in the document
+    Updates TF-IDF model, counts words, calls setKeyWords
     */
-    calcTotalWords(readableDomEls) {
+    // TODO: Refactor using promises
+    updateWordModel(readableDomEls, cb) {
         var self = this;
         var termFreq = {};
         var total_words = 0;
-        var stop_words = new Set(["succeeded", "a", "about", "above", "after", "again", "against", "all", "am", "an", "and", "any", "are", "aren't", "as", "at", "be", "because", "been", "before", "being", "below", "between", "both", "but", "by", "can't", "cannot ", "could", "couldn't", "did", "didn't", "do", "does", "doesn't", "doing", "don't", "down", "during", "each", "few", "for", "from", "further", "had", "hadn't", "has", "hasn't", "have", "haven't", "having", "he", "he'd", "he'll", "he's", "her", "here", "here's", "hers", "herself ", "him", "himself", "his", "how", "however", "how's", "i", "i'd", "i'll", "i'm", "i've", "if", "in", "into", "is", "isn't", "it", "it's", "its", "itself", "let's", "me", "more", "most", "mustn't", "my", "myself", "no", "nor", "not", "of", "off ", "on", "once", "only", "or", "other", "ought", "our", "ours", "ourselves", "out", "over", "own", "same", "shan’t", "she", "she'd", "she'll", "she's", "should", "shouldn't", "so", "some", "such", "than", "that", "that's", "the", "their", "theirs", "them", "themselves", "then", "there", "there's", "these", "they", "they'd", "they'll", "they're", "they've", "this", "those", "through", "to", "too", "under", "until", "up", "very", "was", "wasn't", "we", "we'd", "we'll", "we're", "we've", "were", "weren't", "what", "what's", "when", "when's", "where", "where's", "which", "while", "who", "who's", "whom", "why", "why's", "with", "won't", "would", "wouldn't", "you", "you'd", "you'll", "you're", "you've", "your", "yours", "yourself", "yourselves"]);
-        var termDocumentFreq = null;
+        var stop_words = new Set(["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "about", "above", "after", "again", "against", "all", "am", "an", "and", "any", "are", "aren't", "as", "at", "be", "because", "been", "before", "being", "below", "between", "both", "but", "by", "can't", "cannot ", "could", "couldn't", "did", "didn't", "do", "does", "doesn't", "doing", "don't", "down", "during", "each", "few", "for", "from", "further", "had", "hadn't", "has", "hasn't", "have", "haven't", "having", "he", "he'd", "he'll", "he's", "her", "here", "here's", "hers", "herself ", "him", "himself", "his", "how", "however", "how's", "i", "i'd", "i'll", "i'm", "i've", "if", "in", "into", "is", "isn't", "it", "it's", "its", "itself", "let's", "me", "more", "most", "mustn't", "my", "myself", "no", "nor", "not", "of", "off ", "on", "once", "only", "or", "other", "ought", "our", "ours", "ourselves", "out", "over", "own", "same", "shan’t", "she", "she'd", "she'll", "she's", "should", "shouldn't", "so", "some", "such", "than", "that", "that's", "the", "their", "theirs", "them", "themselves", "then", "there", "there's", "these", "they", "they'd", "they'll", "they're", "they've", "this", "those", "through", "to", "too", "under", "until", "up", "very", "was", "wasn't", "we", "we'd", "we'll", "we're", "we've", "were", "weren't", "what", "what's", "when", "when's", "where", "where's", "which", "while", "who", "who's", "whom", "why", "why's", "with", "won't", "would", "wouldn't", "you", "you'd", "you'll", "you're", "you've", "your", "yours", "yourself", "yourselves"]);
+        var documentFreq = null;
+        // Update term frequencies dict
         for (var section in readableDomEls) {
             let text = readableDomEls[section].text();
             let wordRegex = /\b\w+\b/g;
@@ -186,40 +190,42 @@ class Doc {
             if ( wordList) { total_words += wordList.length; };
         }
 
-        // Update term document frequency object: 
-        settings.getTermDocumentFreq(function(settingsTermDocumentFreq) {
-            termDocumentFreq = settingsTermDocumentFreq;
-            // This console.log is for monitoring the total word count as I go, to see how it progresses
-            debug("Number of words in document frequency dictionary: "+Object.keys(termDocumentFreq).length);
+        // Get/update document frequency dict, set keywords
+        settings.getDocumentFreq(function(settingsDocumentFreq) {
+            documentFreq = settingsDocumentFreq;
+            // This debug is for monitoring the total word count as I go, to see how it progresses
+            debug("Number of words in document frequency dictionary: "+Object.keys(documentFreq).length);
             settings.getVisitedUrls(function(settingsVisitedUrls) {
                 let visitedUrls = settingsVisitedUrls;
-                if (visitedUrls[window.location]) { // Check if been to site before
-                    // Do nothing
-                } else {
-                    self.updateTermDocumentFreq(termFreq, termDocumentFreq, settings.setTermDocumentFreq);
+                let num_documents = Object.keys(visitedUrls).length;
+                // Determine keywords BEFORE update document freq. -> save time, shouldn't affect result much
+                self.setKeyWords(termFreq, documentFreq, num_documents);
+                // Check if haven't been to site before
+                if (!visitedUrls[window.location]) {
+                    self.updateDocumentFreq(termFreq, documentFreq, function() {
+                        settings.setDocumentFreq
+                    });
                     visitedUrls[window.location] = 1;
                     settings.setVisitedUrls(visitedUrls);
                 }
-                let num_docs = Object.keys(visitedUrls).length;
-                self.num_docs = num_docs;
             })
         });
 
         this.termFreq = termFreq; // Set class attribute "termFreq"
-        return total_words // Set total words for use elsewhere (like Display)
+        this.total_words = total_words; // Set total words for use elsewhere (like Display)
     }
 
-    updateTermDocumentFreq(termFreq, termDocumentFreq, cb) {
-        // For each unique word in doc; add to termDocumentFreq dict or add one to its frequency
+    updateDocumentFreq(termFreq, documentFreq, cb) {
+        // For each unique word in doc; add to documentFreq dict or add one to its frequency
         for (const word in termFreq) {
-            let wordLowerCase = word.toLowerCase()
-            if (word in termDocumentFreq) {
-                termDocumentFreq[wordLowerCase]++
+            let wordLowerCase = word.toLowerCase();
+            if (word in documentFreq) {
+                documentFreq[wordLowerCase]++;
             } else {
-                termDocumentFreq[wordLowerCase] = 1;
+                documentFreq[wordLowerCase] = 1;
             }
         }
-        cb(termDocumentFreq);
+        cb();
         return;
     }
 
@@ -265,22 +271,27 @@ class Doc {
         return container_sentences_map;
     };
 
-    /*
+        /*
     Returns: string[], given 
     Determines the keywords of the document (using simple term frequency filter)
     */
-    setKeyWords(termFreq) { 
-        // 1. Determine keywords
-        let keywords = new Set();
-        let keywordFilter = 0.005; // Any word below this frequency is a keyword
-        for (var word in termFreq) {
-            termFreq[word] /= this.total_words; // Divide frequency by total words
-            if (termFreq[word] < keywordFilter) {
-                keywords.add(word.toLowerCase());
-            };
+   setKeyWords(termFreq, documentFreq, num_documents) { 
+    let keywords = new Set();
+    for (var word in termFreq) {
+        let relTermFreqValue = termFreq[word] / this.total_words; // Get relative term frequency
+        let documentFreqValue = documentFreq[word]
+        if (!documentFreqValue) {
+            keywords.add(word.toLowerCase()); // Word not encountered before -> Add to keywords
+            continue;
+        }
+        let relDocumentFreqValue = documentFreqValue / num_documents // Get relative document frequency
+        let tfIdfScore = relTermFreqValue / relDocumentFreqValue; // Score = TF/DF (hence TF-IDF)
+        if (tfIdfScore > keywordFilter) { // Filter by score
+            keywords.add(word.toLowerCase());
         };
-        return keywords;
     };
+    this.keywords = keywords;
+};
 
     getNumContainers() {
         return this.containers.length;

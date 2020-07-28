@@ -13,7 +13,7 @@ if (window[namespace] === true) {
 const settingKey = {
 	SPEED: "speed", // WPM
 	TRACKER_CUSTOM: "tracker_custom",
-	TERM_DOCUMENT_FREQ: "termDocumentFreq",
+	DOCUMENT_FREQ: "termDocumentFreq",
 	VISITED_URLS: "urls"
 };
 
@@ -79,9 +79,9 @@ class Settings {
 	}
 
 	// FOR DEV ONLY; REMOVE BEFORE PRODUCTION
-	// resetTermDocumentFreq() {
-	// 	let termDocumentFreq = {};
-	// 	chrome.storage.local.set({[settingKey.TERM_DOCUMENT_FREQ]: termDocumentFreq}, function() {
+	// resetDocumentFreq() {
+	// 	let documentFreq = {};
+	// 	chrome.storage.local.set({[settingKey.DOCUMENT_FREQ]: documentFreq}, function() {
 	// 		if (chrome.runtime.lastError) {
 	// 			console.log("Failed to save term document frequencies: " + chrome.runtime.lastError);
 	// 			return;
@@ -101,8 +101,8 @@ class Settings {
 	// }
 
 	// TODO: Track storage left, when nearing capacity do something
-	setTermDocumentFreq(termDocumentFreq) {
-		chrome.storage.local.set({[settingKey.TERM_DOCUMENT_FREQ]: termDocumentFreq}, function() {
+	setDocumentFreq(documentFreq) {
+		chrome.storage.local.set({[settingKey.DOCUMENT_FREQ]: documentFreq}, function() {
 			if (chrome.runtime.lastError) {
 				console.log("Failed to save term document frequencies: " + chrome.runtime.lastError);
 				return;
@@ -183,19 +183,19 @@ class Settings {
 	initialized at 1. 
 	*/
 		// TODO: Build in safeguard against exceeding storage limit
-	getTermDocumentFreq(cb) {
-		let key = settingKey.TERM_DOCUMENT_FREQ;
+	getDocumentFreq(cb) {
+		let key = settingKey.DOCUMENT_FREQ; // 
 		chrome.storage.local.get(key, function(settingsDict) {
 			if (chrome.runtime.lastError) {
 				console.log("Failed to retrieve term document frequencies: " + chrome.runtime.lastError);
 				return;
 			}
-			// Default termDocumentFreq (empty map)
-			let termDocumentFreq = {};
+			// Default documentFreq (empty map)
+			let documentFreq = {};
 			if (key in settingsDict) {
-				termDocumentFreq = settingsDict[key];
+				documentFreq = settingsDict[key];
 			} 
-			cb(termDocumentFreq);
+			cb(documentFreq);
 		})
 	}
 
