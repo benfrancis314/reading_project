@@ -18,6 +18,18 @@ window.debug = function(str) {
 	}
 }
 
+
+// Mutually exclusive current animation state.
+const animationEnum = {
+	// No animation right now. Everything is static
+	NONE: "none",
+	// Page is scrolling
+	SCROLL: "scroll",
+	// Intersentence transition
+	// TODO: Use this when implementing sentence transition.
+	TRANSITION: "transition"
+}
+
 const keywordClass = "keywordClass" // Name of class for FINDING keywords (no styling)
 const SCROLL_DURATION_MS = 500;
 
@@ -40,8 +52,8 @@ var timer = null;
 let speed = null; // WPM, Base speed, not accounting for sentence length; adjustable w/ D/S
 // Persistent settings.
 let settings = window.settings;
-// If the screen is currently scrolling. If it is, pause the tracker.
-var isScrolling = false;
+// Current animation state, to ensure we are not doing multiple animations at once.
+var animationState = animationEnum.NONE;
 
 // Need the same $ reference for on and off of event handlers to be detectable.
 // Re-doing $(document) in an async context for some reason doesn't allow you 
@@ -122,8 +134,8 @@ function startMove(dir) { // Note: I have combined the "moveUp" and "moveDown" f
 
 	// Schedule continuous movement, with the first move being run immediately.
 	(function repeat() { // Allows speed to be updated WHILE moving
-		// Let scrolling finish before any movement.
-		if (isScrolling) {
+		// When there is animation ongoing, wait for it to finish before doing any movement.
+		if (animationState !== animationEnum.NONE) {
 			timer = setTimeout(repeat, SCROLL_DURATION_MS);
 			return;
 		}
@@ -208,13 +220,13 @@ function scrollUp() {
 	let markedTopAbsoluteOffset = doc.getSentenceEls(tracker.getSentenceId()).offset().top;
 	let markedTopRelativeOffset = markedTopAbsoluteOffset - $(window).scrollTop();
 	if (markedTopRelativeOffset < 0) {
-		isScrolling = true;
+		animationState = animationEnum.SCROLL;
 		$('html, body').animate(
 			// Leave some vertical margin before the container.
 			{scrollTop: (markedTopAbsoluteOffset - verticalMargin)},
 			SCROLL_DURATION_MS,
 			function() {
-				isScrolling = false;
+				animationState = animationEnum.NONE;
 			}
 		);
 	} 
@@ -230,13 +242,13 @@ function scrollDown() {
 	let markedTopAbsoluteOffset = doc.getSentenceEls(tracker.getSentenceId()).offset().top;
 	let markedTopRelativeOffset = markedTopAbsoluteOffset - $(window).scrollTop();
 	if (markedTopRelativeOffset > scrollThreshold) {
-		isScrolling = true;
+		animationState = animationEnum.SCROLL;
 		$('html, body').animate(
 			// Leave some vertical margin before the container.
 			{scrollTop: (markedTopAbsoluteOffset - verticalMargin)},
 			SCROLL_DURATION_MS,
 			function() {
-				isScrolling = false;
+				animationState = animationEnum.NONE;
 			}
 		);
 	}
@@ -300,7 +312,7 @@ function highlightKeyWords(container, start, end) {
 	let keywordStyle = trackerStyle.getKeywordStyle(); 
 	$("."+keywordClass).unmark(); // Remove previous sentence keyword styling
 	$("."+keywordClass).removeClass(keywordStyle);
-	$("."+keywordStyle).removeClass(keywordStyle);
+	
 	// Get list of words in interval
 	let containerText = container.text();
 	let sentenceText = containerText.slice(start,end);
