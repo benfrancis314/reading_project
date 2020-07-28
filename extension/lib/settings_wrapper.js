@@ -13,7 +13,8 @@ if (window[namespace] === true) {
 const settingKey = {
 	SPEED: "speed", // WPM
 	TRACKER_CUSTOM: "tracker_custom",
-	TERM_DOCUMENT_FREQ: "termDocumentFreq"
+	TERM_DOCUMENT_FREQ: "termDocumentFreq",
+	VISITED_URLS: "urls"
 };
 
 // Tracker settings customize the appearance of the tracker.
@@ -59,7 +60,6 @@ class Settings {
 				return;
 			}
 		});
-
 	}
 	// TODO: MOVE CALLBACK FLOW TO GO BACK THROUGH HERE
 	/*
@@ -78,15 +78,29 @@ class Settings {
 		});
 	}
 
-	/*
-	Save the term document frequencies. 
-	This is a map of all words user has ever read to the number of documents they have occured in. 
-	Every time they read a new document, it adds one to each word in the dict, or adds the word to the dict
-	initialized at 1. 
-		- trackerSettings: {trackerSettingKey : termDocumentFreq}
-		Note termDocumentFreq is a dict. 
-	*/
-	// TODO: Build in safeguard against exceeding storage limit
+	// FOR DEV ONLY; REMOVE BEFORE PRODUCTION
+	// resetTermDocumentFreq() {
+	// 	let termDocumentFreq = {};
+	// 	chrome.storage.local.set({[settingKey.TERM_DOCUMENT_FREQ]: termDocumentFreq}, function() {
+	// 		if (chrome.runtime.lastError) {
+	// 			console.log("Failed to save term document frequencies: " + chrome.runtime.lastError);
+	// 			return;
+	// 		}
+	// 	});
+	// }
+
+	// FOR DEV ONLY; REMOVE BEFORE PRODUCTION
+	// resetVisitedUrls() {
+	// 	let visitedUrls = {};
+	// 	chrome.storage.local.set({[settingKey.VISITED_URLS]: visitedUrls}, function() {
+	// 		if (chrome.runtime.lastError) {
+	// 			console.log("Failed to save term document frequencies: " + chrome.runtime.lastError);
+	// 			return;
+	// 		}
+	// 	});
+	// }
+
+	// TODO: Track storage left, when nearing capacity do something
 	setTermDocumentFreq(termDocumentFreq) {
 		chrome.storage.local.set({[settingKey.TERM_DOCUMENT_FREQ]: termDocumentFreq}, function() {
 			if (chrome.runtime.lastError) {
@@ -95,6 +109,18 @@ class Settings {
 			}
 		});
 	}
+
+	// Set the URLs that the user has visited
+	setVisitedUrls(visitedUrls) {
+		chrome.storage.local.set({[settingKey.VISITED_URLS]: visitedUrls}, function() {
+			if (chrome.runtime.lastError) {
+				console.log("Failed to save visited URLs list: " + chrome.runtime.lastError);
+				return;
+			}
+		});
+	}
+
+
 
 	/*
 	See setSpeed().
@@ -125,6 +151,7 @@ class Settings {
 			[trackerSettingKey.SHADOW]: trackerSettingValue.BLUE
 		};
 	}	
+	
 
 	/*
 	See setCustomizations().
@@ -149,6 +176,13 @@ class Settings {
 		});
 	}
 
+	/*
+	Save the term document frequencies. 
+	This is a map of all words user has ever read to the number of documents they have occured in. 
+	Every time they read a new document, it adds one to each word in the dict, or adds the word to the dict
+	initialized at 1. 
+	*/
+		// TODO: Build in safeguard against exceeding storage limit
 	getTermDocumentFreq(cb) {
 		let key = settingKey.TERM_DOCUMENT_FREQ;
 		chrome.storage.local.get(key, function(settingsDict) {
@@ -163,6 +197,26 @@ class Settings {
 			} 
 			cb(termDocumentFreq);
 		})
+	}
+
+	/* 
+	Get's list of URLs that have been used for the document freq dictionary. 
+	Stored as dict for O(1) element search & bc can't store as Set()
+	*/
+	getVisitedUrls(cb) {
+		let key = settingKey.VISITED_URLS;
+		chrome.storage.local.get(key, function(settingsDict) {
+			if (chrome.runtime.lastError) {
+				console.log("Failed to retrieve list of visited URLs: " + chrome.runtime.lastError);
+				return;
+			}
+			// Default visitedUrls (dict)
+			let visitedUrls = {}; 
+			if (key in settingsDict) {
+				visitedUrls = settingsDict[key];
+			}
+			cb(visitedUrls)
+		});
 	}
 }
 
