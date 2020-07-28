@@ -87,14 +87,14 @@ mark {
 	position: fixed; 
 	top: 2%;
 	left: 40%;
-	width: 10%;
+	width: 20%;
 	opacity: 0;
 	transition: all 2s ease 0s;
 	z-index: 1000;
 }
 #timerContainer {
 	width: 100%;
-	border: 1px solid rgba(150, 150, 150, 0.5);
+	border: 1px solid rgba(0, 220, 255, 0.5);
 	box-shadow: 0 0 1pt 1pt rgba(0, 220, 255, 0.5);
 	background-color: rgba(15, 19, 28, 0.9);
 	border-radius: 5px 5px 15% 15%;
@@ -103,10 +103,10 @@ mark {
 	margin: 0 auto;
 	margin-top: 2%;
 	width: 50%;
-	/* border: 1px solid rgb(0,220,255,0.5); */
-	/* border-radius: 5px 5px 25% 25%; */
+	border: 1px solid rgb(0,220,255,0.5);
+	border-radius: 5px 5px 25% 25%;
 	/* box-shadow: 0 0 1pt 1pt rgba(0, 220, 255, 0.5); */
-	/* background-color: rgba(255, 255, 255, 0.8); */
+	background-color: rgba(255, 255, 255, 0.8);
 }
 #timerInsideContainer {
 	width: 100%;
@@ -114,12 +114,12 @@ mark {
 	color: #00dcff;
 	text-align: center;
 	letter-spacing: 1px;
-	font-size: 90%;
+	font-size: 60%;
 	text-transform: uppercase;
 	/* font-family: 'Montserrat Subrayada', sans-serif; */
 	font-family: 'Montserrat', sans-serif;
 	/* font-weight: 700; */
-	border-radius: 5px 5px 15% 15%;
+	border-radius: 5px 5px 25% 25%;
 }
 #timerNumber {
 	font-size: 125%;
