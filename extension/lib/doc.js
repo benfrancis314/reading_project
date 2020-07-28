@@ -177,7 +177,7 @@ class Doc {
                 if (stop_words.has(word)) { // TODO: REFACTOR AS SET; same for other instances like this in code
                     // Don't include stop words
                 }
-                else if (termFreq[wordList[i]]) { // Word is in termFrequency dict
+                else if (termFreq[word]) { // Word is in termFrequency dict
                     termFreq[word]++;
                 } else {
                     termFreq[word] = 1;
