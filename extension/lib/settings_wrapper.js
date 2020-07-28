@@ -181,13 +181,8 @@ class Settings {
 	This is a map of all words user has ever read to the number of documents they have occured in. 
 	Every time they read a new document, it adds one to each word in the dict, or adds the word to the dict
 	initialized at 1. 
-		- trackerSettings: {trackerSettingKey : termDocumentFreq}
-		Note termDocumentFreq is a dict. 
-
-	There is no "set" for this setting. This dictionary is changed using the cb function. 
 	*/
 		// TODO: Build in safeguard against exceeding storage limit
-
 	getTermDocumentFreq(cb) {
 		let key = settingKey.TERM_DOCUMENT_FREQ;
 		chrome.storage.local.get(key, function(settingsDict) {
@@ -219,7 +214,6 @@ class Settings {
 			let visitedUrls = {}; 
 			if (key in settingsDict) {
 				visitedUrls = settingsDict[key];
-				console.log(visitedUrls);
 			}
 			cb(visitedUrls)
 		});
