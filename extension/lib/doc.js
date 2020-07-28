@@ -190,7 +190,7 @@ class Doc {
         settings.getTermDocumentFreq(function(settingsTermDocumentFreq) {
             termDocumentFreq = settingsTermDocumentFreq;
             // This console.log is for monitoring the total word count as I go, to see how it progresses
-            debug(Object.keys(termDocumentFreq).length);
+            debug("Number of words in document frequency dictionary: "+Object.keys(termDocumentFreq).length);
             settings.getVisitedUrls(function(settingsVisitedUrls) {
                 let visitedUrls = settingsVisitedUrls;
                 if (visitedUrls[window.location]) { // Check if been to site before
