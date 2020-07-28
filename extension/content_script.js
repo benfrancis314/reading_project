@@ -284,13 +284,12 @@ function highlight(sentenceId) {
 	highlightedSentenceId = sentenceId;
 };
 
+// Toggles the persistent highlight on the currently tracked sentence
 function persistentHighlight() {
+	if (!tracker.isTracking()) { return; }
 	let sentenceId = tracker.getSentenceId();
 	var el = doc.getSentenceEls(sentenceId);
-	if (el.attr('class').includes(persistentHighlightClass)) {
-		el.removeClass(persistentHighlightClass);
-	}
-	else { el.addClass(persistentHighlightClass); };
+	el.toggleClass(persistentHighlightClass)
 }
 
 	/*
