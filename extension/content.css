@@ -92,7 +92,7 @@ readerease-sentence {
 
 
 #readingDisplayContainer {
-	position: fixed !important; 
+	position: fixed; 
 	top: 2%;
 	left: 45%;
 	width: 10%;
@@ -102,7 +102,6 @@ readerease-sentence {
 }
 #timerContainer {
 	width: 100%;
-	/* border: 1px solid rgba(0, 0, 0, 0.5); */
 	box-shadow: 0pt 1pt 1pt 1pt rgba(104, 104, 104, 0.801);
 	background-color: rgba(255, 255, 255, 0.95);
 	border-radius: 5px;
@@ -113,26 +112,20 @@ readerease-sentence {
 	margin-top: 5%;
 	width: 75%;
 	transition: all 0.5 ease;
-	/* border: 1px solid rgba(0, 220, 255, 0.05); */
 	border-radius: 5px;
 	box-shadow: 0pt 1pt 1pt 1pt rgba(104, 104, 104, 0.801);
 	background-color: rgba(255, 255, 255, 0.95);
 }
 #timerInsideContainer {
 	width: 100%;
-	/* background-color: rgba(255, 255, 255, 0.25); */
 	color: #3f3f3f;
 	text-align: center;
 	letter-spacing: 1px;
 	font-size: 0.9em;
-	/* text-transform: uppercase; */
-	/* font-family: 'Montserrat Subrayada', sans-serif; */
 	font-family: 'Montserrat', sans-serif;
-	/* font-weight: 700; */
 	border-radius: 5px 5px 15% 15%;
 }
 #timerNumber {
-	/* font-size: 125%; */
 	transition: all 0.5s ease 0s;
 }
 #speedNumber {

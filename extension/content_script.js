@@ -416,6 +416,7 @@ function adjustSpeed(speedDelta) {
 	2. Toggle - Toggle WPM display when auto-mode is turned ON/OFF
 */
 function changeReadingSpeedDisplay(type) {
+	// TODO: Implement mutually exclusive animation strategy
 	let wpmDisplay = $("#speedContainer");
 	if (type === "update") {
 		if (!timer) { wpmDisplay.stop(true).fadeIn(250).delay(750).fadeOut(1000); }
@@ -444,7 +445,6 @@ function setupKeyListeners() {
 				stopFadeTracker();
                 startMove(direction.FORWARD);
 				break;
-			// IMPLEMENT MUTUALLY EXCLUSIVE ANIMATION STRATEGY
 			case 'KeyD':	// Increase velocity	
 				changeReadingSpeedDisplay("update");
 				adjustSpeed(40);			
