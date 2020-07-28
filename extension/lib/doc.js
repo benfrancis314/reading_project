@@ -10,7 +10,7 @@ if (window[namespace] === true) {
 var settings = window.settings;
 
 // If the number of sentences in the doc exceeds this, mark the document as unreadable.
-const MAX_NUM_SENTENCE = 1000;
+const MAX_NUM_SENTENCE = 2000;
 
 /*
 All NLP <-> DOM preprocessing logic should reside in this file.
@@ -77,6 +77,7 @@ class Doc {
         this.num_words_per_sentence = this.calcNumWordsPerSentence(this.sentences);
         // int[], Index[i] is the total # of words from ith sentence til the end of document.
         this.num_words_per_sentence_suffix_sum = suffix_sum(this.num_words_per_sentence);
+        this.num_docs = null // The number of docs used in the document frequency dict (DF in TF-IDF)
     };
 
     // Returns: Total words in doc (int)
@@ -172,8 +173,8 @@ class Doc {
             let wordRegex = /\b\w+\b/g;
             let wordList = text.match(wordRegex);
             for (var i in wordList) {
-                let word = wordList[i];
-                if (stop_words.has(wordList[i].toLowerCase())) { // TODO: REFACTOR AS SET; same for other instances like this in code
+                let word = wordList[i].toLowerCase();
+                if (stop_words.has(word)) { // TODO: REFACTOR AS SET; same for other instances like this in code
                     // Don't include stop words
                 }
                 else if (termFreq[wordList[i]]) { // Word is in termFrequency dict
@@ -184,10 +185,24 @@ class Doc {
             };
             if ( wordList) { total_words += wordList.length; };
         }
+
         // Update term document frequency object: 
         settings.getTermDocumentFreq(function(settingsTermDocumentFreq) {
             termDocumentFreq = settingsTermDocumentFreq;
-            self.updateTermDocumentFreq(termFreq, termDocumentFreq, settings.setTermDocumentFreq);
+            // This console.log is for monitoring the total word count as I go, to see how it progresses
+            console.log(Object.keys(termDocumentFreq).length);
+            settings.getVisitedUrls(function(settingsVisitedUrls) {
+                let visitedUrls = settingsVisitedUrls;
+                if (visitedUrls[window.location]) { // Check if been to site before
+                    // Do nothing
+                } else {
+                    self.updateTermDocumentFreq(termFreq, termDocumentFreq, settings.setTermDocumentFreq);
+                    visitedUrls[window.location] = 1;
+                    settings.setVisitedUrls(visitedUrls);
+                }
+                let num_docs = Object.keys(visitedUrls).length;
+                self.num_docs = num_docs;
+            })
         });
 
         this.termFreq = termFreq; // Set class attribute "termFreq"
@@ -197,10 +212,11 @@ class Doc {
     updateTermDocumentFreq(termFreq, termDocumentFreq, cb) {
         // For each unique word in doc; add to termDocumentFreq dict or add one to its frequency
         for (const word in termFreq) {
+            let wordLowerCase = word.toLowerCase()
             if (word in termDocumentFreq) {
-                termDocumentFreq[word]++
+                termDocumentFreq[wordLowerCase]++
             } else {
-                termDocumentFreq[word] = 1;
+                termDocumentFreq[wordLowerCase] = 1;
             }
         }
         cb(termDocumentFreq);
