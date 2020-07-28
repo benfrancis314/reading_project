@@ -84,7 +84,7 @@ mark {
 
 
 #readingDisplayContainer {
-	position: fixed; 
+	position: fixed !important; 
 	top: 2%;
 	left: 45%;
 	width: 10%;
@@ -94,21 +94,21 @@ mark {
 }
 #timerContainer {
 	width: 100%;
-	border: 1px solid rgba(0, 0, 0, 0.5);
-	box-shadow: 0pt 1pt 2pt 2pt rgba(104, 104, 104, 0.219);
+	/* border: 1px solid rgba(0, 0, 0, 0.5); */
+	box-shadow: 0pt 1pt 1pt 1pt rgba(104, 104, 104, 0.801);
 	background-color: rgba(255, 255, 255, 0.95);
 	border-radius: 5px;
 }
 #speedContainer {
-	/* opacity: 0; */
+	opacity: 0;
 	margin: 0 auto;
-	margin-top: 2%;
+	margin-top: 5%;
 	width: 75%;
 	transition: all 0.5 ease;
-	/* border: 1px solid rgb(0,220,255,0.5); */
-	/* border-radius: 5px 5px 25% 25%; */
-	/* box-shadow: 0 0 1pt 1pt rgba(0, 220, 255, 0.5); */
-	/* background-color: rgba(255, 255, 255, 0.8); */
+	/* border: 1px solid rgba(0, 220, 255, 0.05); */
+	border-radius: 5px;
+	box-shadow: 0pt 1pt 1pt 1pt rgba(104, 104, 104, 0.801);
+	background-color: rgba(255, 255, 255, 0.95);
 }
 #timerInsideContainer {
 	width: 100%;
@@ -116,7 +116,7 @@ mark {
 	color: #3f3f3f;
 	text-align: center;
 	letter-spacing: 1px;
-	font-size: 90%;
+	font-size: 0.9em;
 	/* text-transform: uppercase; */
 	/* font-family: 'Montserrat Subrayada', sans-serif; */
 	font-family: 'Montserrat', sans-serif;
@@ -134,11 +134,11 @@ mark {
 	padding: 2px 0px;
 	margin: 0 auto;
 	width: 100%;
-	background-color: rgba(0, 220, 255, 0.05);
-	color: #002477;
+	background-color: rgba(0, 220, 255, 0.15);
+	color: #162341;
 	text-align: center;
 	letter-spacing: 1px;
-	font-size: 80%;
+	font-size: 60%;
 	text-transform: uppercase;
 	font-family: 'Montserrat', sans-serif;
 	font-weight: 400;

@@ -389,6 +389,7 @@ function adjustSpeed(speedDelta) {
 }
 
 function setupKeyListeners() {
+	let wpmDisplay = $("#speedContainer");
 	jdoc.on("keydown", function(evt) {
 		if (!document.hasFocus()) {
 		  return true;
@@ -409,9 +410,11 @@ function setupKeyListeners() {
                 startMove(direction.FORWARD);
 				break;
 			case 'KeyD':	// Increase velocity
+				wpmDisplay.animate({"opacity": "1"}, 250);
 				adjustSpeed(40);
 				break;
 			case 'KeyS':	// Slow velocity
+				wpmDisplay.animate({"opacity": "1"}, 250);
 				adjustSpeed(-40);
 				break;
 			case 'Space': // Switch to auto mode
