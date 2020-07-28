@@ -123,7 +123,7 @@ class TimeTrackerView {
             <div id="readingDisplayContainer">
                 <div id="timerContainer">
                     <div id="timerInsideContainer">
-                        <span id="timerNumber">Calculating...</span> min remaining
+                        <span id="timerNumber">Calculating...</span> min
                     </div>
                 </div>
                 <div id="speedContainer">

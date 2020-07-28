@@ -18,6 +18,18 @@ window.debug = function(str) {
 	}
 }
 
+
+// Mutually exclusive current animation state.
+const animationEnum = {
+	// No animation right now. Everything is static
+	NONE: "none",
+	// Page is scrolling
+	SCROLL: "scroll",
+	// Intersentence transition
+	// TODO: Use this when implementing sentence transition.
+	TRANSITION: "transition"
+}
+
 const keywordClass = "keywordClass" // Name of class for FINDING keywords (no styling)
 const SCROLL_DURATION_MS = 500;
 
@@ -40,8 +52,8 @@ var timer = null;
 let speed = null; // WPM, Base speed, not accounting for sentence length; adjustable w/ D/S
 // Persistent settings.
 let settings = window.settings;
-// If the screen is currently scrolling. If it is, pause the tracker.
-var isScrolling = false;
+// Current animation state, to ensure we are not doing multiple animations at once.
+var animationState = animationEnum.NONE;
 
 // Need the same $ reference for on and off of event handlers to be detectable.
 // Re-doing $(document) in an async context for some reason doesn't allow you 
@@ -53,6 +65,9 @@ let jdoc = $(document);
 // Thix extra variable is so we don't have to do an extra jquery dom traversal
 // based on css class name.
 let highlightedSentenceId = null;
+// Class for persistent highlighter
+const persistentHighlightClass = "persistentHighlight";
+
 
 /*
 Process of determining which style to use. 
@@ -74,6 +89,7 @@ function setupSentenceClickListeners() {
 		doc.getSentenceEls(sentenceId).on("click", function(e) {          
 			highlight(sentenceId);
 			tracker.pointToSentence(sentenceId);
+			scrollToTracker();
 		});
 	}
 }
@@ -120,8 +136,8 @@ function startMove(dir) { // Note: I have combined the "moveUp" and "moveDown" f
 
 	// Schedule continuous movement, with the first move being run immediately.
 	(function repeat() { // Allows speed to be updated WHILE moving
-		// Let scrolling finish before any movement.
-		if (isScrolling) {
+		// When there is animation ongoing, wait for it to finish before doing any movement.
+		if (animationState !== animationEnum.NONE) {
 			timer = setTimeout(repeat, SCROLL_DURATION_MS);
 			return;
 		}
@@ -189,56 +205,44 @@ function moveOne(dir) { // Sets start and end
 
 	timeTrackerView.updateTimer(tracker.getSentenceId());
 	highlight(tracker.getSentenceId());
- 
-	if (dir == direction.BACKWARD) {
-		scrollUp();
-	} else if (dir == direction.FORWARD) {
-		scrollDown();
-	}
+	scrollToTracker();
 	return true;
 }
 
-// Scroll up when tracker is above page
-function scrollUp() {
-	let verticalMargin = 200;
+// Manual movement is limited to once 200ms, or else if user taps arrow keys really quickly,
+// or presses down on them, there will be
+// too many UI events (e.g. highlighting, etc.) happening at once, making things very slow.
+// Debounce note: Will execute only after this function is uncalled for that amount of time.
+// The inactivity timer gets reset when function gets called while it is 'recovering'.
+let moveOneDebounced = _.debounce(moveOne, 200);
+
+// Scroll page so tracker is in view.
+function scrollToTracker() {
+	// One animation at a time.
+	if (animationState !== animationEnum.NONE) {
+		return;
+	}
+	let verticalMargin = 100;
+	// The viewing band is from top of the page (0) down to scrollThreshold away
+	let scrollThreshold = 200;
 	// Autoscroll if tracker is above top of page.
 	// Number of pixels from top of window to top of current container.
 	let markedTopAbsoluteOffset = doc.getSentenceEls(tracker.getSentenceId()).offset().top;
 	let markedTopRelativeOffset = markedTopAbsoluteOffset - $(window).scrollTop();
-	if (markedTopRelativeOffset < 0) {
-		isScrolling = true;
+	if (markedTopRelativeOffset < 0
+		|| markedTopRelativeOffset > scrollThreshold) {
+		animationState = animationEnum.SCROLL;
 		$('html, body').animate(
 			// Leave some vertical margin before the container.
 			{scrollTop: (markedTopAbsoluteOffset - verticalMargin)},
 			SCROLL_DURATION_MS,
 			function() {
-				isScrolling = false;
+				animationState = animationEnum.NONE;
 			}
 		);
 	} 
 }
 
-// Scroll down when tracker is below a certain point
-function scrollDown() {
-	let scrollThreshold = 200;
-	let verticalMargin = 100;
-	// Autoscroll if too far ahead.
-	// Number of pixels from top of window to top of current container.
-
-	let markedTopAbsoluteOffset = doc.getSentenceEls(tracker.getSentenceId()).offset().top;
-	let markedTopRelativeOffset = markedTopAbsoluteOffset - $(window).scrollTop();
-	if (markedTopRelativeOffset > scrollThreshold) {
-		isScrolling = true;
-		$('html, body').animate(
-			// Leave some vertical margin before the container.
-			{scrollTop: (markedTopAbsoluteOffset - verticalMargin)},
-			SCROLL_DURATION_MS,
-			function() {
-				isScrolling = false;
-			}
-		);
-	}
-}
 // Uncomment this if you want to see the relative y offsets of current container
 // so you can tweak the auto-scroll feature.
 /*
@@ -257,6 +261,7 @@ function unhighlightEverything() {
 	}
 	$("." + keywordClass).unmark();
 	highlightedSentenceId = null;
+	$("."+persistentHighlightClass).removeClass(persistentHighlightClass);
 }
 
 /*
@@ -281,6 +286,14 @@ function highlight(sentenceId) {
 	highlightedSentenceId = sentenceId;
 };
 
+// Toggles the persistent highlight on the currently tracked sentence
+function persistentHighlight() {
+	if (!tracker.isTracking()) { return; }
+	let sentenceId = tracker.getSentenceId();
+	var el = doc.getSentenceEls(sentenceId);
+	el.toggleClass(persistentHighlightClass)
+}
+
 	/*
     Params: Current container, start and end of tracker (jQuery element, int, int)
     Highlights the keywords within the tracked sentence. 
@@ -289,7 +302,7 @@ function highlightKeyWords(container, start, end) {
 	let keywordStyle = trackerStyle.getKeywordStyle(); 
 	$("."+keywordClass).unmark(); // Remove previous sentence keyword styling
 	$("."+keywordClass).removeClass(keywordStyle);
-	$("."+keywordStyle).removeClass(keywordStyle);
+	
 	// Get list of words in interval
 	let containerText = container.text();
 	let sentenceText = containerText.slice(start,end);
@@ -372,7 +385,8 @@ Adjust current speed by speedDelta, and persist the setting.
 */
 const MIN_SPEED_WPM = 100;
 const MAX_SPEED_WPM = 2000;
-function adjustSpeed(speedDelta) {
+function adjustSpeed(speedDelta, wpmDisplay) {
+	if (!timer) { wpmDisplay.stop(true).fadeIn(250).delay(750).fadeOut(1000); };
 	let newSpeed = speed + speedDelta;
 	if (newSpeed < MIN_SPEED_WPM) {
 		newSpeed = MIN_SPEED_WPM;
@@ -389,6 +403,7 @@ function adjustSpeed(speedDelta) {
 }
 
 function setupKeyListeners() {
+	let wpmDisplay = $("#speedContainer");
 	jdoc.on("keydown", function(evt) {
 		if (!document.hasFocus()) {
 		  return true;
@@ -401,40 +416,38 @@ function setupKeyListeners() {
 
 		switch (evt.code) {
 			case 'ArrowLeft': // Move back
-				stopFadeTracker();
-                startMove(direction.BACKWARD);
+				stopMove();
+                moveOneDebounced(direction.BACKWARD);
                 break;
 			case 'ArrowRight': // Move forward
-				stopFadeTracker();
-                startMove(direction.FORWARD);
+				stopMove();
+                moveOneDebounced(direction.FORWARD);
 				break;
 			case 'KeyD':	// Increase velocity
-				adjustSpeed(40);
+				adjustSpeed(40, wpmDisplay);			
 				break;
 			case 'KeyS':	// Slow velocity
-				adjustSpeed(-40);
+				adjustSpeed(-40, wpmDisplay);			
 				break;
 			case 'Space': // Switch to auto mode
 				if (timer) {
-					stopFadeTracker();
+					// TODO: Make more robut for possible race conditions w animations in adjustSpeed;
+					// see: https://github.com/benfrancis314/reading_project/pull/135#discussion_r461689438
+					wpmDisplay.fadeOut(500);
 					stopMove();
 				} else {
+					wpmDisplay.fadeIn(500);
 					startMove(direction.FORWARD);
 				}
+				break;
+			case 'ShiftRight':
+				persistentHighlight();
+				break;
 			default:
                 break;
 		}
 		return true;
 	});
-	jdoc.on("keyup", function(evt) {
-		switch (evt.code) {
-			case 'ArrowLeft':
-			case 'ArrowRight':
-				stopMove();
-				break;
-		}
-		return true;
-    });
 };
 
 // Classname for keyword highlights.
