@@ -11,7 +11,7 @@ if (window[namespace] === true) {
 
 // If true, all debugging statements would show.
 // TODO: Use a proper logging library.
-window.DEBUG = false;
+window.DEBUG = true;
 window.debug = function(str) {
 	if (DEBUG) {
 		console.log("DEBUG: " + str);
@@ -214,7 +214,12 @@ function moveOne(dir) { // Sets start and end
 // too many UI events (e.g. highlighting, etc.) happening at once, making things very slow.
 // Debounce note: Will execute only after this function is uncalled for that amount of time.
 // The inactivity timer gets reset when function gets called while it is 'recovering'.
-let moveOneDebounced = _.debounce(moveOne, 200);
+let moveOneDebounced = _.debounce(moveOne, 200, {
+  // This is so that the function is immediately invoked, as opposed to waiting for debounce
+  // wait period before executing.
+  'leading': true,
+  'trailing': false
+});
 
 // Scroll page so tracker is in view.
 function scrollToTracker() {
@@ -303,6 +308,8 @@ function highlightKeyWords(container, start, end) {
 	$("."+keywordClass).unmark(); // Remove previous sentence keyword styling
 	$("."+keywordClass).removeClass(keywordStyle);
 	
+	// TODO: Optimize this. Ideally the regex will also give you the indices of the words
+	// so you don't have to do a containerText.indexOf within the loop, which will be O(n).
 	// Get list of words in interval
 	let containerText = container.text();
 	let sentenceText = containerText.slice(start,end);
@@ -316,15 +323,14 @@ function highlightKeyWords(container, start, end) {
 		if (keywords.has(word.toLowerCase())) { // See if each word is a keyword
 			var word_start = containerText.indexOf(word, keyword_search_start_pointer);
 			keyword_search_start_pointer = word_start + word.length;
+			// TODO: Consider optimizing by preprocessing all the keywords and u just add / remove classes.
+			container.markRanges([{ 
+				start: word_start,
+				length: word.length
+			}], {
+				className: keywordClass+" "+keywordStyle
+			});
 		};
-		// TODO: Consider optimizing by preprocessing all the keywords and u just add / remove classes.
-		// Normal mark.js procedure
-		container.markRanges([{ 
-			start: word_start,
-			length: word.length
-		}], {
-			className: keywordClass+" "+keywordStyle
-		});
 	}
 };
 
@@ -414,6 +420,7 @@ function setupKeyListeners() {
 		    evt.preventDefault();
 		}
 
+		let startTime = new Date();
 		switch (evt.code) {
 			case 'ArrowLeft': // Move back
 				stopMove();
@@ -446,6 +453,10 @@ function setupKeyListeners() {
 			default:
                 break;
 		}
+
+        let endTime = new Date();
+        let elapsedTimeMs = endTime - startTime;
+        debug(`Took ${elapsedTimeMs} ms to respond to event ${evt.code}`);
 		return true;
 	});
 };
@@ -503,12 +514,13 @@ function oneTimeSetup() {
 		// Listen for background.js toggle pings.
 		chrome.runtime.onMessage.addListener(
 			function(request, sender, sendResponse) {
-			    if (request.command === "toggleUI") {
-			    	toggleExtensionVisibility();
-			    }
+				if (request.command === "toggleUI") {
+					toggleExtensionVisibility();
+				}
 			}
 		);
 	});
+
 }
 /*
 Render all the UI elements.
