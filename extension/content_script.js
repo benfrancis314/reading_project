@@ -11,7 +11,7 @@ if (window[namespace] === true) {
 
 // If true, all debugging statements would show.
 // TODO: Use a proper logging library.
-window.DEBUG = true;
+window.DEBUG = false;
 window.debug = function(str) {
 	if (DEBUG) {
 		console.log("DEBUG: " + str);
@@ -89,7 +89,7 @@ function setupSentenceClickListeners() {
 		doc.getSentenceEls(sentenceId).on("click", function(e) {          
 			highlight(sentenceId);
 			tracker.pointToSentence(sentenceId);
-			scrollToTracker();
+			scrollToTracker(function() {});
 		});
 	}
 }
@@ -109,8 +109,6 @@ See startMove()
 */
 function stopMove() {
 	if (timer) {
-		// Stop fading animation.
-		stopFadeTracker();
 		clearInterval(timer);
 		timer = null;
 	}	
@@ -149,8 +147,6 @@ function startMove(dir) { // Note: I have combined the "moveUp" and "moveDown" f
 		}
 		let trackerLifeMs = calculateTrackerLifeMs();
 		timer = setTimeout(repeat, trackerLifeMs);
-		// Immediately fade current tracker.
-		fadeTracker(trackerLifeMs);
 	})();
 	timeTrackerView.updateAutoMode(true);
 }
@@ -204,8 +200,10 @@ function moveOne(dir) { // Sets start and end
 	}
 
 	timeTrackerView.updateTimer(tracker.getSentenceId());
-	highlight(tracker.getSentenceId());
-	scrollToTracker();
+	scrollToTracker(function() {
+		highlight(tracker.getSentenceId());
+	});
+	
 	return true;
 }
 
@@ -214,7 +212,7 @@ function moveOne(dir) { // Sets start and end
 // too many UI events (e.g. highlighting, etc.) happening at once, making things very slow.
 // Debounce note: Will execute only after this function is uncalled for that amount of time.
 // The inactivity timer gets reset when function gets called while it is 'recovering'.
-let moveOneDebounced = _.debounce(moveOne, 200, {
+let moveOneDebounced = _.debounce(moveOne, 50, {
   // This is so that the function is immediately invoked, as opposed to waiting for debounce
   // wait period before executing.
   'leading': true,
@@ -222,9 +220,11 @@ let moveOneDebounced = _.debounce(moveOne, 200, {
 });
 
 // Scroll page so tracker is in view.
-function scrollToTracker() {
+// cb called when scrolling is complete
+function scrollToTracker(cb) {
 	// One animation at a time.
 	if (animationState !== animationEnum.NONE) {
+		cb();
 		return;
 	}
 	let verticalMargin = 100;
@@ -243,9 +243,12 @@ function scrollToTracker() {
 			SCROLL_DURATION_MS,
 			function() {
 				animationState = animationEnum.NONE;
+				cb();
 			}
 		);
-	} 
+	} else {
+		cb();
+	}
 }
 
 // Uncomment this if you want to see the relative y offsets of current container
@@ -276,11 +279,15 @@ function highlight(sentenceId) {
 	let sentenceStyle = trackerStyle.getSentenceStyle();
 	// Unhighlight if previous highlight already exists.
 	if (highlightedSentenceId !== null) {
-		doc.getSentenceEls(highlightedSentenceId).removeClass(sentenceStyle);
+		let prevEls = doc.getSentenceEls(highlightedSentenceId);
+		prevEls.removeClass(sentenceStyle);
+		prevEls.addClass("sentenceHighlighternullShadownull");
 	}
 
 	// Highlight the sentence.
-	doc.getSentenceEls(sentenceId).addClass(sentenceStyle);
+	doc.getSentenceEls(sentenceId)
+		.removeClass("sentenceHighlighternullShadownull")
+		.addClass(sentenceStyle);
 
 	// Highlight they keywords.
 	let sentencePtr = doc.getSentence(sentenceId);
@@ -333,58 +340,6 @@ function highlightKeyWords(container, start, end) {
 		};
 	}
 };
-
-/*
-Fade the current tracker indicator according to the calculated speed.
-Parameters:
-- fadeMs (int) ms for the fade animation speed.
-*/
-function fadeTracker(fadeMs) {
-	fadeElement(doc.getSentenceEls(tracker.getSentenceId()), fadeMs);
-	fadeElement($("."+keywordClass), fadeMs);
-}
-
-/*
-Stop all animations related to fading.
-*/
-function stopFadeTracker() {
-	// TODO: Fix transition animations.
-	let sentence_els = doc.getSentenceEls(tracker.getSentenceId());
-	sentence_els.stop();
-
-	let keywordStyle = trackerStyle.getKeywordStyle(); 
-	let keywords_el = $("."+keywordStyle)
-	let keywords_color = keywords_el.css('backgroundColor');
-	keywords_el.stop().animate({'background-color': keywords_color},
-		{	duration: 300,
-			complete: function() { 
-				keywords_el.removeAttr('style');
-		}
-		});
-}
-
-
-/*
-Fade jquery element el over fadeMs ms.
-*/
-function fadeElement(el, fadeMs) {
-	// Some async issue. If marker already gets deleted but not initialized.
-	if (!el) {
-		return;
-	}
-	let rgb = jQuery.Color(el.css('backgroundColor'));
-	// Set alpha to 0, and animate towards this, to simulate bg fade of same color.
-	let newRgba = `rgba(${rgb.red()}, ${rgb.green()}, ${rgb.blue()}, 0)`
-	el.animate(
-		{ 'background-color': newRgba },
-		fadeMs,
-		// The fade outs are barely noticeable until the last .1 period
-		// So, used higher powers of ease out to extend the close-to-fade
-		// period so user has enough heads up that a movement will happen soon.
-		// See this for the full list
-		// https://www.tutorialspoint.com/jqueryui/jqueryui_easings.htm
-		'easeOutQuint');
-}
 
 /*
 Adjust current speed by speedDelta, and persist the setting.

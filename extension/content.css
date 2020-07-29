@@ -27,7 +27,7 @@ readerease-sentence {
 	 /* box-shadow: 1pt 1pt 3pt 1pt rgb(187, 187, 187); Gray shadow */
 	box-shadow: 1pt 1pt 3pt 1pt rgb(0,220,255); /* Blue shadow */
 
-	transition: all 0.5s ease;
+	transition: all 1s ease;
 }
 .sentenceHighlighterBlueShadowYellow {
 	background-color:rgb(230, 239, 253) !important; /* Light Blue highlighter */
@@ -70,9 +70,8 @@ readerease-sentence {
 	transition: all 0.5s ease;
 }
 .sentenceHighlighternullShadownull {
-	background-color:rgb(252, 185, 164) !important; /* Green highlighter */
-	box-shadow: 1pt 1pt 3pt 1pt rgb(252, 164, 164); /* Green shadow */
-	transition: all 0.5s ease;
+	background-color:rgba(252, 185, 164, 0) !important; /* Green highlighter */
+	transition: all 1s ease;
 }
 .keyWordGreen {
 	background-color:rgb(171, 252, 164) !important; /* Nancy personally chose this green color: */
@@ -80,7 +79,7 @@ readerease-sentence {
 }
 .keyWordYellow {
 	background-color: yellow !important;
-	transition: all 0.5s ease;
+	transition: all 1s ease;
 }
 .keyWordOff {
 	transition: all 0.5s ease;
