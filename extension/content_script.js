@@ -11,7 +11,7 @@ if (window[namespace] === true) {
 
 // If true, all debugging statements would show.
 // TODO: Use a proper logging library.
-window.DEBUG = false;
+window.DEBUG = true;
 window.debug = function(str) {
 	if (DEBUG) {
 		console.log("DEBUG: " + str);
@@ -316,15 +316,14 @@ function highlightKeyWords(container, start, end) {
 		if (keywords.has(word.toLowerCase())) { // See if each word is a keyword
 			var word_start = containerText.indexOf(word, keyword_search_start_pointer);
 			keyword_search_start_pointer = word_start + word.length;
+			// TODO: Consider optimizing by preprocessing all the keywords and u just add / remove classes.
+			container.markRanges([{ 
+				start: word_start,
+				length: word.length
+			}], {
+				className: keywordClass+" "+keywordStyle
+			});
 		};
-		// TODO: Consider optimizing by preprocessing all the keywords and u just add / remove classes.
-		// Normal mark.js procedure
-		container.markRanges([{ 
-			start: word_start,
-			length: word.length
-		}], {
-			className: keywordClass+" "+keywordStyle
-		});
 	}
 };
 
@@ -503,12 +502,13 @@ function oneTimeSetup() {
 		// Listen for background.js toggle pings.
 		chrome.runtime.onMessage.addListener(
 			function(request, sender, sendResponse) {
-			    if (request.command === "toggleUI") {
-			    	toggleExtensionVisibility();
-			    }
+				if (request.command === "toggleUI") {
+					toggleExtensionVisibility();
+				}
 			}
 		);
 	});
+
 }
 /*
 Render all the UI elements.
