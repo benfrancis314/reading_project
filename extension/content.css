@@ -20,12 +20,14 @@ readerease-sentence {
 
 /* SHADOW, HIGHLIGHTER, and KEYWORD CSS */
 .sentenceHighlighterBlueShadowBlue {
+
 	/* TODO: Integrate different color scheme. Keeping values here for near-term future use */
 	/* Without this !important, it won't override mark background-color !important (see above for reasoning for this) */
-	background-color:rgb(230, 239, 253) !important; /* Light Blue highlighter */
+	background-color:rgb(250, 250, 250) !important; /* White 1 */
+	/* background-color:rgba(245, 244, 244, 0.767) !important; White 2 */
 	/* TODO: Integrate different color scheme. Keeping values here for near-term future use */
 	 /* box-shadow: 1pt 1pt 3pt 1pt rgb(187, 187, 187); Gray shadow */
-	box-shadow: 1pt 1pt 3pt 1pt rgb(0,220,255); /* Blue shadow */
+	box-shadow: 2pt 2pt 3pt 1pt rgb(0, 0, 0, 0.35); /* Blue shadow */
 
 	transition: all 1s ease;
 }
@@ -66,12 +68,14 @@ readerease-sentence {
 	transition: all 1s ease;
 }
 .keyWordGreen {
-	background-color:rgb(171, 252, 164) !important; /* Nancy personally chose this green color: */
+	/*  #bfffe7*/
+	background-color: rgb(255, 248, 185) !important;
+	/* background-color: #c4ffd8!important;  */
 	transition: all 0.5s ease;
 }
 .keyWordYellow {
-	background-color: yellow !important;
-	transition: all 1s ease;
+	background-color: #FEE715FF !important;
+	transition: all 0.5s ease;
 }
 .keyWordOff {
 	transition: all 0.5s ease;
@@ -79,6 +83,9 @@ readerease-sentence {
 	/* This purposely doesn't highlight anything
 	TODO: Instead of "doign nothing", disable the keyword process to increase efficiency. */
 }
+
+
+
 /* END */
 
 
