@@ -11,7 +11,7 @@ if (window[namespace] === true) {
 
 // If true, all debugging statements would show.
 // TODO: Use a proper logging library.
-window.DEBUG = true;
+window.DEBUG = false;
 window.debug = function(str) {
 	if (DEBUG) {
 		console.log("DEBUG: " + str);
@@ -214,7 +214,7 @@ function moveOne(dir) { // Sets start and end
 // too many UI events (e.g. highlighting, etc.) happening at once, making things very slow.
 // Debounce note: Will execute only after this function is uncalled for that amount of time.
 // The inactivity timer gets reset when function gets called while it is 'recovering'.
-let moveOneDebounced = _.debounce(moveOne, 200, {
+let moveOneDebounced = _.debounce(moveOne, 50, {
   // This is so that the function is immediately invoked, as opposed to waiting for debounce
   // wait period before executing.
   'leading': true,
