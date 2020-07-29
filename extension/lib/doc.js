@@ -177,7 +177,7 @@ class Doc {
                 if (stop_words.has(word)) { // TODO: REFACTOR AS SET; same for other instances like this in code
                     // Don't include stop words
                 }
-                else if (termFreq[wordList[i]]) { // Word is in termFrequency dict
+                else if (termFreq[word]) { // Word is in termFrequency dict
                     termFreq[word]++;
                 } else {
                     termFreq[word] = 1;
@@ -190,7 +190,7 @@ class Doc {
         settings.getTermDocumentFreq(function(settingsTermDocumentFreq) {
             termDocumentFreq = settingsTermDocumentFreq;
             // This console.log is for monitoring the total word count as I go, to see how it progresses
-            console.log(Object.keys(termDocumentFreq).length);
+            debug("Number of words in document frequency dictionary: "+Object.keys(termDocumentFreq).length);
             settings.getVisitedUrls(function(settingsVisitedUrls) {
                 let visitedUrls = settingsVisitedUrls;
                 if (visitedUrls[window.location]) { // Check if been to site before
