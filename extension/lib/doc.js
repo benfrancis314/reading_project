@@ -103,8 +103,8 @@ class Doc {
     - The current setup loops through each container; within each container loop, 
     it loops through each containers sentences. Within each sentence, it loops through 
     each word. 
+    - Marks sentences with unqiue class, calls setSentenceKeywordsAndScore
     - TODO: increase the efficiency of this process in general.
-    - TODO: Add new comment to account for new functionality, when stable code, before push
     Find all sentence boundaries within containers.
     Initializes [sentences, containerIdToFirstSentenceId, sentenceEls]
     If document is not readable, sentences will be empty array.
@@ -135,7 +135,6 @@ class Doc {
                 });
                 this.sentenceEls.push($("." + sentenceClassName));
                 // Set keywords and score for each sentence
-                // Note: Putting this outside setSentenceKeywordsAndScore so it doesn't have to carry over as much text 
                 this.setSentenceKeywordsAndScore(container, containerText, start, end, sentenceId);
             }
             this.num_words_per_sentence = this.calcNumWordsPerSentence(this.sentences);
@@ -154,7 +153,9 @@ class Doc {
         debug(`Process Sentences done in ${elapsedTimeS} s`);
     }
 
-    
+    /*
+    Marks each keyword with a unique class, gives each sentence score for reading difficulty
+    */
     setSentenceKeywordsAndScore(container, containerText, start, end, sentenceId) {
         // Each score represents how many "words" each type is counted as. 
         const stopwordScore = 0.5; // Stop words count as half of a word

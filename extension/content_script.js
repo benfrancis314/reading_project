@@ -11,7 +11,7 @@ if (window[namespace] === true) {
 
 // If true, all debugging statements would show.
 // TODO: Use a proper logging library.
-window.DEBUG = true;
+window.DEBUG = false;
 window.debug = function(str) {
 	if (DEBUG) {
 		console.log("DEBUG: " + str);
@@ -172,6 +172,7 @@ function calculateTrackerLifeMs() {
 	let sentenceId = tracker.getSentenceId();
 	let sentences_remaining = doc.getNumSentencesFromSentenceTilEnd(sentenceId);
 	let sentence_score = doc.getSentenceScore(sentenceId); // Words in current sentence
+	// TODO: Change this so it gets total sentence score for rest of doc; needed to make sure time is perfect
 	let total_words_remaining = doc.getNumWordsFromSentenceTilEnd(sentenceId);
 	let base_time_ms = sentences_remaining * speed_bias_ms; // Time from just speed_bias on each sentence. In seconds
 	let desired_time_ms = timeTrackerView.getTimeRemainingMs(); // Time we need to finish in
@@ -468,6 +469,7 @@ In the INACTIVE state, the widgets are not visible, and no event handlers are at
 function oneTimeSetup() {
 	let readableDomEls = window.parseDocument();
 	doc = new Doc(readableDomEls);
+	// TODO: Refactor/move this, it currently can't run bc doc isn't ready
 	// If page is not readable, stop setting up the rest of the app.
 	// if (doc.sentences.length === 0) {
 	// 	debug("Stopping app init because page is not readable");
