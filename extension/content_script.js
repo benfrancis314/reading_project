@@ -172,8 +172,7 @@ function calculateTrackerLifeMs() {
 	let sentenceId = tracker.getSentenceId();
 	let sentences_remaining = doc.getNumSentencesFromSentenceTilEnd(sentenceId);
 	let sentence_score = doc.getSentenceScore(sentenceId); // Words in current sentence
-	// TODO: Change this so it gets total sentence score for rest of doc; needed to make sure time is perfect
-	let total_words_remaining = doc.getNumWordsFromSentenceTilEnd(sentenceId);
+	let total_score_remaining = doc.getTotalScoreFromSentenceTilEnd(sentenceId);
 	let base_time_ms = sentences_remaining * speed_bias_ms; // Time from just speed_bias on each sentence. In seconds
 	let desired_time_ms = timeTrackerView.getTimeRemainingMs(); // Time we need to finish in
 	let distributable_time_ms = desired_time_ms - base_time_ms; // Time left to distribute to sentences
@@ -182,11 +181,10 @@ function calculateTrackerLifeMs() {
 		// https://github.com/benfrancis314/reading_project/issues/104
 		distributable_time_ms = 0;
 	}
-	let word_ratio = sentence_score/total_words_remaining;
+	let word_ratio = sentence_score/total_score_remaining;
 	let linger_time_ms = distributable_time_ms*(word_ratio) + speed_bias_ms;
-	// For comparing sentence metrics: words vs score
+	// To see sentence score; set all score values to 1 to get total # of words
 	debug("Sentence score: "+sentence_score);
-	debug("Number of words in sentence: "+doc.getNumWordsInSentence(sentenceId));
 	debug("calculateTrackerLifeMs = " + linger_time_ms);
 	return (linger_time_ms); 
 	// TODO: Use Moment.js
