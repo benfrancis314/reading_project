@@ -96,7 +96,9 @@ class Doc {
         // jQueryEls[], jQuery elements for each sentence
         this.sentenceEls = []; // Set as side effect of processSentences
         // jQueryEls[], jQuery elements for each sentence's keywords
-        this.sentenceKeywordsEls = []; // Set as side effect of setSentenceKeywordsAndScore
+        // Actually it's a lazily evaluated jQueryEls.
+        // See setSentenceKeywordsAndScore for how the lazy evaluation works. 
+        this.sentenceKeywordsEls = []; 
     };
 
 
@@ -197,13 +199,18 @@ class Doc {
                 sentenceScore += normalwordScore;
             }
         }
-        // Give the set of keywords in each sentence a unique class
-        container.markRanges(keywordRanges, {
-            className: sentenceKeywordsClassName,
-            element: "readerease-keyword"
-        });
         this.sentenceScores.push(sentenceScore);
-        this.sentenceKeywordsEls.push($("." + sentenceKeywordsClassName));
+        // Push a lazily evaluated keyword jquery els.
+        // markRanges is a performance bottleneck, and it's better to distribute it
+        // over reading rather than bundle it up during load time.
+        this.sentenceKeywordsEls.push(function() {
+            // Give the set of keywords in each sentence a unique class
+            container.markRanges(keywordRanges, {
+                className: sentenceKeywordsClassName,
+                element: "readerease-keyword"
+            });
+            return $("." + sentenceKeywordsClassName);
+        });
     }
 
     // Returns: Total words in doc (int)
@@ -442,7 +449,13 @@ class Doc {
     }
     // Returns list of jQuery elements, corresponding to keywords within the sentence of ID: sentenceID
     getSentenceKeywordsEls(sentenceId) {
-        return this.sentenceKeywordsEls[sentenceId];
+        let res = this.sentenceKeywordsEls[sentenceId];
+        if (typeof res === "function") {
+            // Evaluate the fcn once, then store the result.
+            res = res();
+            this.sentenceKeywordsEls[sentenceId] = res;
+        }
+        return res;
     }
 };
 
