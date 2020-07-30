@@ -88,6 +88,7 @@ function setupSentenceClickListeners() {
 		doc.getSentenceEls(sentenceId).on("click", function(e) {          
 			highlight(sentenceId);
 			tracker.pointToSentence(sentenceId);
+			timeTrackerView.updateTimer(sentenceId);
 			scrollToTracker();
 		});
 	}
