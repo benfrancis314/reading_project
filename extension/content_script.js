@@ -30,7 +30,6 @@ const animationEnum = {
 	TRANSITION: "transition"
 }
 
-const keywordClass = "keywordClass" // Name of class for FINDING keywords (no styling)
 const SCROLL_DURATION_MS = 500;
 
 // Keeps track of the pointed text. Initialized by end of script load.
@@ -270,7 +269,6 @@ function unhighlightEverything() {
 		doc.getSentenceEls(tracker.getSentenceId()).removeClass(trackerStyle.getSentenceStyle());
 		doc.getSentenceKeywordsEls(tracker.getSentenceId()).removeClass(trackerStyle.getKeywordStyle());
 	}
-	$("." + keywordClass).unmark();
 	highlightedSentenceId = null;
 	$("."+persistentHighlightClass).removeClass(persistentHighlightClass);
 }
@@ -290,7 +288,7 @@ function highlight(sentenceId) {
 	// Highlight the sentence.
 	doc.getSentenceEls(sentenceId).addClass(sentenceStyle);
 	// Highlight the keywords. 
-	doc.getSentenceKeywordsEls(sentenceId).addClass(keywordStyle)
+	doc.getSentenceKeywordsEls(sentenceId).addClass(keywordStyle);
 	highlightedSentenceId = sentenceId;
 };
 
@@ -309,7 +307,6 @@ Parameters:
 */
 function fadeTracker(fadeMs) {
 	fadeElement(doc.getSentenceEls(tracker.getSentenceId()), fadeMs);
-	fadeElement($("."+keywordClass), fadeMs);
 }
 
 /*

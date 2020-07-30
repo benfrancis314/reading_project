@@ -115,6 +115,7 @@ class Doc {
         this.sentenceEls = [];
         this.containerIdToFirstSentenceId = [];
         for(let container_id = 0; container_id < this.getNumContainers(); container_id++) {
+            this.containerIdToFirstSentenceId.push(this.sentences.length);
             let container = this.getContainer(container_id);
             let containerText = container.text();
             let sentenceBoundaries = tokenizeSentences(containerText);
@@ -146,7 +147,6 @@ class Doc {
                 this.containerIdToFirstSentenceId = [];
                 break;
             }
-            this.containerIdToFirstSentenceId.push(this.sentences.length);
         }
         let endTime = new Date();
         let elapsedTimeS =  (endTime - startTime ) / 1000;
@@ -288,11 +288,8 @@ class Doc {
             settings.getVisitedUrls(function(settingsVisitedUrls) {
                 let visitedUrls = settingsVisitedUrls;
                 let num_documents = Object.keys(visitedUrls).length;
-                self.setKeyWords(termFreq, documentFreq, num_documents, function() {
-                    // After keywords are set, proceed to processSentences. 
-                    // If this is not done, setKeywordsAndScore will not be able to access keywords (must wait)
-                    self.processSentences();
-                });
+                self.setKeyWords(termFreq, documentFreq, num_documents);
+                self.processSentences();
                 // Update document freq AFTER determining keywords -> save time, shouldn't affect result
                 if (!visitedUrls[window.location]) {
                     self.updateDocumentFreq(termFreq, documentFreq);
@@ -310,7 +307,7 @@ class Doc {
         
 
     /*
-    Update document frequency dict; if haven't word seen before, add to dict. 
+    Update document frequency dict; if haven't seen word before, add to dict. 
     If have, increase frequency + 1
     Params: 
     - Term frequency dictionary: { word: frequency }
@@ -375,7 +372,7 @@ class Doc {
     Sets this.keywords
     Determines the keywords of the document (using simple term frequency filter)
     */
-   setKeyWords(termFreq, documentFreq, num_documents, cb) { 
+   setKeyWords(termFreq, documentFreq, num_documents) { 
         let keywords = new Set();
         for (var word in termFreq) {
             let relTermFreqValue = termFreq[word] / this.total_words; // Get relative term frequency
@@ -391,7 +388,6 @@ class Doc {
             };
         };
         this.keywords = keywords;
-        cb();
     };
 
     getNumContainers() {
