@@ -163,9 +163,9 @@ class Doc {
     */
     setSentenceKeywordsAndScore(container, containerText, start, end, sentenceId) {
         // Each score represents how many "words" each type is counted as. 
-        const stopwordScore = 1; // Stop words count as half of a word
+        const stopwordScore = 0.5; // Stop words count as half of a word
         const normalwordScore = 1; // Normal words count as one word
-        const keywordScore = 1; // Key words count as 1.5 words
+        const keywordScore = 1.5; // Key words count as 1.5 words
 
         // Note: This is similar code to what was in "highlightKeywords", now deleted
         let sentenceText = containerText.slice(start,end);
