@@ -166,11 +166,12 @@ function calculateTrackerLifeMs() {
 	// Please see the writeup for more details on the parameter values.
 	// https://docs.google.com/document/d/14ub4PZGhGHOMvDLFr1nVkBIWFzQyujJHkuK_HB1fDM8/edit#
 	// To account for saccade and fixation time to new sentence.
-	const speed_bias_ms = 300;
+	// Argument for 500: Any sentence with less than 500 is hard to read, no matter the length
+	const speed_bias_ms = 500;
 
 	let sentenceId = tracker.getSentenceId();
 	let sentences_remaining = doc.getNumSentencesFromSentenceTilEnd(sentenceId);
-	let sentence_words = doc.getNumWordsInSentence(sentenceId); // Words in current sentence
+	let sentence_score = doc.getSentenceScore(sentenceId); // Words in current sentence
 	let total_words_remaining = doc.getNumWordsFromSentenceTilEnd(sentenceId);
 	let base_time_ms = sentences_remaining * speed_bias_ms; // Time from just speed_bias on each sentence. In seconds
 	let desired_time_ms = timeTrackerView.getTimeRemainingMs(); // Time we need to finish in
@@ -180,8 +181,11 @@ function calculateTrackerLifeMs() {
 		// https://github.com/benfrancis314/reading_project/issues/104
 		distributable_time_ms = 0;
 	}
-	let word_ratio = sentence_words/total_words_remaining;
+	let word_ratio = sentence_score/total_words_remaining;
 	let linger_time_ms = distributable_time_ms*(word_ratio) + speed_bias_ms;
+	// For comparing sentence metrics: words vs score
+	debug("Sentence score: "+sentence_score);
+	debug("Number of words in sentence: "+doc.getNumWordsInSentence(sentenceId));
 	debug("calculateTrackerLifeMs = " + linger_time_ms);
 	return (linger_time_ms); 
 	// TODO: Use Moment.js
@@ -263,6 +267,7 @@ function unhighlightEverything() {
 	if (tracker.isTracking()) {
 		let sentenceId = tracker.getSentenceId();
 		doc.getSentenceEls(tracker.getSentenceId()).removeClass(trackerStyle.getSentenceStyle());
+		doc.getSentenceKeywordsEls(tracker.getSentenceId()).removeClass(trackerStyle.getKeywordStyle());
 	}
 	$("." + keywordClass).unmark();
 	highlightedSentenceId = null;
@@ -274,20 +279,17 @@ Highlight portion pointed to by tracker, and unhighlight previous sentence (if n
 */
 function highlight(sentenceId) {
 	let sentenceStyle = trackerStyle.getSentenceStyle();
+	let keywordStyle = trackerStyle.getKeywordStyle(); 
+
 	// Unhighlight if previous highlight already exists.
 	if (highlightedSentenceId !== null) {
 		doc.getSentenceEls(highlightedSentenceId).removeClass(sentenceStyle);
+		doc.getSentenceKeywordsEls(highlightedSentenceId).removeClass(keywordStyle)
 	}
-
 	// Highlight the sentence.
 	doc.getSentenceEls(sentenceId).addClass(sentenceStyle);
-
-	// Highlight they keywords.
-	let sentencePtr = doc.getSentence(sentenceId);
-	let container = doc.getContainer(sentencePtr.containerId);
-	let start = sentencePtr.start;
-	let end = sentencePtr.end;
-	highlightKeyWords(container, start, end);
+	// Highlight the keywords. 
+	doc.getSentenceKeywordsEls(sentenceId).addClass(keywordStyle)
 	highlightedSentenceId = sentenceId;
 };
 
@@ -298,41 +300,6 @@ function persistentHighlight() {
 	var el = doc.getSentenceEls(sentenceId);
 	el.toggleClass(persistentHighlightClass)
 }
-
-	/*
-    Params: Current container, start and end of tracker (jQuery element, int, int)
-    Highlights the keywords within the tracked sentence. 
-    */
-function highlightKeyWords(container, start, end) {
-	let keywordStyle = trackerStyle.getKeywordStyle(); 
-	$("."+keywordClass).unmark(); // Remove previous sentence keyword styling
-	$("."+keywordClass).removeClass(keywordStyle);
-	
-	// TODO: Optimize this. Ideally the regex will also give you the indices of the words
-	// so you don't have to do a containerText.indexOf within the loop, which will be O(n).
-	// Get list of words in interval
-	let containerText = container.text();
-	let sentenceText = containerText.slice(start,end);
-	let wordRegex = /\b\w+\b/g;
-	let wordList = sentenceText.match(wordRegex);
-	let keywords = doc.getKeyWords();
-	// Look where keyword is in sentence AFTER last search. Guaranteed to be after. Init to start. 
-	let keyword_search_start_pointer = start; 
-	for (var i in wordList) { // Accentuate keywords
-		let word = wordList[i];
-		if (keywords.has(word.toLowerCase())) { // See if each word is a keyword
-			var word_start = containerText.indexOf(word, keyword_search_start_pointer);
-			keyword_search_start_pointer = word_start + word.length;
-			// TODO: Consider optimizing by preprocessing all the keywords and u just add / remove classes.
-			container.markRanges([{ 
-				start: word_start,
-				length: word.length
-			}], {
-				className: keywordClass+" "+keywordStyle
-			});
-		};
-	}
-};
 
 /*
 Fade the current tracker indicator according to the calculated speed.
@@ -502,10 +469,10 @@ function oneTimeSetup() {
 	let readableDomEls = window.parseDocument();
 	doc = new Doc(readableDomEls);
 	// If page is not readable, stop setting up the rest of the app.
-	if (doc.sentences.length === 0) {
-		debug("Stopping app init because page is not readable");
-		return;
-	}
+	// if (doc.sentences.length === 0) {
+	// 	debug("Stopping app init because page is not readable");
+	// 	return;
+	// }
 	tracker = new Tracker(doc);
 	// TODO: Refactor using promise logic so this is more readable.
 	// Load all the persistent settings, then render the UI.
