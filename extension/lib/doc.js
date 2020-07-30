@@ -172,18 +172,16 @@ class Doc {
         let keyword_search_start_pointer = start; 
         // Cycle through words in each sentence
         let sentenceScore = 0; // Used for determining tracker lifetime
+
+        let keywordRanges = [];
         for (var i in wordList) { 
             let word = wordList[i];
             if (keywords.has(word.toLowerCase())) { // See if each word is a keyword
                 let word_start = containerText.indexOf(word, keyword_search_start_pointer);
                 keyword_search_start_pointer = word_start + word.length;
-                // Give the set of keywords in each sentence a unique class
-                container.markRanges([{ 
+                keywordRanges.push({ 
                     start: word_start,
                     length: word.length
-                }], {
-                    className: sentenceKeywordsClassName,
-                    element: "readerease-keyword"
                 });
                 sentenceScore += keywordScore;
             }
@@ -194,6 +192,11 @@ class Doc {
                 sentenceScore += normalwordScore;
             }
         }
+        // Give the set of keywords in each sentence a unique class
+        container.markRanges(keywordRanges, {
+            className: sentenceKeywordsClassName,
+            element: "readerease-keyword"
+        });
         this.sentenceScores.push(sentenceScore);
         this.sentenceKeywordsEls.push($("." + sentenceKeywordsClassName));
     }
