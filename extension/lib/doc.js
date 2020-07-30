@@ -87,6 +87,8 @@ class Doc {
         this.num_words_per_sentence = null; // Set as side effect of processSentences
         // int[], Index[i] is the total # of words from ith sentence til the end of document.
         this.num_words_per_sentence_suffix_sum = null; // Set as side effect of processSentences
+        // int[], Index[i] is the total sentence scores from ith sentence til the end of document.
+        this.sentence_score_suffix_sum = null; // Set as side effect of processSentences
         // SentencePointer[], a pointer for each sentence (see above defined class)
         this.sentences = []; // Set as side effect of processDocument
         // float[], assigns difficulty measure to each sentence
@@ -140,8 +142,11 @@ class Doc {
                 // Set keywords and score for each sentence
                 this.setSentenceKeywordsAndScore(container, containerText, start, end, sentenceId);
             }
+
             this.num_words_per_sentence = this.calcNumWordsPerSentence(this.sentences);
             this.num_words_per_sentence_suffix_sum = suffix_sum(this.num_words_per_sentence);
+            this.sentence_scores_suffix_sum = suffix_sum(this.sentenceScores);
+
             if (this.sentences.length > MAX_NUM_SENTENCE) {
                 alert("Sorry, we don't support big documents yet :(");
                 this.containers = [];
@@ -233,10 +238,9 @@ class Doc {
         return this.sentenceScores[sentenceId];
     }
 
-    // TODO: Make this function, integrate into calculateTrackerLifeMs
-    // getTotalScoreFromSentenceTilEnd(sentenceId) {
-    //     sentenceScoresLeft = this.sentenceScores.slice(sentenceId);
-    // }
+    getTotalScoreFromSentenceTilEnd(sentenceId) {
+        return this.sentence_scores_suffix_sum[sentenceId];
+    }
 
     /*
     Get total number of words from sentenceId, sentenceId+1, ... til end of document.
