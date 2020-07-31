@@ -16,6 +16,25 @@
             }
         }
     },
+    "web_accessible_resources": [
+        "images/closeButton.svg",
+        "images/collapseBlack1.svg", 
+        "images/collapseBlack2.svg", 
+        "images/collapseGray1.svg", 
+        "images/collapseGray2.svg", 
+        "images/easyLogo.svg",
+        "images/gearBlack.svg", 
+        "images/gearGray.svg", 
+        "images/hardLogo.svg",
+        "images/instructionAutoRead.svg",
+        "images/instructionHighlight.svg",
+        "images/instructionKeywordToggle.svg",
+        "images/instructionMove.svg",
+        "images/instructionOnOff.svg",
+        "images/instructionSentenceHop.svg",
+        "images/instructionSpeed.svg",
+        "images/mediumLogo.svg"
+    ],
     "icons": { 
         "16": "images/logo16.png",
         "32": "images/logo32.png",

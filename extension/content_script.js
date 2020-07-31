@@ -89,7 +89,7 @@ function setupSentenceClickListeners() {
 			highlight(sentenceId);
 			tracker.pointToSentence(sentenceId);
 			timeTrackerView.updateTimer(sentenceId);
-			scrollToTracker();
+			scrollToTracker(function() {});
 		});
 	}
 }
@@ -208,7 +208,10 @@ function moveOne(dir) { // Sets start and end
 
 	timeTrackerView.updateTimer(tracker.getSentenceId());
 	highlight(tracker.getSentenceId());
-	scrollToTracker();
+	scrollToTracker(function() {
+		highlight(tracker.getSentenceId());
+	});
+
 	return true;
 }
 
@@ -217,7 +220,7 @@ function moveOne(dir) { // Sets start and end
 // too many UI events (e.g. highlighting, etc.) happening at once, making things very slow.
 // Debounce note: Will execute only after this function is uncalled for that amount of time.
 // The inactivity timer gets reset when function gets called while it is 'recovering'.
-let moveOneDebounced = _.debounce(moveOne, 200, {
+let moveOneDebounced = _.debounce(moveOne, 50, {
   // This is so that the function is immediately invoked, as opposed to waiting for debounce
   // wait period before executing.
   'leading': true,
@@ -225,9 +228,11 @@ let moveOneDebounced = _.debounce(moveOne, 200, {
 });
 
 // Scroll page so tracker is in view.
-function scrollToTracker() {
+// cb called when scrolling is complete
+function scrollToTracker(cb) {
 	// One animation at a time.
 	if (animationState !== animationEnum.NONE) {
+		cb();
 		return;
 	}
 	let verticalMargin = 100;
@@ -246,9 +251,12 @@ function scrollToTracker() {
 			SCROLL_DURATION_MS,
 			function() {
 				animationState = animationEnum.NONE;
+				cb();
 			}
 		);
-	} 
+	} else {
+		cb();
+	}
 }
 
 // Uncomment this if you want to see the relative y offsets of current container
@@ -282,10 +290,15 @@ function highlight(sentenceId) {
 	// Unhighlight if previous highlight already exists.
 	if (highlightedSentenceId !== null) {
 		doc.getSentenceEls(highlightedSentenceId).removeClass(sentenceStyle);
+		let prevEls = doc.getSentenceEls(highlightedSentenceId);
+		prevEls.removeClass(sentenceStyle);
+		prevEls.addClass("sentenceStyleOff");
 		doc.getSentenceKeywordsEls(highlightedSentenceId).removeClass(keywordStyle)
 	}
 	// Highlight the sentence.
-	doc.getSentenceEls(sentenceId).addClass(sentenceStyle);
+	doc.getSentenceEls(sentenceId)
+		.removeClass("sentenceStyleOff")
+		.addClass(sentenceStyle);
 	// Highlight the keywords. 
 	doc.getSentenceKeywordsEls(sentenceId).addClass(keywordStyle);
 	highlightedSentenceId = sentenceId;

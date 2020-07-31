@@ -1,6 +1,6 @@
+/* TODO: Is this needed anymore? Remove if not */
 mark {
 	color: inherit !important;
-	/* Without below line, all text would be yellow bc it has mark */
 	background-color: inherit !important;
 	font-style: inherit !important;
 	font-weight: inherit !important;
@@ -15,82 +15,34 @@ readerease-sentence {
 }
 
 .persistentHighlight {
-	background-color: yellow !important;
+	background-color: #FEE715 !important;
 }
 
-/* SHADOW, HIGHLIGHTER, and KEYWORD CSS */
-.sentenceHighlighterBlueShadowBlue {
-	/* TODO: Integrate different color scheme. Keeping values here for near-term future use */
-	/* Without this !important, it won't override mark background-color !important (see above for reasoning for this) */
-	background-color:rgb(230, 239, 253) !important; /* Light Blue highlighter */
-	/* TODO: Integrate different color scheme. Keeping values here for near-term future use */
-	 /* box-shadow: 1pt 1pt 3pt 1pt rgb(187, 187, 187); Gray shadow */
-	box-shadow: 1pt 1pt 3pt 1pt rgb(0,220,255); /* Blue shadow */
-
-	transition: all 0.5s ease;
+/* SENTENCE STYLING CSS */
+.sentenceStyleOn {
+	background-color:rgb(250, 250, 250) !important; 
+	/* background-color:rgba(226, 226, 226, 0.062) !important; */
+	box-shadow: 2pt 2pt 3pt 1pt rgb(0, 0, 0, 0.35);
 }
-.sentenceHighlighterBlueShadowYellow {
-	background-color:rgb(230, 239, 253) !important; /* Light Blue highlighter */
-	box-shadow: 1pt 1pt 3pt 1pt yellow; /* Yellow shadow */
-	transition: all 0.5s ease;
+.sentenceStyleOff {
+	background-color:rgba(255, 255, 255, 0) !important;
 }
-.sentenceHighlighterBlueShadowGreen {
-	background-color:rgb(230, 239, 253) !important; /* Light Blue highlighter */
-	box-shadow: 1pt 1pt 3pt 1pt rgb(171, 252, 164); /* Green shadow */
-	transition: all 0.5s ease;
+.keyWordLight {
+	background-color: rgb(255, 248, 185) !important;
 }
-.sentenceHighlighterYellowShadowBlue {
-	background-color:yellow !important; /* Yellow highlighter */
-	box-shadow: 1pt 1pt 3pt 1pt rgb(0,220,255); /* Blue shadow */
-	transition: all 0.5s ease;
-}
-.sentenceHighlighterYellowShadowYellow {
-	background-color:yellow !important; /* Yellow highlighter */
-	box-shadow: 1pt 1pt 3pt 1pt yellow; /* Yellow shadow */
-	transition: all 0.5s ease;
-}
-.sentenceHighlighterYellowShadowGreen {
-	background-color:yellow !important; /* Yellow highlighter */
-	box-shadow: 1pt 1pt 3pt 1pt rgb(171, 252, 164); /* Green shadow */
-	transition: all 0.5s ease;
-}
-.sentenceHighlighterGreenShadowBlue {
-	background-color:rgb(171, 252, 164) !important; /* Green highlighter */
-	box-shadow: 1pt 1pt 3pt 1pt rgb(0,220,255); /* Blue shadow */
-	transition: all 0.5s ease;
-}
-.sentenceHighlighterGreenShadowYellow {
-	background-color:rgb(171, 252, 164) !important; /* Green highlighter */
-	box-shadow: 1pt 1pt 3pt 1pt yellow; /* Yellow shadow */
-	transition: all 0.5s ease;
-}
-.sentenceHighlighterGreenShadowGreen {
-	background-color:rgb(171, 252, 164) !important; /* Green highlighter */
-	box-shadow: 1pt 1pt 3pt 1pt rgb(171, 252, 164); /* Green shadow */
-	transition: all 0.5s ease;
-}
-.sentenceHighlighternullShadownull {
-	background-color:rgb(252, 185, 164) !important; /* Green highlighter */
-	box-shadow: 1pt 1pt 3pt 1pt rgb(252, 164, 164); /* Green shadow */
-	transition: all 0.5s ease;
-}
-.keyWordGreen {
-	background-color:rgb(171, 252, 164) !important; /* Nancy personally chose this green color: */
-	transition: all 0.5s ease;
-}
-.keyWordYellow {
-	background-color: yellow !important;
-	transition: all 0.5s ease;
+.keyWordBright {
+	background-color: hsl(54, 99%, 54%) !important;
 }
 .keyWordOff {
-	transition: all 0.5s ease;
 	background-color: rgba(255, 255, 0, 0) !important;
-	/* This purposely doesn't highlight anything
-	TODO: Instead of "doign nothing", disable the keyword process to increase efficiency. */
+}
+.transitionSmooth {
+	transition: all 0.5s ease;
 }
 /* END */
 
 
+/* READING TIMER DISPLAY STYLING */
 #readingDisplayContainer {
 	position: fixed; 
 	top: 2%;
@@ -162,9 +114,9 @@ readerease-sentence {
 	transform: rotate(180deg);
 }
 #optionsButton:hover svg g g #gear {
-	fill: rgba(0,220,255,0.5) !important;
+	fill: rgb(0, 0, 0) !important;
 	transition: all 0.5s ease;
-	stroke: rgba(0,220,255,1);
+	stroke: rgb(0, 0, 0);
 	stroke-width: 5px;
 }
 #gear {
@@ -175,17 +127,197 @@ readerease-sentence {
 #gear:hover {
 	transition: all 0.5 ease;
 }
+
+/* UI CONTAINER */
 #uiContainer {
-	width: 30%;
+	width: 20%;
 	position: fixed;
 	z-index: 10002;
 	top: 2%;
-	right: 3%;
+	right: 10%;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;	
 }
-#exitButton, #exitButtonBorder, #exitButtonText {
+#closeButton {
+	position: absolute;
+	top: 10px;
+	left: -60px;
+	transition: all 0.5s ease;
+	width: 20px;
+	height: 20px;
+	opacity: 0.5;
+	background-position: center center;
+	background-size: 80%;
+	background-repeat: no-repeat;
+	background-color: rgba(255, 255, 255, 0.95);
+	box-shadow: 0 0 1pt 1pt red;
+	padding: 10px;
+	border-radius: 15px;
+}
+#closeButton:hover {
+	transform: scale(1.1);
+	opacity: 1;
+	cursor: pointer;
+	box-shadow: 0 0 2pt 1pt red;
+}
+#uiSections {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	width: 100%;
+}
+#customizeContainer {
+	margin: 0 auto;
+	padding: 5%;
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	background-color: rgba(252, 252, 252, 0.95);
+	border-radius: 15px;
+	margin-bottom: 5%;
+	box-shadow: 0px 2px 3pt 2px rgb(0, 0, 0, 0.5);
+}
+#customizeSectionTitle {
+	position: relative;
+	font-size: 80%;
+	text-align: center;
+	width: 50%;
+	margin: 0 auto;
+	font-family: 'Montserrat';
+	border: 1px solid #afafaf96;
+	border-width: 0px 0px 1px 0px;
+	padding-bottom: 2px;
+	/* font-weight: 700; */
+
+}
+#collapseIcon {
+	position: absolute;
+	top: 10px;
+	left: 10px;
+	width: 7.5%;
+	height: 7.5%;
+	background-position: center center;
+	background-size: contain;
+	background-repeat: no-repeat;
 	transition: all 0.5s ease;
 }
-#exitButton:hover {
+#collapseIcon:hover {
+	transform: scale(1.3);
+	cursor: pointer;
+}
+#keywordsOptions {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-evenly;
+	padding-top: 4%;
+}
+.keywordsButton {
+	padding: 3px;
+	border: 0px solid #6464649a;
+	border-radius: 5px;
+	width: 25%;
+	text-align: center;
+	font-family: 'Montserrat';
+	font-size: 75%;
+	transition: all 0.5s ease;
+	opacity: 0.75;
+	box-shadow: 0pt 0.5pt 0.5pt 0.5pt rgb(0, 0, 0, 0.35);
+}
+.keywordsButton:hover {
+	cursor: pointer;
+	opacity: 1;
+	transform: scale(1.02);
+	box-shadow: 0pt 1pt 1pt 1pt rgb(0, 0, 0, 0.5);
+	font-weight: 700;
+}
+#keywordsLightButton {
+	background-color: rgb(255, 248, 185);
+}
+#keywordsBrightButton {
+	background-color: rgb(254, 231, 22);
+}
+#keywordsOffsetButton {
+	background-color: #ffffff;
+}
+#instructionsContainer {
+	margin: 0 auto;
+	display: flex;
+	flex-direction: column;
+	padding-top: 5%;
+	width: 110%;
+	background-color: rgba(252, 252, 252, 0.95);
+	border-radius: 15px;
+	margin-bottom: 5%;
+	box-shadow: 0px 2px 3pt 2px rgb(0, 0, 0, 0.5);
+}
+#uiInstructionsTitle {
+	position: relative;
+	font-size: 80%;
+	text-align: center;
+	width: 100%;
+	margin: 0 auto;
+	font-family: 'Montserrat';
+	/* border: 1px solid #afafaf96; */
+	border-width: 0px 0px 1px 0px;
+	padding-bottom: 2px;
+}
+
+#instructionsSection {
+	display: flex;
+	flex-direction: column;
+}
+.instructionsName {
+	font-family: 'Montserrat';
+	font-weight: 700;
+	text-align: center;
+	font-size: 70%;
+	margin: 0 auto;
+	padding-top: 5%;
+	padding-bottom: 2%;
+}
+
+
+
+#instructionsGraphicOnOff, #instructionsGraphicMove, #instructionsGraphicSentenceHop, 
+#instructionsGraphicAutoRead, #instructionsGraphicSpeed, #instructionsGraphicHighlight, 
+#instructionsGraphicKeywordToggle {
+	margin: 0 auto;
+	height: 25px;
+	width: 100px;
+	background-position: center center;
+	background-size: contain;
+	background-repeat: no-repeat;
+	transition: all 0.5s ease;
+}
+#instructionsGraphicSentenceHop {
+	width: 20%;
+}
+
+#instructionGroupOne, #instructionGroupTwo, #instructionGroupThree, #instructionGroupFour {
+	/* border: 1px solid #808080e7; */
+	/* border-width: 0px 0px 1px 0px; */
+	box-shadow: 0pt 2pt 2pt 1pt #00000033;
+	padding-bottom: 5%;
+}
+#instructionGroupOne {
+	background-color: rgb(235, 235, 235, 0.9);
+}
+#instructionGroupTwo {
+	background-color: rgba(215, 215, 215, 0.9);
+}
+#instructionGroupThree {
+	background-color: rgba(195, 195, 195, 0.9);
+}
+#instructionGroupFour {
+	background-color: rgba(175, 175, 175, 0.9);
+	border-width: 0px;
+	border-radius: 0px 0px 15px 15px;
+}
+
+
+
+/* #exitButton:hover {
 	transform: scale(1.005) matrix(3.54031e-17,-0.574888,0.574888,3.54031e-17,5493.27,3411.7);
 	cursor: pointer;
 }
@@ -218,7 +350,7 @@ readerease-sentence {
 	fill-opacity: 0 !important;
 	fill: #00dcff !important;
 	font-size:45px;
-}
+} */
 
 
 

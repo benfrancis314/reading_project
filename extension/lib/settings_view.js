@@ -56,6 +56,7 @@ class SettingsView {
         this.defineUiHtml();
         this.setHtmlListeners(); 
         this.loadSettings();
+        this.toggleUI(); // TODO: Remove before pushing
     }
 
     /* 
@@ -125,16 +126,19 @@ class SettingsView {
     Here, we just listen on the options button (the gear) to toggle the UI display.
     */
     setHtmlListeners() {
-        let optionsButton = document.getElementById("optionsButton"); // TODO: Replace with $("#optionsButton")[0]
+        let optionsButton = document.getElementById("optionsButton"); // TODO: Replace with jQuery
         if (optionsButton) {
             optionsButton.addEventListener("click", this.toggleUI.bind(this));
         }
+        let closeButton = document.getElementById("closeButton"); // TODO: Replace with jQuery
     }
 
     // Turn UI on and off. 
     // Also defines the eventListeners for the buttons on the UI display. 
     toggleUI() {
         var self = this; 
+
+
 
         if (this.uiStatus) {
             let uiContainer = document.getElementById("uiContainer");
@@ -145,9 +149,25 @@ class SettingsView {
             let optionsButton = document.getElementById("optionsButton");
             optionsButton.insertAdjacentHTML("afterend", this.uiHtml);
 
+            // TODO: If make them collapsable, use following code: 
+            // $("#collapseIcon").css('background-image', "url("+chrome.runtime.getURL('/images/collapseBlack1.svg')+")");
+            // $("#collapseIcon").hover(function() {
+            //     $("#collapseIcon").css('background-image', "url("+chrome.runtime.getURL('/images/collapseBlack1.svg')+")");
+            // }, function() {
+            //     $("#collapseIcon").css('background-image', "url("+chrome.runtime.getURL('/images/collapseGray1.svg')+")");
+            // })
+            $("#instructionsGraphicAutoRead").css('background-image', "url("+chrome.runtime.getURL('/images/instructionAutoRead.svg')+")");
+            $("#instructionsGraphicHighlight").css('background-image', "url("+chrome.runtime.getURL('/images/instructionHighlight.svg')+")");
+            $("#instructionsGraphicKeywordToggle").css('background-image', "url("+chrome.runtime.getURL('/images/instructionKeywordToggle.svg')+")");
+            $("#instructionsGraphicMove").css('background-image', "url("+chrome.runtime.getURL('/images/instructionMove.svg')+")");
+            $("#instructionsGraphicOnOff").css('background-image', "url("+chrome.runtime.getURL('/images/instructionOnOff.svg')+")");
+            $("#instructionsGraphicSentenceHop").css('background-image', "url("+chrome.runtime.getURL('/images/instructionSentenceHop.svg')+")");
+            $("#instructionsGraphicSpeed").css('background-image', "url("+chrome.runtime.getURL('/images/instructionSpeed.svg')+")");
+            $("#closeButton").css('background-image', "url("+chrome.runtime.getURL('/images/closeButton.svg')+")");
+
             // Setup exit button
-            let exitButton = document.getElementById("exitButton");
-            exitButton.addEventListener("click", this.toggleUI.bind(this));
+            let closeButton = document.getElementById("closeButton");
+            closeButton.addEventListener("click", this.toggleUI.bind(this));
 
             // Setup click listeners for all setting buttons.
             for (const [k1, settingKeyStr] of Object.entries(trackerSettingKey)) {
@@ -160,6 +180,7 @@ class SettingsView {
                     });
                 }
             }
+            
 
             this.loadSettings();
             // Set UI status to true
@@ -170,7 +191,119 @@ class SettingsView {
     defineUiHtml() {
         this.uiHtml = this.uiHtml = `
         <div id="uiContainer">
-            <svg width="100%" height="100%" viewBox="0 0 2031 1167" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;">
+            <div id="closeButton"></div>
+            <div id="uiSections">
+                <div id="customizeContainer">
+                        <div id="customizeSectionTitle">
+                            <div id="collapseIcon"></div>
+                            KEYWORDS
+                        </div>
+                        <div id="keywordsOptions">
+                            <div class="keywordsButton" id="keywordsLightButton">LIGHT</div>
+                            <div class="keywordsButton" id="keywordsBrightButton">BRIGHT</div>
+                            <div class="keywordsButton" id="keywordsOffButton">OFF</div>
+                        </div>
+                </div>
+                <div id="instructionsContainer">
+                    <div id="uiInstructionsTitle">INSTRUCTIONS</div>
+                    <div id="instructionsSectionContainer">
+                        <div id="instructionGroupOne">
+                            <div class="instructionsComponent">
+                                <div class="instructionsName">ON/OFF</div>
+                                <div id="instructionsGraphicOnOff"></div>
+                            </div>
+                        </div>
+                        <div id="instructionGroupTwo">
+                            <div class="instructionsComponent">
+                                <div class="instructionsName">MOVE</div>
+                                <div id="instructionsGraphicMove"></div>
+                            </div>
+                            <div class="instructionsComponent">
+                                <div class="instructionsName">SENTENCE HOP</div>
+                                <div id="instructionsGraphicSentenceHop"></div>
+                            </div>
+                        </div>
+                        <div id="instructionGroupThree">
+                            <div class="instructionsComponent">
+                                <div class="instructionsName">AUTO - READ</div>
+                                <div id="instructionsGraphicAutoRead"></div>
+                            </div>
+                            <div class="instructionsComponent">
+                                <div class="instructionsName">SPEED</div>
+                                <div id="instructionsGraphicSpeed"></div>
+                            </div>
+                        </div>
+                        <div id="instructionGroupFour">
+                            <div class="instructionsComponent">
+                                <div class="instructionsName">HIGHLIGHT</div>
+                                <div id="instructionsGraphicHighlight"></div>
+                            </div>
+                            <div class="instructionsComponent">
+                                <div class="instructionsName">TOGGLE KEYWORDS</div>
+                                <div id="instructionsGraphicKeywordToggle"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // console.log($(".collapseIcon"));
+    // // let collapseLogo = chrome.runtime.getURL('/collapseBlack1.svg');
+    // let oneStar = chrome.runtime.getURL('/collapseBlack1.svg');
+    // let twoStar = chrome.runtime.getURL('/collapseBlack1.svg');
+    // let threeStar = chrome.runtime.getURL('/collapseBlack1.svg');
+    // console.log(twoStar);
+    // $(".instructionsLevelOne").css("src", oneStar); 
+    // $(".instructionsLevelTwo").css("background-image", twoStar); 
+    // $(".intstructionsLevelThree").css("background-image", threeStar); 
+    }
+}
+
+// TODO: Support all combinations after refacotring is complete.
+// Supported values for each setting key.
+var SUPPORTED_SETTINGS = {
+    [trackerSettingKey.KEYWORD]: new Set([
+        trackerSettingValue.GREEN,
+        trackerSettingValue.YELLOW,
+        trackerSettingValue.OFF
+        ]),
+    [trackerSettingKey.HIGHLIGHTER]: new Set([
+        trackerSettingValue.BLUE,
+        trackerSettingValue.YELLOW,
+        trackerSettingValue.GREEN
+        ]),
+    [trackerSettingKey.SHADOW]: new Set([
+        trackerSettingValue.BLUE,
+        trackerSettingValue.YELLOW,
+        trackerSettingValue.GREEN
+        ])
+};
+function isSettingPairSupported(settingKey, settingValue) {
+    return SUPPORTED_SETTINGS[settingKey].has(settingValue);
+}
+
+
+// Capitalize the first letter and lower case the rest.
+function pascalCase(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+
+// Expose to global.
+window.SettingsView = SettingsView;
+window.TrackerStyle = TrackerStyle;
+})(); // End of namespace
+
+
+/*
+
+
+
+
+
+
+           <svg width="100%" height="100%" viewBox="0 0 2031 1167" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;">
                 <g transform="matrix(1,0,0,1,-4102.57,553.328)">
                     <g>
                         <g transform="matrix(1,0,0,1,-686.643,490.58)">
@@ -320,42 +453,10 @@ class SettingsView {
                     </g>
                 </g>
             </svg>
-        </div>
-    `;
-    }
-    
-}
-
-// TODO: Support all combinations after refacotring is complete.
-// Supported values for each setting key.
-var SUPPORTED_SETTINGS = {
-    [trackerSettingKey.KEYWORD]: new Set([
-        trackerSettingValue.GREEN,
-        trackerSettingValue.YELLOW,
-        trackerSettingValue.OFF
-        ]),
-    [trackerSettingKey.HIGHLIGHTER]: new Set([
-        trackerSettingValue.BLUE,
-        trackerSettingValue.YELLOW,
-        trackerSettingValue.GREEN
-        ]),
-    [trackerSettingKey.SHADOW]: new Set([
-        trackerSettingValue.BLUE,
-        trackerSettingValue.YELLOW,
-        trackerSettingValue.GREEN
-        ])
-};
-function isSettingPairSupported(settingKey, settingValue) {
-    return SUPPORTED_SETTINGS[settingKey].has(settingValue);
-}
 
 
-// Capitalize the first letter and lower case the rest.
-function pascalCase(str) {
-    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-}
 
-// Expose to global.
-window.SettingsView = SettingsView;
-window.TrackerStyle = TrackerStyle;
-})(); // End of namespace
+
+
+
+*/
