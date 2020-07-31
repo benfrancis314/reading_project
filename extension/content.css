@@ -1,11 +1,3 @@
-mark {
-	color: inherit !important;
-	/* Without below line, all text would be yellow bc it has mark */
-	background-color: inherit !important;
-	font-style: inherit !important;
-	font-weight: inherit !important;
-}
-
 readerease-sentence {
 	background-color: inherit !important;
 }
@@ -15,82 +7,35 @@ readerease-sentence {
 }
 
 .persistentHighlight {
-	background-color: yellow !important;
+	background-color: #FEE715 !important; /* Bright yellow */
 }
 
-/* SHADOW, HIGHLIGHTER, and KEYWORD CSS */
-.sentenceHighlighterBlueShadowBlue {
-	/* TODO: Integrate different color scheme. Keeping values here for near-term future use */
-	/* Without this !important, it won't override mark background-color !important (see above for reasoning for this) */
-	background-color:rgb(230, 239, 253) !important; /* Light Blue highlighter */
-	/* TODO: Integrate different color scheme. Keeping values here for near-term future use */
-	 /* box-shadow: 1pt 1pt 3pt 1pt rgb(187, 187, 187); Gray shadow */
-	box-shadow: 1pt 1pt 3pt 1pt rgb(0,220,255); /* Blue shadow */
-
-	transition: all 0.5s ease;
+/* SENTENCE TRACKER STYLING */
+.sentenceStyleOn {
+	background-color:rgb(255, 255, 255) !important;  /* White */
+	box-shadow: 2pt 2pt 3pt 1pt rgb(0, 0, 0, 0.45); /* Transparent black */
+	transition: all 0.5s ease 0s;
 }
-.sentenceHighlighterBlueShadowYellow {
-	background-color:rgb(230, 239, 253) !important; /* Light Blue highlighter */
-	box-shadow: 1pt 1pt 3pt 1pt yellow; /* Yellow shadow */
-	transition: all 0.5s ease;
+.sentenceStyleOff {
+	background-color:rgba(255, 255, 255, 0); /* Transparent */
+	transition: all 0.5s ease 0s;
 }
-.sentenceHighlighterBlueShadowGreen {
-	background-color:rgb(230, 239, 253) !important; /* Light Blue highlighter */
-	box-shadow: 1pt 1pt 3pt 1pt rgb(171, 252, 164); /* Green shadow */
-	transition: all 0.5s ease;
+.keyWordLight {
+	background-color: rgb(255, 248, 185) !important; /* Light yellow */
+	transition: all 0.5s ease 0s;
 }
-.sentenceHighlighterYellowShadowBlue {
-	background-color:yellow !important; /* Yellow highlighter */
-	box-shadow: 1pt 1pt 3pt 1pt rgb(0,220,255); /* Blue shadow */
-	transition: all 0.5s ease;
-}
-.sentenceHighlighterYellowShadowYellow {
-	background-color:yellow !important; /* Yellow highlighter */
-	box-shadow: 1pt 1pt 3pt 1pt yellow; /* Yellow shadow */
-	transition: all 0.5s ease;
-}
-.sentenceHighlighterYellowShadowGreen {
-	background-color:yellow !important; /* Yellow highlighter */
-	box-shadow: 1pt 1pt 3pt 1pt rgb(171, 252, 164); /* Green shadow */
-	transition: all 0.5s ease;
-}
-.sentenceHighlighterGreenShadowBlue {
-	background-color:rgb(171, 252, 164) !important; /* Green highlighter */
-	box-shadow: 1pt 1pt 3pt 1pt rgb(0,220,255); /* Blue shadow */
-	transition: all 0.5s ease;
-}
-.sentenceHighlighterGreenShadowYellow {
-	background-color:rgb(171, 252, 164) !important; /* Green highlighter */
-	box-shadow: 1pt 1pt 3pt 1pt yellow; /* Yellow shadow */
-	transition: all 0.5s ease;
-}
-.sentenceHighlighterGreenShadowGreen {
-	background-color:rgb(171, 252, 164) !important; /* Green highlighter */
-	box-shadow: 1pt 1pt 3pt 1pt rgb(171, 252, 164); /* Green shadow */
-	transition: all 0.5s ease;
-}
-.sentenceHighlighternullShadownull {
-	background-color:rgb(252, 185, 164) !important; /* Green highlighter */
-	box-shadow: 1pt 1pt 3pt 1pt rgb(252, 164, 164); /* Green shadow */
-	transition: all 0.5s ease;
-}
-.keyWordGreen {
-	background-color:rgb(171, 252, 164) !important; /* Nancy personally chose this green color: */
-	transition: all 0.5s ease;
-}
-.keyWordYellow {
-	background-color: yellow !important;
-	transition: all 0.5s ease;
+.keyWordBright {
+	background-color: hsl(54, 99%, 54%) !important; /* Bright yellow */
+	transition: all 0.5s ease 0s;
 }
 .keyWordOff {
-	transition: all 0.5s ease;
-	background-color: rgba(255, 255, 0, 0) !important;
-	/* This purposely doesn't highlight anything
-	TODO: Instead of "doign nothing", disable the keyword process to increase efficiency. */
+	background-color: rgba(255, 255, 255, 0) !important; /* Transparent */
+	transition: all 0.5s ease 0s;
 }
 /* END */
 
 
+/* READING TIMER DISPLAY STYLING */
 #readingDisplayContainer {
 	position: fixed; 
 	top: 2%;
@@ -102,8 +47,8 @@ readerease-sentence {
 }
 #timerContainer {
 	width: 100%;
-	box-shadow: 0pt 1pt 1pt 1pt rgba(104, 104, 104, 0.801);
-	background-color: rgba(255, 255, 255, 0.95);
+	box-shadow: 0pt 1pt 1pt 1pt rgba(104, 104, 104, 0.801); /* Transparent gray */
+	background-color: rgba(255, 255, 255, 0.95); /* Transparent white */
 	border-radius: 5px;
 }
 #speedContainer {
@@ -113,8 +58,8 @@ readerease-sentence {
 	width: 75%;
 	transition: all 0.5 ease;
 	border-radius: 5px;
-	box-shadow: 0pt 1pt 1pt 1pt rgba(104, 104, 104, 0.801);
-	background-color: rgba(255, 255, 255, 0.95);
+	box-shadow: 0pt 1pt 1pt 1pt rgba(104, 104, 104, 0.801); /* Transparent gray */
+	background-color: rgba(255, 255, 255, 0.95); /* Transparent white */
 }
 #timerInsideContainer {
 	width: 100%;
@@ -135,7 +80,7 @@ readerease-sentence {
 	padding: 2px 0px;
 	margin: 0 auto;
 	width: 100%;
-	background-color: rgba(0, 220, 255, 0.15);
+	background-color: rgba(119, 163, 235, 0.15); /* Light blue */
 	color: #162341;
 	text-align: center;
 	letter-spacing: 1px;
@@ -162,64 +107,194 @@ readerease-sentence {
 	transform: rotate(180deg);
 }
 #optionsButton:hover svg g g #gear {
-	fill: rgba(0,220,255,0.5) !important;
+	fill: #77a3eb !important; /* "HTML Link Blue" */
 	transition: all 0.5s ease;
-	stroke: rgba(0,220,255,1);
+	stroke: #77a3eb; /* "HTML Link Blue" */
 	stroke-width: 5px;
 }
 #gear {
-	fill: rgb(128, 128, 128) !important;
+	fill: rgb(128, 128, 128) !important; /* Gray */
 	transition: all 0.5s ease;
 	stroke-width: 0px;
 }
 #gear:hover {
 	transition: all 0.5 ease;
 }
+
+/* UI DISPLAY STYLING */
 #uiContainer {
-	width: 30%;
+	width: 20%;
 	position: fixed;
 	z-index: 10002;
 	top: 2%;
-	right: 3%;
+	right: 10%;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;	
 }
-#exitButton, #exitButtonBorder, #exitButtonText {
+#closeButton {
+	position: absolute;
+	top: 5px;
+	left: -40px;
+	transition: all 0.5s ease;
+	width: 10px;
+	height: 10px;
+	opacity: 0.5;
+	background-position: center center;
+	background-size: 80%;
+	background-repeat: no-repeat;
+	background-color: rgba(255, 255, 255, 0.95); /* Transparent white */
+	box-shadow: 0 0 1pt 1pt black;
+	padding: 10px;
+	border-radius: 15px;
+}
+#closeButton:hover {
+	transform: scale(1.1);
+	opacity: 1;
+	cursor: pointer;
+	box-shadow: 0 0 2pt 1pt black;
+}
+#uiSections {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	width: 100%;
+}
+#customizeContainer {
+	margin: 0 auto;
+	padding: 5%;
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	background-color: rgba(252, 252, 252, 0.95); /* Transparent white */
+	border-radius: 15px;
+	margin-bottom: 5%;
+	box-shadow: 0px 2px 3pt 2px rgb(0, 0, 0, 0.5); /* Transparent black */
+}
+#keywordsTitle {
+	position: relative;
+	font-size: 80%;
+	text-align: center;
+	width: 50%;
+	margin: 0 auto;
+	font-family: 'Montserrat';
+	border: 1px solid #afafaf96;
+	border-width: 0px 0px 1px 0px;
+	padding-bottom: 2px;
+
+}
+#collapseIcon {
+	position: absolute;
+	top: 10px;
+	left: 10px;
+	width: 7.5%;
+	height: 7.5%;
+	background-position: center center;
+	background-size: contain;
+	background-repeat: no-repeat;
 	transition: all 0.5s ease;
 }
-#exitButton:hover {
-	transform: scale(1.005) matrix(3.54031e-17,-0.574888,0.574888,3.54031e-17,5493.27,3411.7);
+#collapseIcon:hover {
+	transform: scale(1.3);
 	cursor: pointer;
 }
-#exitButton:hover #exitButtonBorder {
-	stroke-width: 30px !important;
-	fill-opacity: 0.93 !important;
+#keywordsOptions {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-evenly;
+	padding-top: 4%;
 }
-#exitButton:hover #exitButtonText {
+.keywordsButton {
+	padding: 3px;
+	border: 0px solid #6464649a;
+	border-radius: 5px;
+	width: 25%;
+	text-align: center;
+	font-family: 'Montserrat';
+	font-size: 75%;
+	transition: all 0.5s ease, font-weight 0s ease;
+	opacity: 0.75;
+	box-shadow: 0pt 0.5pt 0.5pt 0.5pt rgb(0, 0, 0, 0.35); /* Transparent black */
 }
-#customKeywordGreen,#customKeywordYellow,#customKeywordOff,#customKeywordOffText,
-#customHighlighterBlue,#customHighlighterYellow,#customHighlighterGreen, 
-#customShadowBlue, #customShadowYellow, #customShadowGreen {
-	transition: all 0.5s ease;
+.keywordsButton:hover {
+	cursor: pointer !important;
+	opacity: 1 !important;
+	transform: scale(1.02) !important;
+	box-shadow: 0pt 1pt 1pt 1pt rgb(0, 0, 0, 0.5) !important; /* Transparent black */
 }
-#customKeywordGreen:hover,#customKeywordYellow:hover,
-#customHighlighterBlue:hover,#customHighlighterYellow:hover,#customHighlighterGreen:hover, 
-#customShadowBlue:hover, #customShadowYellow:hover, #customShadowGreen:hover {
-	stroke-width: 5px !important;
-	stroke-opacity: 1 !important;
-	fill-opacity: 1 !important;
-	cursor: pointer;
+#buttonKeywordLight {
+	background-color: rgb(255, 248, 185); /* Light yellow */
 }
-#customKeywordOff:hover {
-	stroke-width: 5px !important;
-	stroke-opacity: 1 !important;
-	cursor: pointer;
-	fill-opacity: 0.5 !important;
+#buttonKeywordBright {
+	background-color: rgb(254, 231, 22);  /* Bright yellow */
 }
-#customKeywordOffText:hover {
-	fill-opacity: 0 !important;
-	fill: #00dcff !important;
-	font-size:45px;
+#buttonKeywordOff {
+	background-color: #ffffff;
+}
+#instructionsContainer {
+	margin: 0 auto;
+	display: flex;
+	flex-direction: column;
+	padding-top: 5%;
+	width: 110%;
+	background-color: rgba(252, 252, 252, 0.95); /* Transparent white */
+	border-radius: 15px;
+	margin-bottom: 5%;
+	box-shadow: 0px 2px 3pt 2px rgb(0, 0, 0, 0.5);  /* Transparent black */
+}
+#instructionsTitle {
+	position: relative;
+	font-size: 80%;
+	text-align: center;
+	width: 100%;
+	margin: 0 auto;
+	font-family: 'Montserrat';
+	border: 1px solid #afafaf96; /* Light gray */
+	border-width: 0px 0px 1px 0px;
+	padding-bottom: 2px;
 }
 
+#instructionsSection {
+	display: flex;
+	flex-direction: column;
+}
+.instructionsName {
+	font-family: 'Montserrat';
+	font-weight: 700;
+	text-align: center;
+	font-size: 70%;
+	margin: 0 auto;
+	padding-top: 5%;
+	padding-bottom: 2%;
+}
+#instructionsGraphicOnOff, #instructionsGraphicMove, #instructionsGraphicSentenceHop, 
+#instructionsGraphicAutoRead, #instructionsGraphicSpeed, #instructionsGraphicHighlight, 
+#instructionsGraphicKeywordToggle {
+	margin: 0 auto;
+	height: 25px;
+	width: 100px;
+	background-position: center center;
+	background-size: contain;
+	background-repeat: no-repeat;
+	transition: all 0.5s ease;
+}
+#instructionsGraphicSentenceHop {
+	width: 20%;
+}
+#instructionGroupOne, #instructionGroupTwo, #instructionGroupThree, #instructionGroupFour {
+	box-shadow: 0pt 2pt 2pt 1pt rgba(0, 0, 0, 0.2); /* Transparent black */
+	padding-bottom: 5%;
+}
+#instructionGroupOne, #instructionGroupThree {
+	background-color: rgb(235, 235, 235, 0.9); /* Transparent light gray/white */
+}
+#instructionGroupTwo, #instructionGroupFour {
+	background-color: rgba(215, 215, 215, 0.9); /* Transparent medium gray/white */
+}
+#instructionGroupFour {
+	border-width: 0px;
+	border-radius: 0px 0px 15px 15px;
+}
 
 
 /* CSS FONTS */
