@@ -23,14 +23,11 @@ const settingKey = {
 // It is represented by the dictionary {trackerSettingKey : trackerSettingValue}
 // All of the keys are mapped to a value.
 const trackerSettingKey = {
-	KEYWORD: "keyword",
-	HIGHLIGHTER: "highlighter",
-	SHADOW: "shadow"
+	KEYWORD: "keyword"
 }
 const trackerSettingValue = {
-	GREEN: "green",
-	YELLOW: "yellow",
-	BLUE: "blue",
+	LIGHT: "light",
+	BRIGHT: "bright",
 	OFF: "off"
 }
 
@@ -148,9 +145,7 @@ class Settings {
 	// See setDefaultTrackerSettigns().
 	getDefaultTrackerSettings() {
 		return {
-			[trackerSettingKey.KEYWORD] : trackerSettingValue.GREEN,
-			[trackerSettingKey.HIGHLIGHTER]: trackerSettingValue.BLUE,
-			[trackerSettingKey.SHADOW]: trackerSettingValue.BLUE
+			[trackerSettingKey.KEYWORD] : trackerSettingValue.LIGHT
 		};
 	}	
 	

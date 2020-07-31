@@ -15,29 +15,30 @@ readerease-sentence {
 }
 
 .persistentHighlight {
-	background-color: #FEE715 !important;
+	background-color: #FEE715 !important; /* Bright yellow */
 }
 
-/* SENTENCE STYLING CSS */
+/* SENTENCE TRACKER STYLING */
 .sentenceStyleOn {
-	background-color:rgb(250, 250, 250) !important; 
-	/* background-color:rgba(226, 226, 226, 0.062) !important; */
-	box-shadow: 2pt 2pt 3pt 1pt rgb(0, 0, 0, 0.35);
+	background-color:rgb(255, 255, 255) !important;  /* White */
+	box-shadow: 2pt 2pt 3pt 1pt rgb(0, 0, 0, 0.45); /* Transparent black */
+	transition: all 0.5s ease 0s;
 }
 .sentenceStyleOff {
-	background-color:rgba(255, 255, 255, 0) !important;
+	background-color:rgba(255, 255, 255, 0); /* Transparent */
+	transition: all 0.5s ease 0s;
 }
 .keyWordLight {
-	background-color: rgb(255, 248, 185) !important;
+	background-color: rgb(255, 248, 185) !important; /* Light yellow */
+	transition: all 0.5s ease 0s;
 }
 .keyWordBright {
-	background-color: hsl(54, 99%, 54%) !important;
+	background-color: hsl(54, 99%, 54%) !important; /* Bright yellow */
+	transition: all 0.5s ease 0s;
 }
 .keyWordOff {
-	background-color: rgba(255, 255, 0, 0) !important;
-}
-.transitionSmooth {
-	transition: all 0.5s ease;
+	background-color: rgba(255, 255, 255, 0) !important; /* Transparent */
+	transition: all 0.5s ease 0s;
 }
 /* END */
 
@@ -54,8 +55,8 @@ readerease-sentence {
 }
 #timerContainer {
 	width: 100%;
-	box-shadow: 0pt 1pt 1pt 1pt rgba(104, 104, 104, 0.801);
-	background-color: rgba(255, 255, 255, 0.95);
+	box-shadow: 0pt 1pt 1pt 1pt rgba(104, 104, 104, 0.801); /* Transparent gray */
+	background-color: rgba(255, 255, 255, 0.95); /* Transparent white */
 	border-radius: 5px;
 }
 #speedContainer {
@@ -65,8 +66,8 @@ readerease-sentence {
 	width: 75%;
 	transition: all 0.5 ease;
 	border-radius: 5px;
-	box-shadow: 0pt 1pt 1pt 1pt rgba(104, 104, 104, 0.801);
-	background-color: rgba(255, 255, 255, 0.95);
+	box-shadow: 0pt 1pt 1pt 1pt rgba(104, 104, 104, 0.801); /* Transparent gray */
+	background-color: rgba(255, 255, 255, 0.95); /* Transparent white */
 }
 #timerInsideContainer {
 	width: 100%;
@@ -87,7 +88,7 @@ readerease-sentence {
 	padding: 2px 0px;
 	margin: 0 auto;
 	width: 100%;
-	background-color: rgba(0, 220, 255, 0.15);
+	background-color: rgba(0, 220, 255, 0.15); /* Light blue */
 	color: #162341;
 	text-align: center;
 	letter-spacing: 1px;
@@ -114,13 +115,13 @@ readerease-sentence {
 	transform: rotate(180deg);
 }
 #optionsButton:hover svg g g #gear {
-	fill: rgb(0, 0, 0) !important;
+	fill: #77a3eb !important; /* "HTML Link Blue" */
 	transition: all 0.5s ease;
-	stroke: rgb(0, 0, 0);
+	stroke: #77a3eb; /* "HTML Link Blue" */
 	stroke-width: 5px;
 }
 #gear {
-	fill: rgb(128, 128, 128) !important;
+	fill: rgb(128, 128, 128) !important; /* Gray */
 	transition: all 0.5s ease;
 	stroke-width: 0px;
 }
@@ -128,7 +129,7 @@ readerease-sentence {
 	transition: all 0.5 ease;
 }
 
-/* UI CONTAINER */
+/* UI DISPLAY STYLING */
 #uiContainer {
 	width: 20%;
 	position: fixed;
@@ -141,17 +142,17 @@ readerease-sentence {
 }
 #closeButton {
 	position: absolute;
-	top: 10px;
-	left: -60px;
+	top: 5px;
+	left: -40px;
 	transition: all 0.5s ease;
-	width: 20px;
-	height: 20px;
+	width: 10px;
+	height: 10px;
 	opacity: 0.5;
 	background-position: center center;
 	background-size: 80%;
 	background-repeat: no-repeat;
-	background-color: rgba(255, 255, 255, 0.95);
-	box-shadow: 0 0 1pt 1pt red;
+	background-color: rgba(255, 255, 255, 0.95); /* Transparent white */
+	box-shadow: 0 0 1pt 1pt black;
 	padding: 10px;
 	border-radius: 15px;
 }
@@ -159,7 +160,7 @@ readerease-sentence {
 	transform: scale(1.1);
 	opacity: 1;
 	cursor: pointer;
-	box-shadow: 0 0 2pt 1pt red;
+	box-shadow: 0 0 2pt 1pt black;
 }
 #uiSections {
 	display: flex;
@@ -173,12 +174,12 @@ readerease-sentence {
 	display: flex;
 	flex-direction: column;
 	width: 100%;
-	background-color: rgba(252, 252, 252, 0.95);
+	background-color: rgba(252, 252, 252, 0.95); /* Transparent white */
 	border-radius: 15px;
 	margin-bottom: 5%;
-	box-shadow: 0px 2px 3pt 2px rgb(0, 0, 0, 0.5);
+	box-shadow: 0px 2px 3pt 2px rgb(0, 0, 0, 0.5); /* Transparent black */
 }
-#customizeSectionTitle {
+#keywordsTitle {
 	position: relative;
 	font-size: 80%;
 	text-align: center;
@@ -188,7 +189,6 @@ readerease-sentence {
 	border: 1px solid #afafaf96;
 	border-width: 0px 0px 1px 0px;
 	padding-bottom: 2px;
-	/* font-weight: 700; */
 
 }
 #collapseIcon {
@@ -220,24 +220,23 @@ readerease-sentence {
 	text-align: center;
 	font-family: 'Montserrat';
 	font-size: 75%;
-	transition: all 0.5s ease;
+	transition: all 0.5s ease, font-weight 0s ease;
 	opacity: 0.75;
-	box-shadow: 0pt 0.5pt 0.5pt 0.5pt rgb(0, 0, 0, 0.35);
+	box-shadow: 0pt 0.5pt 0.5pt 0.5pt rgb(0, 0, 0, 0.35); /* Transparent black */
 }
 .keywordsButton:hover {
-	cursor: pointer;
-	opacity: 1;
-	transform: scale(1.02);
-	box-shadow: 0pt 1pt 1pt 1pt rgb(0, 0, 0, 0.5);
-	font-weight: 700;
+	cursor: pointer !important;
+	opacity: 1 !important;
+	transform: scale(1.02) !important;
+	box-shadow: 0pt 1pt 1pt 1pt rgb(0, 0, 0, 0.5) !important; /* Transparent black */
 }
-#keywordsLightButton {
-	background-color: rgb(255, 248, 185);
+#buttonKeywordLight {
+	background-color: rgb(255, 248, 185); /* Light yellow */
 }
-#keywordsBrightButton {
-	background-color: rgb(254, 231, 22);
+#buttonKeywordBright {
+	background-color: rgb(254, 231, 22);  /* Bright yellow */
 }
-#keywordsOffsetButton {
+#buttonKeywordOff {
 	background-color: #ffffff;
 }
 #instructionsContainer {
@@ -246,19 +245,19 @@ readerease-sentence {
 	flex-direction: column;
 	padding-top: 5%;
 	width: 110%;
-	background-color: rgba(252, 252, 252, 0.95);
+	background-color: rgba(252, 252, 252, 0.95); /* Transparent white */
 	border-radius: 15px;
 	margin-bottom: 5%;
-	box-shadow: 0px 2px 3pt 2px rgb(0, 0, 0, 0.5);
+	box-shadow: 0px 2px 3pt 2px rgb(0, 0, 0, 0.5);  /* Transparent black */
 }
-#uiInstructionsTitle {
+#instructionsTitle {
 	position: relative;
 	font-size: 80%;
 	text-align: center;
 	width: 100%;
 	margin: 0 auto;
 	font-family: 'Montserrat';
-	/* border: 1px solid #afafaf96; */
+	border: 1px solid #afafaf96; /* Light gray */
 	border-width: 0px 0px 1px 0px;
 	padding-bottom: 2px;
 }
@@ -276,9 +275,6 @@ readerease-sentence {
 	padding-top: 5%;
 	padding-bottom: 2%;
 }
-
-
-
 #instructionsGraphicOnOff, #instructionsGraphicMove, #instructionsGraphicSentenceHop, 
 #instructionsGraphicAutoRead, #instructionsGraphicSpeed, #instructionsGraphicHighlight, 
 #instructionsGraphicKeywordToggle {
@@ -293,65 +289,20 @@ readerease-sentence {
 #instructionsGraphicSentenceHop {
 	width: 20%;
 }
-
 #instructionGroupOne, #instructionGroupTwo, #instructionGroupThree, #instructionGroupFour {
-	/* border: 1px solid #808080e7; */
-	/* border-width: 0px 0px 1px 0px; */
-	box-shadow: 0pt 2pt 2pt 1pt #00000033;
+	box-shadow: 0pt 2pt 2pt 1pt rgba(0, 0, 0, 0.2); /* Transparent black */
 	padding-bottom: 5%;
 }
-#instructionGroupOne {
-	background-color: rgb(235, 235, 235, 0.9);
+#instructionGroupOne, #instructionGroupThree {
+	background-color: rgb(235, 235, 235, 0.9); /* Transparent light gray/white */
 }
-#instructionGroupTwo {
-	background-color: rgba(215, 215, 215, 0.9);
-}
-#instructionGroupThree {
-	background-color: rgba(195, 195, 195, 0.9);
+#instructionGroupTwo, #instructionGroupFour {
+	background-color: rgba(215, 215, 215, 0.9); /* Transparent medium gray/white */
 }
 #instructionGroupFour {
-	background-color: rgba(175, 175, 175, 0.9);
 	border-width: 0px;
 	border-radius: 0px 0px 15px 15px;
 }
-
-
-
-/* #exitButton:hover {
-	transform: scale(1.005) matrix(3.54031e-17,-0.574888,0.574888,3.54031e-17,5493.27,3411.7);
-	cursor: pointer;
-}
-#exitButton:hover #exitButtonBorder {
-	stroke-width: 30px !important;
-	fill-opacity: 0.93 !important;
-}
-#exitButton:hover #exitButtonText {
-}
-#customKeywordGreen,#customKeywordYellow,#customKeywordOff,#customKeywordOffText,
-#customHighlighterBlue,#customHighlighterYellow,#customHighlighterGreen, 
-#customShadowBlue, #customShadowYellow, #customShadowGreen {
-	transition: all 0.5s ease;
-}
-#customKeywordGreen:hover,#customKeywordYellow:hover,
-#customHighlighterBlue:hover,#customHighlighterYellow:hover,#customHighlighterGreen:hover, 
-#customShadowBlue:hover, #customShadowYellow:hover, #customShadowGreen:hover {
-	stroke-width: 5px !important;
-	stroke-opacity: 1 !important;
-	fill-opacity: 1 !important;
-	cursor: pointer;
-}
-#customKeywordOff:hover {
-	stroke-width: 5px !important;
-	stroke-opacity: 1 !important;
-	cursor: pointer;
-	fill-opacity: 0.5 !important;
-}
-#customKeywordOffText:hover {
-	fill-opacity: 0 !important;
-	fill: #00dcff !important;
-	font-size:45px;
-} */
-
 
 
 /* CSS FONTS */
