@@ -403,7 +403,7 @@ function setupKeyListeners() {
 		}
 
 		// Disable browser's default behavior of page-downing on space.
-		if (evt.code == 'Space' && evt.target == document.body) {
+		if ((evt.code == 'Space' && evt.target == document.body)||(evt.code == 'ArrowDown' && evt.target == document.body)||(evt.code == 'ArrowUp' && evt.target == document.body)) {
 		    evt.preventDefault();
 		}
 
@@ -417,10 +417,10 @@ function setupKeyListeners() {
 				stopMove();
                 moveOneDebounced(direction.FORWARD);
 				break;
-			case 'KeyD':	// Increase velocity
+			case 'ArrowUp':	// Increase velocity
 				adjustSpeed(40, wpmDisplay);			
 				break;
-			case 'KeyS':	// Slow velocity
+			case 'ArrowDown':	// Slow velocity
 				adjustSpeed(-40, wpmDisplay);			
 				break;
 			case 'Space': // Switch to auto mode
@@ -435,6 +435,9 @@ function setupKeyListeners() {
 				}
 				break;
 			case 'ShiftRight':
+				persistentHighlight();
+				break;
+			case 'ShiftLeft':
 				persistentHighlight();
 				break;
 			case 'Slash':
