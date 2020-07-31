@@ -7,8 +7,6 @@ if (window[namespace] === true) {
     window[namespace] = true;
 }
 
-// Access to settings
-var settings = null;
 var trackerStyle = null;
 
 /*
@@ -42,17 +40,17 @@ UI for showing instructions and customizing tracker and keyword colors.
 */
 class SettingsView {
     
-    constructor() {
+    constructor(settings) {
         this.uiStatus = false; // Is the UI (Instructions & Customizations) ON or OFF?
         this.uiHtml = null; // HTML for the UI (instructions & customizations)
         
         // TODO: Do this in a better way
         // Setting these here instead of beginning of file bc need to wait due to async problems,
         // window.trackerStyle is not ready if set in beginning of file, is ready if set here
-        settings = window.settings;
+        this.settings = settings;
         trackerStyle = window.trackerStyle;
 
-        this.trackerSetting = settings.getDefaultTrackerSettings();
+        this.trackerSetting = settings.getCustomizations();
         this.defineUiHtml();
         this.setHtmlListeners(); 
         this.loadSettings();
@@ -73,25 +71,20 @@ class SettingsView {
     changeSetting(settingKey, settingValue) {
         let oldSettingValue = this.trackerSetting[settingKey];
         this.trackerSetting[settingKey] = settingValue;
-        var self = this;
-        settings.setCustomizations(this.trackerSetting, function() {
-            self.redrawTracker();
-            self.redrawOneSetting(settingKey, oldSettingValue, settingValue);
-        });
+        this.settings.setCustomizations(this.trackerSetting);
+        this.redrawTracker();
+        this.redrawOneSetting(settingKey, oldSettingValue, settingValue);
     }
      
     /*
     Read settings from storage, then redraw the entire settings UI and tracker.
     */
     loadSettings() {
-        var self = this;
-        settings.getCustomizations(function(trackerSetting) {
-            self.trackerSetting = trackerSetting;            
-            self.redrawTracker();
-            for (const [key, value] of Object.entries(trackerSettingKey)) {
-                self.redrawOneSetting(key, null, self.trackerSetting[value]);
-            }
-        });
+        this.trackerSetting = this.settings.getCustomizations();
+        this.redrawTracker();
+        for (const [key, value] of Object.entries(trackerSettingKey)) {
+            this.redrawOneSetting(key, null, this.trackerSetting[value]);
+        }
     }
 
     // Get the el id of the button element corresponding to a single

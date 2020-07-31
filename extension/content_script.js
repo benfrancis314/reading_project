@@ -49,8 +49,8 @@ var doc = null;
 var timer = null;
 // This will be read once from persistent settings during initialization. 
 let speed = null; // WPM, Base speed, not accounting for sentence length; adjustable w/ D/S
-// Persistent settings.
-let settings = window.settings;
+// Persistent settings of type Settings. Initialized in oneTimeSetup()
+let settings = null;
 // Current animation state, to ensure we are not doing multiple animations at once.
 var animationState = animationEnum.NONE;
 
@@ -433,9 +433,7 @@ function initializeTracker() {
 }
 
 function updateDisplaySettings() {
-	settings.getCustomizations(function(settingsCustomizations) {
-		initializeTracker(settingsCustomizations)
-	});
+	initializeTracker(settings.getCustomizations());
 }
 
   
@@ -463,19 +461,20 @@ In the INACTIVE state, the widgets are not visible, and no event handlers are at
 
 // One time setup per page.
 function oneTimeSetup() {
-	let readableDomEls = window.parseDocument();
-	doc = new Doc(readableDomEls);
-	// TODO: Refactor/move this, it currently can't run bc doc isn't ready
-	// If page is not readable, stop setting up the rest of the app.
-	// if (doc.sentences.length === 0) {
-	// 	debug("Stopping app init because page is not readable");
-	// 	return;
-	// }
-	tracker = new Tracker(doc);
 	// TODO: Refactor using promise logic so this is more readable.
 	// Load all the persistent settings, then render the UI.
-	settings.getSpeed(function(settingsSpeed) {
-		speed = settingsSpeed;
+	settings = new window.Settings(function() {
+		let readableDomEls = window.parseDocument();
+		doc = new Doc(readableDomEls, settings);
+		// TODO: Refactor/move this, it currently can't run bc doc isn't ready
+		// If page is not readable, stop setting up the rest of the app.
+		// if (doc.sentences.length === 0) {
+		// 	debug("Stopping app init because page is not readable");
+		// 	return;
+		// }
+		tracker = new Tracker(doc);
+		speed = settings.getSpeed(); 
+			
 		// Listen for background.js toggle pings.
 		chrome.runtime.onMessage.addListener(
 			function(request, sender, sendResponse) {
@@ -485,7 +484,6 @@ function oneTimeSetup() {
 			}
 		);
 	});
-
 }
 /*
 Render all the UI elements.
@@ -494,7 +492,7 @@ function setupUI() {
 	timeTrackerView = new TimeTrackerView(doc, speed);
 	trackerStyle = new TrackerStyle(); // 
 	window.trackerStyle = trackerStyle; // Expose to global
-	settingsView = new SettingsView();
+	settingsView = new SettingsView(settings);
 	
 	updateDisplaySettings();
   
