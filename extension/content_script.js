@@ -71,14 +71,6 @@ const sentenceStyleOff = "sentenceStyleOff";
 // Class for persistent highlighter
 const persistentHighlightClass = "persistentHighlight";
 
-
-/*
-Process of determining which style to use. 
-TODO: Redo this using CSS variable or something. 
-Problem is that highlighter and shadow need to be in the same ID;
-not scalable right now to more customizable settings that effect the tracker. 
-*/
-
 // Possible reading directions.
 const direction = {
     BACKWARD: 0,
@@ -132,7 +124,6 @@ Parameters:
 - dir. See direction enum.
 */
 
-// TODO: Maybe refactor so it doesn't [____?] when turn on automode?
 function startMove(dir) { // Note: I have combined the "moveUp" and "moveDown" functions here
 	if (timer) {
 		return;
@@ -277,8 +268,8 @@ Undo all actions by highlight() and highlightKeyWords().
 function unhighlightEverything() {
 	if (tracker.isTracking()) {
 		let sentenceId = tracker.getSentenceId();
-		doc.getSentenceEls(tracker.getSentenceId()).removeClass(sentenceStyleOn);
-		doc.getSentenceKeywordsEls(tracker.getSentenceId()).removeClass(trackerStyle.getKeywordStyle());
+		doc.getSentenceEls(sentenceId).removeClass(sentenceStyleOn);
+		doc.getSentenceKeywordsEls(sentenceId).removeClass(trackerStyle.getKeywordStyle());
 	}
 	highlightedSentenceId = null;
 	$("."+persistentHighlightClass).removeClass(persistentHighlightClass);
@@ -391,7 +382,7 @@ function adjustSpeed(speedDelta, wpmDisplay) {
 /*
 Used to cycle keywords through the three different keyword setting options. 
 */
-function toggleKeywords() {
+function toggleKeywordSettings() {
 	let currentKeywordStyle = settingsView.trackerSetting['keyword'];
 	if (currentKeywordStyle == 'off') { 
 		settingsView.changeSetting('keyword', 'light'); 
@@ -447,7 +438,7 @@ function setupKeyListeners() {
 				persistentHighlight();
 				break;
 			case 'Slash':
-				toggleKeywords();
+				toggleKeywordSettings();
 				break;
 			default:
                 break;

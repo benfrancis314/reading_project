@@ -1,11 +1,3 @@
-/* TODO: Is this needed anymore? Remove if not */
-mark {
-	color: inherit !important;
-	background-color: inherit !important;
-	font-style: inherit !important;
-	font-weight: inherit !important;
-}
-
 readerease-sentence {
 	background-color: inherit !important;
 }
@@ -88,7 +80,7 @@ readerease-sentence {
 	padding: 2px 0px;
 	margin: 0 auto;
 	width: 100%;
-	background-color: rgba(0, 220, 255, 0.15); /* Light blue */
+	background-color: rgba(119, 163, 235, 0.15); /* Light blue */
 	color: #162341;
 	text-align: center;
 	letter-spacing: 1px;

@@ -62,8 +62,6 @@ class SettingsView {
     - settingValue: trackerSettingValue 
     */
     changeSetting(settingKey, settingValue) {
-        console.log(settingKey);
-        console.log(settingValue);
         let oldSettingValue = this.trackerSetting[settingKey];
         this.trackerSetting[settingKey] = settingValue;
         var self = this;
@@ -115,8 +113,6 @@ class SettingsView {
 
     redrawTracker() {
         let keywordSetting = pascalCase(this.trackerSetting[trackerSettingKey.KEYWORD]);
-
-        // TODO: Autogenerate the css instead of keeping track of exponential number of classes.
         trackerStyle.setKeywordStyle("keyWord"+keywordSetting);
     };
 
