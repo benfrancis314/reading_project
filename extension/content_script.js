@@ -501,6 +501,7 @@ In the INACTIVE state, the widgets are not visible, and no event handlers are at
 function oneTimeSetup(cb) {
 	// TODO: Refactor using promise logic so this is more readable.
 	// Load all the persistent settings, then render the UI.
+
 	settings = new window.Settings(function() {
 		let readableDomEls = window.parseDocument();
 		doc = new Doc(readableDomEls, settings);
@@ -512,15 +513,7 @@ function oneTimeSetup(cb) {
 		// }
 		tracker = new Tracker(doc);
 		speed = settings.getSpeed(); 
-			
-		// Listen for background.js toggle pings.
-		chrome.runtime.onMessage.addListener(
-			function(request, sender, sendResponse) {
-				if (request.command === "toggleUI") {
-					toggleExtensionVisibility();
-				}
-			}
-		);
+		
 	});
 	cb();
 }
@@ -555,13 +548,21 @@ function removeUI() {
 
 function toggleExtensionVisibility() {
 	if (timeTrackerView === null) {
+		settings.setAppStatus(true); 
 		setupUI();
 	} else {
 		removeUI();
+		settings.setAppStatus(false); 
 	}
 }
 
 function setupKeyListenerForOnOff() {
+	console.log(settings);
+	let appStatus = settings.getAppStatus(); 
+	if (appStatus) {
+		toggleExtensionVisibility();
+	}
+
 	jdoc.on("keydown", function(evt) {
 		if (!document.hasFocus()) {
 		  return true;
