@@ -472,10 +472,10 @@ function setupKeyListeners() {
 				togglePersistentHighlight();
 				break;
 			case 'ShiftLeft':
-				persistentHighlight();
+				togglePersistentHighlight();
 				break;
 			case 'Slash':
-				togglePersistentHighlight();
+				toggleKeywordSettings();
 				break;
 			default:
                 break;
