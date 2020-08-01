@@ -103,15 +103,10 @@ class TimeTrackerView {
     Update display speed after speed is changed by user
     */
     updateSpeed(speed, sentence_id) {
-        // TODO: There should be an upper limit to this; because we have a speed bias, it cannot get infinitely fast. 
         this.reading_speed = speed // Completely made up eq, reasonable enough for testing though
         document.getElementById("speedNumber").innerHTML = this.reading_speed;
         this.updateTimer(sentence_id);
     }
-
-    
-
-    
 
     /*
     Defines html code for display to be inserted into web page. 
