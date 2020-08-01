@@ -535,6 +535,7 @@ In the INACTIVE state, the widgets are not visible, and no event handlers are at
 function oneTimeSetup(cb) {
 	// TODO: Refactor using promise logic so this is more readable.
 	// Load all the persistent settings, then render the UI.
+
 	settings = new window.Settings(function() {
 		let readableDomEls = window.parseDocument();
 		doc = new Doc(readableDomEls, settings);
@@ -548,7 +549,9 @@ function oneTimeSetup(cb) {
 		// }
 		tracker = new Tracker(doc);
 		speed = settings.getSpeed(); 
-		cb();
+		// Check app status, tells if should start ON or OFF
+		if (settings.getAppStatus()) { toggleExtensionVisibility(); }
+		setupKeyListenerForOnOff()
 	});
 	
 }
@@ -584,9 +587,11 @@ function removeUI() {
 
 function toggleExtensionVisibility() {
 	if (timeTrackerView === null) {
+		settings.setAppStatus(true); 
 		setupUI();
 	} else {
 		removeUI();
+		settings.setAppStatus(false); 
 	}
 }
 
@@ -598,9 +603,9 @@ function setupKeyListenerForOnOff() {
 		/* Make sure the user isn't trying to type anything
 			If there are exceptions to this it should hopefully come up during testing
 			There probably will be exceptions, so the key is WHAT are the exceptions
-			TODO: StackOverflow/Google to try to find more comprehensive solution for edge cases*/
+		*/
 		let focuses = $(":focus");
-		if (focuses.is("input") || focuses.is("form") || focuses.is("textarea")) { console.log("input"); return }
+		if (focuses.is("input") || focuses.is("form") || focuses.is("textarea")) { return }
 
 		if (evt.code == 'KeyR') { 
 			toggleExtensionVisibility();
@@ -609,5 +614,5 @@ function setupKeyListenerForOnOff() {
 	})
 };
 
-oneTimeSetup(function() {setupKeyListenerForOnOff()});
+oneTimeSetup();
 })(); // End of namespace

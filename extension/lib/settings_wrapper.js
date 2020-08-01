@@ -32,7 +32,10 @@ const settingKey = {
 	// Saved persistent highlights
 	// Each doc's highlight will have its own chrome setting key. Please see getHighlightKey(docUrl)
 	// Each chrome setting value (a single doc's highlights) is int[], the highlighted sentence IDs. 
-	HIGHLIGHTS: "highlights"
+	HIGHLIGHTS: "highlights", 
+
+	// If user wants app ON or OFF. If ON, when they go to a new page, automatically open UI. If not, don't. 
+	APP_STATUS: "app_status"
 };
 
 const trackerSettingKey = {
@@ -132,6 +135,20 @@ class Settings {
 		chrome.storage.local.set({[key]: speed}, function() {
 			if (chrome.runtime.lastError) {
 				console.log("Failed to save speed setting: " + chrome.runtime.lastError);
+				return;
+			}
+		});
+	}
+
+	// See APP_STATUS
+	// Saves whether app is ON or OFF; used to determine if should open app on new page
+	// Param: bool -> true is ON, false is OFF
+	setAppStatus(app_status) {
+		let key = settingKey.APP_STATUS;
+		this.settings[key] = app_status;
+		chrome.storage.local.set({[key]: app_status}, function() {
+			if (chrome.runtime.lastError) {
+				console.log("Failed to save app_status: " + chrome.runtime.lastError);
 				return;
 			}
 		});
@@ -248,6 +265,17 @@ class Settings {
 		if (!(key in this.settings)) {
 			// Default speed.
 			this.settings[key] = 260;
+		}
+		return this.settings[key];
+	}
+
+	// See APP_STATUS
+	// Returns: bool -> true is ON, false is OFF
+	getAppStatus(cb) {
+		let key = settingKey.APP_STATUS;
+		if (!(key in this.settings)) {
+			// Default app status.
+			this.settings[key] = false;
 		}
 		return this.settings[key];
 	}
