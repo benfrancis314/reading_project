@@ -11,7 +11,7 @@ if (window[namespace] === true) {
 
 // If true, all debugging statements would show.
 // TODO: Use a proper logging library.
-window.DEBUG = false;
+window.DEBUG = true;
 window.debug = function(str) {
 	if (DEBUG) {
 		console.log("DEBUG: " + str);
@@ -431,7 +431,10 @@ function toggleKeywordSettings() {
 
 function setupKeyListeners() {
 	let wpmDisplay = $("#speedContainer");
-	jdoc.on("keydown", function(evt) {
+	/* This creates an event namespace so that only these events
+		are removed when off() is called in removeUI. 
+		See: https://api.jquery.com/on/ , section "Event names and namespaces" */
+	jdoc.on("keydown.running", function(evt) {
 		if (!document.hasFocus()) {
 		  return true;
 		}
@@ -503,7 +506,8 @@ function updateDisplaySettings() {
 Undo setupKeyListeners()
 */
 function removeKeyListeners() {
-	jdoc.off('keydown');
+	// Remove all keydown events in namespace "running"
+	jdoc.off('keydown.running');
 	jdoc.off('keyup');
 }
 
@@ -528,7 +532,7 @@ In the INACTIVE state, the widgets are not visible, and no event handlers are at
 ********************************************************************/
 
 // One time setup per page.
-function oneTimeSetup() {
+function oneTimeSetup(cb) {
 	// TODO: Refactor using promise logic so this is more readable.
 	// Load all the persistent settings, then render the UI.
 	settings = new window.Settings(function() {
@@ -544,16 +548,9 @@ function oneTimeSetup() {
 		// }
 		tracker = new Tracker(doc);
 		speed = settings.getSpeed(); 
-			
-		// Listen for background.js toggle pings.
-		chrome.runtime.onMessage.addListener(
-			function(request, sender, sendResponse) {
-				if (request.command === "toggleUI") {
-					toggleExtensionVisibility();
-				}
-			}
-		);
+		cb();
 	});
+	
 }
 /*
 Render all the UI elements.
@@ -569,7 +566,6 @@ function setupUI() {
   
 	setupSentenceClickListeners();
 	setupKeyListeners();
-  
 }
 /*
 Turn down all the UI elements.
@@ -594,5 +590,24 @@ function toggleExtensionVisibility() {
 	}
 }
 
-oneTimeSetup();
+function setupKeyListenerForOnOff() {
+	jdoc.on("keydown", function(evt) {
+		if (!document.hasFocus()) {
+		  return true;
+		}
+		/* Make sure the user isn't trying to type anything
+			If there are exceptions to this it should hopefully come up during testing
+			There probably will be exceptions, so the key is WHAT are the exceptions
+			TODO: StackOverflow/Google to try to find more comprehensive solution for edge cases*/
+		let focuses = $(":focus");
+		if (focuses.is("input") || focuses.is("form") || focuses.is("textarea")) { console.log("input"); return }
+
+		if (evt.code == 'KeyR') { 
+			toggleExtensionVisibility();
+			return true;
+		}
+	})
+};
+
+oneTimeSetup(function() {setupKeyListenerForOnOff()});
 })(); // End of namespace
