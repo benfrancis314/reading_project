@@ -49,8 +49,8 @@ var doc = null;
 var timer = null;
 // This will be read once from persistent settings during initialization. 
 let speed = null; // WPM, Base speed, not accounting for sentence length; adjustable w/ D/S
-// Persistent settings.
-let settings = window.settings;
+// Persistent settings of type Settings. Initialized in oneTimeSetup()
+let settings = null;
 // Current animation state, to ensure we are not doing multiple animations at once.
 var animationState = animationEnum.NONE;
 
@@ -235,9 +235,14 @@ function scrollToTracker(cb) {
 	let scrollThreshold = 200;
 	// Autoscroll if tracker is above top of page.
 	// Number of pixels from top of window to top of current container.
-	let markedTopAbsoluteOffset = doc.getSentenceEls(tracker.getSentenceId()).offset().top;
-	let markedTopRelativeOffset = markedTopAbsoluteOffset - $(window).scrollTop();
-	if (markedTopRelativeOffset < 0
+	let sentenceId = tracker.getSentenceId();
+	let markedTopAbsoluteOffset = doc.getSentenceEls(sentenceId).offset().top;
+	let windowOffset = $(window).scrollTop();
+	let markedTopRelativeOffset = markedTopAbsoluteOffset - windowOffset;
+	if (!windowOffset && !sentenceId) {
+		cb();
+	}
+	else if (markedTopRelativeOffset < 0
 		|| markedTopRelativeOffset > scrollThreshold) {
 		animationState = animationEnum.SCROLL;
 		$('html, body').animate(
@@ -406,7 +411,7 @@ function setupKeyListeners() {
 		}
 
 		// Disable browser's default behavior of page-downing on space.
-		if (evt.code == 'Space' && evt.target == document.body) {
+		if (evt.target == document.body && ['ArrowDown', 'ArrowUp', 'Space'].includes(evt.code)) {
 		    evt.preventDefault();
 		}
 
@@ -420,10 +425,10 @@ function setupKeyListeners() {
 				stopMove();
                 moveOneDebounced(direction.FORWARD);
 				break;
-			case 'KeyD':	// Increase velocity
+			case 'ArrowUp':	// Increase velocity
 				adjustSpeed(40, wpmDisplay);			
 				break;
-			case 'KeyS':	// Slow velocity
+			case 'ArrowDown':	// Slow velocity
 				adjustSpeed(-40, wpmDisplay);			
 				break;
 			case 'Space': // Switch to auto mode
@@ -438,6 +443,9 @@ function setupKeyListeners() {
 				}
 				break;
 			case 'ShiftRight':
+				persistentHighlight();
+				break;
+			case 'ShiftLeft':
 				persistentHighlight();
 				break;
 			case 'Slash':
@@ -462,9 +470,7 @@ function initializeTracker() {
 }
 
 function updateDisplaySettings() {
-	settings.getCustomizations(function(settingsCustomizations) {
-		initializeTracker(settingsCustomizations)
-	});
+	initializeTracker(settings.getCustomizations());
 }
 
   
@@ -493,21 +499,29 @@ In the INACTIVE state, the widgets are not visible, and no event handlers are at
 
 // One time setup per page.
 function oneTimeSetup(cb) {
-	let readableDomEls = window.parseDocument();
-	doc = new Doc(readableDomEls);
-	// TODO: Refactor/move this, it currently can't run bc doc isn't ready
-	// If page is not readable, stop setting up the rest of the app.
-	// if (doc.sentences.length === 0) {
-	// 	debug("Stopping app init because page is not readable");
-	// 	return;
-	// }
-	tracker = new Tracker(doc);
 	// TODO: Refactor using promise logic so this is more readable.
 	// Load all the persistent settings, then render the UI.
-	settings.getSpeed(function(settingsSpeed) {
-		speed = settingsSpeed;
+	settings = new window.Settings(function() {
+		let readableDomEls = window.parseDocument();
+		doc = new Doc(readableDomEls, settings);
+		// TODO: Refactor/move this, it currently can't run bc doc isn't ready
+		// If page is not readable, stop setting up the rest of the app.
+		// if (doc.sentences.length === 0) {
+		// 	debug("Stopping app init because page is not readable");
+		// 	return;
+		// }
+		tracker = new Tracker(doc);
+		speed = settings.getSpeed(); 
+			
+		// Listen for background.js toggle pings.
+		chrome.runtime.onMessage.addListener(
+			function(request, sender, sendResponse) {
+				if (request.command === "toggleUI") {
+					toggleExtensionVisibility();
+				}
+			}
+		);
 	});
-	// This is used to call setupKeyListenerForOnOff() after making sure everything is setup
 	cb();
 }
 /*
@@ -517,7 +531,7 @@ function setupUI() {
 	timeTrackerView = new TimeTrackerView(doc, speed);
 	trackerStyle = new TrackerStyle(); // 
 	window.trackerStyle = trackerStyle; // Expose to global
-	settingsView = new SettingsView();
+	settingsView = new SettingsView(settings);
 	
 	updateDisplaySettings();
   
