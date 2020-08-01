@@ -222,7 +222,7 @@ class Settings {
 		}
 		
 		// Handle "too many documents" case.
-		if (!(key in this.settings[key]) && this.getNumHighlightedDocs() >= MAX_HIGHLIGHTED_DOC) {
+		if (!(key in this.settings) && this.getNumHighlightedDocs() >= MAX_HIGHLIGHTED_DOC) {
 			// TODO: No easy way for user to figure out which documents have highlights :(
 			// A possible soln is yet another UI to see bookmarked docs that have highlights.
 			throw `You hit the max limit of ${MAX_HIGHLIGHTED_DOC} highlighted documents.`
@@ -308,7 +308,7 @@ class Settings {
 		}
 		// TODO: Can optimize by always sorting and checking last element before filtering.
 		// Remove sentence IDs that are too big, in case document has changed.
-		this.settings[key] = this.settings[key].filter(function(numSentence) {
+		this.settings[key] = this.settings[key].filter(function(sentenceId) {
 			return sentenceId < numSentence;
 		});
 		return new Set(this.settings[key]);
