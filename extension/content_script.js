@@ -11,7 +11,7 @@ if (window[namespace] === true) {
 
 // If true, all debugging statements would show.
 // TODO: Use a proper logging library.
-window.DEBUG = false;
+window.DEBUG = true;
 window.debug = function(str) {
 	if (DEBUG) {
 		console.log("DEBUG: " + str);
@@ -423,6 +423,10 @@ function setupKeyListeners() {
 			case 'KeyS':	// Slow velocity
 				adjustSpeed(-40, wpmDisplay);			
 				break;
+			case 'KeyR':	// Toggle UI Visibility
+				console.log("test");
+				toggleExtensionVisibility();
+				break;
 			case 'Space': // Switch to auto mode
 				if (timer) {
 					// TODO: Make more robut for possible race conditions w animations in adjustSpeed;
@@ -469,6 +473,7 @@ function updateDisplaySettings() {
 Undo setupKeyListeners()
 */
 function removeKeyListeners() {
+	// TODO: Except R; keep that
 	jdoc.off('keydown');
 	jdoc.off('keyup');
 }
@@ -502,14 +507,6 @@ function oneTimeSetup() {
 	// Load all the persistent settings, then render the UI.
 	settings.getSpeed(function(settingsSpeed) {
 		speed = settingsSpeed;
-		// Listen for background.js toggle pings.
-		chrome.runtime.onMessage.addListener(
-			function(request, sender, sendResponse) {
-				if (request.command === "toggleUI") {
-					toggleExtensionVisibility();
-				}
-			}
-		);
 	});
 
 }
@@ -533,7 +530,7 @@ Turn down all the UI elements.
 Undo setupUI()
 */
 function removeUI() {
-	removeKeyListeners();
+	// removeKeyListeners();
 	removeClickListeners();
 	stopMove();
 	unhighlightEverything();
@@ -550,6 +547,23 @@ function toggleExtensionVisibility() {
 		removeUI();
 	}
 }
+
+function setupKeyListenerForOnOff() {
+	jdoc.on("keydown", function(evt) {
+		if (!document.hasFocus()) {
+		  return true;
+		}
+
+		let startTime = new Date();
+		if (evt.code == 'KeyR') {
+				console.log("test");
+				toggleExtensionVisibility();
+		return true;
+		}
+	})
+};
+
+setupKeyListenerForOnOff();
 
 oneTimeSetup();
 })(); // End of namespace
