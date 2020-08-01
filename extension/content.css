@@ -6,30 +6,32 @@ readerease-sentence {
 	border-radius: 3px;
 }
 
-.persistentHighlight {
+.persistentHighlight.persistentHighlight {
 	background-color: #FEE715 !important; /* Bright yellow */
 }
 
 /* SENTENCE TRACKER STYLING */
 .sentenceStyleOn {
+	position: relative;
 	background-color:rgb(255, 255, 255) !important;  /* White */
 	box-shadow: 2pt 2pt 3pt 1pt rgb(0, 0, 0, 0.45); /* Transparent black */
 	transition: all 0.5s ease 0s;
+	color: black;
 }
 .sentenceStyleOff {
 	background-color:rgba(255, 255, 255, 0); /* Transparent */
 	transition: all 0.5s ease 0s;
 }
 .keyWordLight {
-	background-color: rgb(255, 248, 185) !important; /* Light yellow */
+	background-color: rgb(255, 248, 185); /* Light yellow */
 	transition: all 0.5s ease 0s;
 }
 .keyWordBright {
-	background-color: hsl(54, 99%, 54%) !important; /* Bright yellow */
+	background-color: hsl(54, 99%, 54%); /* Bright yellow */
 	transition: all 0.5s ease 0s;
 }
 .keyWordOff {
-	background-color: rgba(255, 255, 255, 0) !important; /* Transparent */
+	background-color: rgba(255, 255, 255, 0); /* Transparent */
 	transition: all 0.5s ease 0s;
 }
 /* END */

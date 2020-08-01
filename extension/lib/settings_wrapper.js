@@ -301,7 +301,6 @@ class Settings {
 	See HIGHLIGHTS for more detail.
 	*/
 	getHighlights(url, numSentence) {
-
 		let key = getHighlightKey(url);
 		if (!(key in this.settings)) {
 			// Default highlights
