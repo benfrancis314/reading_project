@@ -64,6 +64,10 @@ let jdoc = $(document);
 // Thix extra variable is so we don't have to do an extra jquery dom traversal
 // based on css class name.
 let highlightedSentenceId = null;
+
+// set<int> of sentence ids that are persistently highlighted.
+// See oneTimeSetup()
+let persistentHighlightSentenceIds = null;
 // Class for sentence tracker style, when ON
 const sentenceStyleOn = "sentenceStyleOn";
 // Class for sentence tracker style, when OFF
@@ -303,12 +307,37 @@ function highlight(sentenceId) {
 	highlightedSentenceId = sentenceId;
 };
 
-// Toggles the persistent highlight on the currently tracked sentence
-function persistentHighlight() {
-	if (!tracker.isTracking()) { return; }
-	let sentenceId = tracker.getSentenceId();
+// Persistent highlight functions that both draw and save to settings.
+function drawPersistentHighlight(sentenceId) {
+	if (!persistentHighlightSentenceIds.has(sentenceId)) {
+		persistentHighlightSentenceIds.add(sentenceId);
+		settings.setHighlights(window.location.href, persistentHighlightSentenceIds);
+	}
 	var el = doc.getSentenceEls(sentenceId);
-	el.toggleClass(persistentHighlightClass)
+	el.addClass(persistentHighlightClass);
+}
+
+function removePersistentHighlight(sentenceId) {
+	if (persistentHighlightSentenceIds.has(sentenceId)) {
+		persistentHighlightSentenceIds.delete(sentenceId);
+		settings.setHighlights(window.location.href, persistentHighlightSentenceIds);
+	}
+	var el = doc.getSentenceEls(sentenceId);
+	el.removeClass(persistentHighlightClass);
+}
+
+// Toggles the persistent highlight on the currently tracked sentence
+// This draws the UI and also update the saved settings.
+function togglePersistentHighlight() {
+	if (!tracker.isTracking()) {
+		return;
+	}
+	let sentenceId = tracker.getSentenceId();
+	if (persistentHighlightSentenceIds.has(sentenceId)) {
+		removePersistentHighlight(sentenceId);
+	} else {
+		drawPersistentHighlight(sentenceId);
+	}
 }
 
 /*
@@ -443,10 +472,10 @@ function setupKeyListeners() {
 				}
 				break;
 			case 'ShiftRight':
-				persistentHighlight();
+				togglePersistentHighlight();
 				break;
 			case 'ShiftLeft':
-				persistentHighlight();
+				togglePersistentHighlight();
 				break;
 			case 'Slash':
 				toggleKeywordSettings();
@@ -473,7 +502,6 @@ function updateDisplaySettings() {
 	initializeTracker(settings.getCustomizations());
 }
 
-  
 /*
 Undo setupKeyListeners()
 */
@@ -481,6 +509,12 @@ function removeKeyListeners() {
 	// Remove all keydown events in namespace "running"
 	jdoc.off('keydown.running');
 	jdoc.off('keyup');
+}
+
+function drawAllPersistentHighlights() {
+	persistentHighlightSentenceIds.forEach(function(sentenceId) {
+		drawPersistentHighlight(sentenceId);
+	});
 }
 
 /********************************************************************
@@ -505,6 +539,8 @@ function oneTimeSetup(cb) {
 	settings = new window.Settings(function() {
 		let readableDomEls = window.parseDocument();
 		doc = new Doc(readableDomEls, settings);
+		persistentHighlightSentenceIds = settings.getHighlights(
+			window.location.href, doc.getNumSentences());
 		// TODO: Refactor/move this, it currently can't run bc doc isn't ready
 		// If page is not readable, stop setting up the rest of the app.
 		// if (doc.sentences.length === 0) {
@@ -526,6 +562,7 @@ function setupUI() {
 	window.trackerStyle = trackerStyle; // Expose to global
 	settingsView = new SettingsView(settings);
 	
+	drawAllPersistentHighlights();
 	updateDisplaySettings();
   
 	setupSentenceClickListeners();
