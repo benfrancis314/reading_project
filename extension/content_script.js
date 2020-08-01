@@ -559,6 +559,7 @@ function oneTimeSetup(cb) {
 Render all the UI elements.
 */
 function setupUI() {
+	removeLoadIcon();
 	timeTrackerView = new TimeTrackerView(doc, speed);
 	trackerStyle = new TrackerStyle(); // 
 	window.trackerStyle = trackerStyle; // Expose to global
@@ -614,5 +615,20 @@ function setupKeyListenerForOnOff() {
 	})
 };
 
+function setupLoadIcon() {
+	// TODO: Use toggle; add div in earlier, then 
+	let load = `<div id="loadingIcon"></div>`;
+	$(load).insertAfter($("body").children().first());
+	let loadEl = $("#loadingIcon")
+	$(loadEl).css('background-image', "url("+chrome.runtime.getURL('/images/loadingIcon.svg')+")");
+	$(loadEl).css('opacity', "1");
+}
+function removeLoadIcon() {
+	if ($("#loadingIcon").length) {
+		$("#loadingIcon").remove();
+	}
+}
+
+setupLoadIcon();
 oneTimeSetup();
 })(); // End of namespace

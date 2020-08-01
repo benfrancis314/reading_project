@@ -45,7 +45,8 @@
         "images/instructionMove.svg",
         "images/instructionOnOff.svg",
         "images/instructionSentenceHop.svg",
-        "images/instructionSpeed.svg"
+        "images/instructionSpeed.svg",
+        "images/loadingIcon.svg"
     ],
     "icons": { 
         "16": "images/logo16.png",
