@@ -190,19 +190,38 @@ function calculateTrackerLifeMs() {
 }
 
 /*
+Get the sentence Id that is within user's current reading band.
+Return: int. sentenceId.
+*/
+function getVisibleSentenceId() {
+	// Return the first visible sentenceId.
+	// Can optimize w/ binary search but not worth optimizing cos infrequent call.
+	for (let sentenceId = 0; sentenceId < doc.getNumSentences(); sentenceId++) {
+		if (getSentenceOffsetFromTop(sentenceId) > 0) {
+			return sentenceId;
+		}
+	}
+	return doc.getNumSentences() - 1;
+}
+
+/*
 Move one sentence in the given direction.
 Return:
 - Boolean: True iff tracker successfully moved. False if there is no more element to move to.
 */
 function moveOne(dir) { // Sets start and end
-	let hasMoved = false;
-	if (dir == direction.BACKWARD) {
-		hasMoved = tracker.movePrevious();
-	} else if (dir == direction.FORWARD) {
-		hasMoved = tracker.moveNext();
-	}
-	if (!hasMoved) {
-		return false;
+	if (!tracker.isTracking()) {
+		tracker.pointToSentence(getVisibleSentenceId());
+	} else {
+		let hasMoved = false;
+		if (dir == direction.BACKWARD) {
+			hasMoved = tracker.movePrevious();
+		} else if (dir == direction.FORWARD) {
+			hasMoved = tracker.moveNext();
+		}
+		if (!hasMoved) {
+			return false;
+		}
 	}
 
 	timeTrackerView.updateTimer(tracker.getSentenceId());
@@ -226,6 +245,16 @@ let moveOneDebounced = _.debounce(moveOne, 50, {
   'trailing': false
 });
 
+/*
+Return: int. Vertical distance of sentence Id to top of current window view.
+Can be negative if sentence is already past reading view.
+*/
+function getSentenceOffsetFromTop(sentenceId) {
+	let markedTopAbsoluteOffset = doc.getSentenceEls(sentenceId).offset().top;
+	let windowOffset = $(window).scrollTop();
+	return markedTopAbsoluteOffset - windowOffset;
+}
+
 // Scroll page so tracker is in view.
 // cb called when scrolling is complete
 function scrollToTracker(cb) {
@@ -240,9 +269,11 @@ function scrollToTracker(cb) {
 	// Autoscroll if tracker is above top of page.
 	// Number of pixels from top of window to top of current container.
 	let sentenceId = tracker.getSentenceId();
-	let markedTopAbsoluteOffset = doc.getSentenceEls(sentenceId).offset().top;
 	let windowOffset = $(window).scrollTop();
-	let markedTopRelativeOffset = markedTopAbsoluteOffset - windowOffset;
+	let markedTopAbsoluteOffset = doc.getSentenceEls(sentenceId).offset().top;
+	let markedTopRelativeOffset = getSentenceOffsetFromTop(sentenceId);
+r
+	// If still at the top of the page and first sentence, don't immediately autoscroll
 	if (!windowOffset && !sentenceId) {
 		cb();
 	}
