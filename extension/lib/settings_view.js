@@ -34,10 +34,6 @@ class SettingsView {
     constructor(settings) {
         this.uiStatus = false; // Is the UI (Instructions & Customizations) ON or OFF?
         this.uiHtml = null; // HTML for the UI (instructions & customizations)
-        
-        // TODO: Do this in a better way
-        // Setting these here instead of beginning of file bc need to wait due to async problems,
-        // window.trackerStyle is not ready if set in beginning of file, is ready if set here
         this.settings = settings;
         trackerStyle = window.trackerStyle;
 
@@ -114,7 +110,7 @@ class SettingsView {
     Here, we just listen on the options button (the gear) to toggle the UI display.
     */
     setHtmlListeners() {
-        let optionsButton = document.getElementById("optionsButton"); // TODO: Replace with jQuery
+        let optionsButton = $("#optionsButton");
         if (optionsButton) {
             optionsButton.addEventListener("click", this.toggleUI.bind(this));
         }
@@ -128,12 +124,12 @@ class SettingsView {
 
 
         if (this.uiStatus) {
-            let uiContainer = document.getElementById("uiContainer");
+            let uiContainer = $("#uiContainer");
             uiContainer.remove();
             this.uiStatus = false;
         } else {
             // Load UI display
-            let optionsButton = document.getElementById("optionsButton");
+            let optionsButton = $("#optionsButton");
             optionsButton.insertAdjacentHTML("afterend", this.uiHtml);
 
             // Load background images
@@ -147,7 +143,7 @@ class SettingsView {
             $("#closeButton").css('background-image', "url("+chrome.runtime.getURL('/images/closeButton.svg')+")");
 
             // Setup exit button
-            let closeButton = document.getElementById("closeButton");
+            let closeButton = $("#closeButton");
             closeButton.addEventListener("click", this.toggleUI.bind(this));
 
             // Setup click listeners for all setting buttons.
