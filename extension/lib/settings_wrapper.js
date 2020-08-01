@@ -171,9 +171,7 @@ class Settings {
 		if (!(key in this.settings)) {
 			// Default customization
 			this.settings[key] = {
-				[trackerSettingKey.KEYWORD] : trackerSettingValue.GREEN,
-				[trackerSettingKey.HIGHLIGHTER]: trackerSettingValue.BLUE,
-				[trackerSettingKey.SHADOW]: trackerSettingValue.BLUE
+				[trackerSettingKey.KEYWORD] : trackerSettingValue.LIGHT
 			};
 		}
 		return this.settings[key];
