@@ -549,9 +549,8 @@ function oneTimeSetup(cb) {
 		// }
 		tracker = new Tracker(doc);
 		speed = settings.getSpeed(); 
-		// Check if app should start ON or OFF
-		let appStatus = settings.getAppStatus(); 
-		if (appStatus) { toggleExtensionVisibility(); }
+		// Check app status, tells if should start ON or OFF
+		if (settings.getAppStatus()) { toggleExtensionVisibility(); }
 		setupKeyListenerForOnOff()
 	});
 	
