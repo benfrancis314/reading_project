@@ -141,7 +141,8 @@ class Settings {
 	}
 
 	// See APP_STATUS
-	// Save if app is ON or OFF; used to determine if should open app on new page
+	// Saves whether app is ON or OFF; used to determine if should open app on new page
+	// Param: bool -> true is ON, false is OFF
 	setAppStatus(app_status) {
 		let key = settingKey.APP_STATUS;
 		this.settings[key] = app_status;
@@ -269,6 +270,7 @@ class Settings {
 	}
 
 	// See APP_STATUS
+	// Returns: bool -> true is ON, false is OFF
 	getAppStatus(cb) {
 		let key = settingKey.APP_STATUS;
 		if (!(key in this.settings)) {
