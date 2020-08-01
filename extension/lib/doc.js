@@ -7,8 +7,6 @@ if (window[namespace] === true) {
     window[namespace] = true;
 }
 
-var settings = window.settings;
-
 // If the number of sentences in the doc exceeds this, mark the document as unreadable.
 const MAX_NUM_SENTENCE = 4000;
 // Any word with a TF-IDF score above this frequency is a keyword
@@ -68,18 +66,9 @@ Class dedicated to keeping track of model of document.
 Note: Called "Doc" because Document is already used in js. 
 */
 class Doc {
-    constructor(readableDomEls) {
+    constructor(readableDomEls, settings) {
         this.containers = readableDomEls; // $[]; List of all jquery readable containers.
-        // Set up these instance variables:
-        // - SentencePointer[] sentences. All the sentences in the document.
-        // - int[] containerIdToFirstSentenceId. Given a container id, what is the sentence id of the
-        //   first sentence?
-        // - $list [] sentenceEls. See getSentenceEls().
-        // - $list [] sentenceKeywordsEls. See getSentenceKeywordsEls(). 
-        // Note: processSentences (previously called detectSentenceBoundaries) is now called within processDocument. This is bc processSentences
-        //   needs the keywords, so an async chain is needed/used (TODO: refactor w promises). 
-        this.processDocument(readableDomEls);
-
+        this.settings = settings;
         this.termFreq = null; // { str : int } , Frequency of terms in document. Set in processDocument function
         this.total_words = null; // int; Total number of words in document;
         this.keywords = null; // string[] keywords of document
@@ -99,6 +88,16 @@ class Doc {
         // Actually it's a lazily evaluated jQueryEls.
         // See setSentenceKeywordsAndScore for how the lazy evaluation works. 
         this.sentenceKeywordsEls = []; 
+
+        // Set up these instance variables:
+        // - SentencePointer[] sentences. All the sentences in the document.
+        // - int[] containerIdToFirstSentenceId. Given a container id, what is the sentence id of the
+        //   first sentence?
+        // - $list [] sentenceEls. See getSentenceEls().
+        // - $list [] sentenceKeywordsEls. See getSentenceKeywordsEls(). 
+        // Note: processSentences (previously called detectSentenceBoundaries) is now called within processDocument. This is bc processSentences
+        //   needs the keywords, so an async chain is needed/used (TODO: refactor w promises). 
+        this.processDocument(readableDomEls);
     };
 
 
@@ -297,24 +296,21 @@ class Doc {
         }
 
         // Get & Update document frequency dict, visited URLS, call setKeyWords
-        settings.getDocumentFreq(function(settingsDocumentFreq) {
-            let documentFreq = settingsDocumentFreq;
-            settings.getVisitedUrls(function(settingsVisitedUrls) {
-                let visitedUrls = settingsVisitedUrls;
-                let num_documents = Object.keys(visitedUrls).length;
-                self.setKeyWords(termFreq, documentFreq, num_documents);
-                self.processSentences();
-                // Update document freq AFTER determining keywords -> save time, shouldn't affect result
-                if (!visitedUrls[window.location]) {
-                    self.updateDocumentFreq(termFreq, documentFreq);
-                    settings.setDocumentFreq(documentFreq);
-                    visitedUrls[window.location] = 1;
-                    settings.setVisitedUrls(visitedUrls);
-                }
-                // This debug is for monitoring the total word count as I go, to see how it progresses
-                debug("Number of words in document frequency dictionary: "+Object.keys(documentFreq).length);
-            });     
-        });
+        let settings = this.settings;
+        let documentFreq = settings.getDocumentFreq();
+        let visitedUrls = settings.getVisitedUrls();
+        let num_documents = Object.keys(visitedUrls).length;
+        this.setKeyWords(termFreq, documentFreq, num_documents);
+        this.processSentences();
+        // Update document freq AFTER determining keywords -> save time, shouldn't affect result
+        if (!visitedUrls[window.location]) {
+            self.updateDocumentFreq(termFreq, documentFreq);
+            settings.setDocumentFreq(documentFreq);
+            visitedUrls[window.location] = 1;
+            settings.setVisitedUrls(visitedUrls);
+        }
+        // This debug is for monitoring the total word count as I go, to see how it progresses
+        debug("Number of words in document frequency dictionary: "+Object.keys(documentFreq).length);
         this.termFreq = termFreq; // Set class attribute "termFreq"
         this.total_words = total_words; // Set total words for use elsewhere (like Display)  
     };
