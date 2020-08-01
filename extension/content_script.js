@@ -397,7 +397,10 @@ function toggleKeywordSettings() {
 
 function setupKeyListeners() {
 	let wpmDisplay = $("#speedContainer");
-	jdoc.on("keydown", function(evt) {
+	/* This creates an event namespace so that only these events
+		are removed when off() is called in removeUI. 
+		See: https://api.jquery.com/on/ , section "Event names and namespaces" */
+	jdoc.on("keydown.running", function(evt) {
 		if (!document.hasFocus()) {
 		  return true;
 		}
@@ -422,10 +425,6 @@ function setupKeyListeners() {
 				break;
 			case 'KeyS':	// Slow velocity
 				adjustSpeed(-40, wpmDisplay);			
-				break;
-			case 'KeyR':	// Toggle UI Visibility
-				console.log("test");
-				toggleExtensionVisibility();
 				break;
 			case 'Space': // Switch to auto mode
 				if (timer) {
@@ -473,8 +472,8 @@ function updateDisplaySettings() {
 Undo setupKeyListeners()
 */
 function removeKeyListeners() {
-	// TODO: Except R; keep that
-	jdoc.off('keydown');
+	// Remove all keydown events in namespace "running"
+	jdoc.off('keydown.running');
 	jdoc.off('keyup');
 }
 
@@ -493,7 +492,7 @@ In the INACTIVE state, the widgets are not visible, and no event handlers are at
 ********************************************************************/
 
 // One time setup per page.
-function oneTimeSetup() {
+function oneTimeSetup(cb) {
 	let readableDomEls = window.parseDocument();
 	doc = new Doc(readableDomEls);
 	// TODO: Refactor/move this, it currently can't run bc doc isn't ready
@@ -508,7 +507,8 @@ function oneTimeSetup() {
 	settings.getSpeed(function(settingsSpeed) {
 		speed = settingsSpeed;
 	});
-
+	// This is used to call setupKeyListenerForOnOff() after making sure everything is setup
+	cb();
 }
 /*
 Render all the UI elements.
@@ -523,14 +523,13 @@ function setupUI() {
   
 	setupSentenceClickListeners();
 	setupKeyListeners();
-  
 }
 /*
 Turn down all the UI elements.
 Undo setupUI()
 */
 function removeUI() {
-	// removeKeyListeners();
+	removeKeyListeners();
 	removeClickListeners();
 	stopMove();
 	unhighlightEverything();
@@ -553,17 +552,18 @@ function setupKeyListenerForOnOff() {
 		if (!document.hasFocus()) {
 		  return true;
 		}
+		// Make sure the user isn't trying to type anything
+		// If there are exceptions to this it should hopefully come up during testing
+		// There probably will be exceptions, so the key is WHAT are the exceptions
+		let focuses = $(":focus");
+		if (focuses.is("input") || focuses.is("form") || focuses.is("textarea")) { console.log("input"); return }
 
-		let startTime = new Date();
-		if (evt.code == 'KeyR') {
-				console.log("test");
-				toggleExtensionVisibility();
-		return true;
+		if (evt.code == 'KeyR') { 
+			toggleExtensionVisibility();
+			return true;
 		}
 	})
 };
 
-setupKeyListenerForOnOff();
-
-oneTimeSetup();
+oneTimeSetup(function() {setupKeyListenerForOnOff()});
 })(); // End of namespace
