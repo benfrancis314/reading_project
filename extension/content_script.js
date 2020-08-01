@@ -403,7 +403,7 @@ function setupKeyListeners() {
 		}
 
 		// Disable browser's default behavior of page-downing on space.
-		if ((evt.code == 'Space' && evt.target == document.body)||(evt.code == 'ArrowDown' && evt.target == document.body)||(evt.code == 'ArrowUp' && evt.target == document.body)) {
+		if (evt.target == document.body && ['ArrowDown', 'ArrowUp', 'Space'].includes(evt.code)) {
 		    evt.preventDefault();
 		}
 
