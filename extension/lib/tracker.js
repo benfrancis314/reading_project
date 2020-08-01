@@ -62,15 +62,14 @@ class Tracker {
 
     /*
     Move tracker to the next readable portion, moving across containers if necessary.
-    If not currently tracking, will point to the first sentence.
+    If not currently tracking, throw error.
     If already at the end of the document, tracker will not be updated.
     Return:
     - Boolean: True iff tracker successfully moved. False if there is no more element to move to.
     */
     moveNext() {
         if (!this.isTracking()) {
-            this.pointToContainer(0);
-            return true;
+            throw "Can't move non-tracking tracker. Make it point to something first.";
         }
         if (this.sentenceId === this.doc.getNumSentences() - 1) {
             return false;
@@ -81,14 +80,14 @@ class Tracker {
 
     /*
     Move tracker to the previous readable portion, moving across containers if necessary.
-    If not currently tracking, will not do anything.
+    If not currently tracking, throw error.
     If already at the beginning of the document, tracker will not be updated.
     Return:
     - Boolean: True iff tracker successfully moved. False if there is no more element to move to.
     */
     movePrevious() {
         if (!this.isTracking()) {
-            return false;
+            throw "Can't move non-tracking tracker. Make it point to something first.";
         }
         if (this.sentenceId === 0) {
             return false;
