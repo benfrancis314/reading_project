@@ -9,8 +9,8 @@
     "background": {
         "scripts": [
           "third_party/jquery-3.5.1.min.js", 
-          "third_party/hot-reload.js",
-          "background.js"], 
+          "third_party/hot-reload.js"
+          ], 
         "persistent": false
     },
     "content_scripts": [	
