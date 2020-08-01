@@ -64,16 +64,12 @@ let jdoc = $(document);
 // Thix extra variable is so we don't have to do an extra jquery dom traversal
 // based on css class name.
 let highlightedSentenceId = null;
+// Class for sentence tracker style, when ON
+const sentenceStyleOn = "sentenceStyleOn";
+// Class for sentence tracker style, when OFF
+const sentenceStyleOff = "sentenceStyleOff";
 // Class for persistent highlighter
 const persistentHighlightClass = "persistentHighlight";
-
-
-/*
-Process of determining which style to use. 
-TODO: Redo this using CSS variable or something. 
-Problem is that highlighter and shadow need to be in the same ID;
-not scalable right now to more customizable settings that effect the tracker. 
-*/
 
 // Possible reading directions.
 const direction = {
@@ -89,7 +85,7 @@ function setupSentenceClickListeners() {
 			highlight(sentenceId);
 			tracker.pointToSentence(sentenceId);
 			timeTrackerView.updateTimer(sentenceId);
-			scrollToTracker();
+			scrollToTracker(function() {});
 		});
 	}
 }
@@ -128,7 +124,6 @@ Parameters:
 - dir. See direction enum.
 */
 
-// TODO: Maybe refactor so it doesn't [____?] when turn on automode?
 function startMove(dir) { // Note: I have combined the "moveUp" and "moveDown" functions here
 	if (timer) {
 		return;
@@ -208,7 +203,10 @@ function moveOne(dir) { // Sets start and end
 
 	timeTrackerView.updateTimer(tracker.getSentenceId());
 	highlight(tracker.getSentenceId());
-	scrollToTracker();
+	scrollToTracker(function() {
+		highlight(tracker.getSentenceId());
+	});
+
 	return true;
 }
 
@@ -217,7 +215,7 @@ function moveOne(dir) { // Sets start and end
 // too many UI events (e.g. highlighting, etc.) happening at once, making things very slow.
 // Debounce note: Will execute only after this function is uncalled for that amount of time.
 // The inactivity timer gets reset when function gets called while it is 'recovering'.
-let moveOneDebounced = _.debounce(moveOne, 200, {
+let moveOneDebounced = _.debounce(moveOne, 50, {
   // This is so that the function is immediately invoked, as opposed to waiting for debounce
   // wait period before executing.
   'leading': true,
@@ -225,9 +223,11 @@ let moveOneDebounced = _.debounce(moveOne, 200, {
 });
 
 // Scroll page so tracker is in view.
-function scrollToTracker() {
+// cb called when scrolling is complete
+function scrollToTracker(cb) {
 	// One animation at a time.
 	if (animationState !== animationEnum.NONE) {
+		cb();
 		return;
 	}
 	let verticalMargin = 100;
@@ -235,9 +235,14 @@ function scrollToTracker() {
 	let scrollThreshold = 200;
 	// Autoscroll if tracker is above top of page.
 	// Number of pixels from top of window to top of current container.
-	let markedTopAbsoluteOffset = doc.getSentenceEls(tracker.getSentenceId()).offset().top;
-	let markedTopRelativeOffset = markedTopAbsoluteOffset - $(window).scrollTop();
-	if (markedTopRelativeOffset < 0
+	let sentenceId = tracker.getSentenceId();
+	let markedTopAbsoluteOffset = doc.getSentenceEls(sentenceId).offset().top;
+	let windowOffset = $(window).scrollTop();
+	let markedTopRelativeOffset = markedTopAbsoluteOffset - windowOffset;
+	if (!windowOffset && !sentenceId) {
+		cb();
+	}
+	else if (markedTopRelativeOffset < 0
 		|| markedTopRelativeOffset > scrollThreshold) {
 		animationState = animationEnum.SCROLL;
 		$('html, body').animate(
@@ -246,9 +251,12 @@ function scrollToTracker() {
 			SCROLL_DURATION_MS,
 			function() {
 				animationState = animationEnum.NONE;
+				cb();
 			}
 		);
-	} 
+	} else {
+		cb();
+	}
 }
 
 // Uncomment this if you want to see the relative y offsets of current container
@@ -265,8 +273,8 @@ Undo all actions by highlight() and highlightKeyWords().
 function unhighlightEverything() {
 	if (tracker.isTracking()) {
 		let sentenceId = tracker.getSentenceId();
-		doc.getSentenceEls(tracker.getSentenceId()).removeClass(trackerStyle.getSentenceStyle());
-		doc.getSentenceKeywordsEls(tracker.getSentenceId()).removeClass(trackerStyle.getKeywordStyle());
+		doc.getSentenceEls(sentenceId).removeClass(sentenceStyleOn);
+		doc.getSentenceKeywordsEls(sentenceId).removeClass(trackerStyle.getKeywordStyle());
 	}
 	highlightedSentenceId = null;
 	$("."+persistentHighlightClass).removeClass(persistentHighlightClass);
@@ -276,16 +284,20 @@ function unhighlightEverything() {
 Highlight portion pointed to by tracker, and unhighlight previous sentence (if not null).
 */
 function highlight(sentenceId) {
-	let sentenceStyle = trackerStyle.getSentenceStyle();
 	let keywordStyle = trackerStyle.getKeywordStyle(); 
 
 	// Unhighlight if previous highlight already exists.
 	if (highlightedSentenceId !== null) {
-		doc.getSentenceEls(highlightedSentenceId).removeClass(sentenceStyle);
+		doc.getSentenceEls(highlightedSentenceId).removeClass(sentenceStyleOn);
+		let prevEls = doc.getSentenceEls(highlightedSentenceId);
+		prevEls.removeClass(sentenceStyleOn);
+		prevEls.addClass(sentenceStyleOff);
 		doc.getSentenceKeywordsEls(highlightedSentenceId).removeClass(keywordStyle)
 	}
 	// Highlight the sentence.
-	doc.getSentenceEls(sentenceId).addClass(sentenceStyle);
+	doc.getSentenceEls(sentenceId)
+		.removeClass(sentenceStyleOff)
+		.addClass(sentenceStyleOn);
 	// Highlight the keywords. 
 	doc.getSentenceKeywordsEls(sentenceId).addClass(keywordStyle);
 	highlightedSentenceId = sentenceId;
@@ -372,6 +384,22 @@ function adjustSpeed(speedDelta, wpmDisplay) {
 	timeTrackerView.updateSpeed(speed,sentence_id);
 }
 
+/*
+Used to cycle keywords through the three different keyword setting options. 
+*/
+function toggleKeywordSettings() {
+	let currentKeywordStyle = settingsView.trackerSetting['keyword'];
+	if (currentKeywordStyle == 'off') { 
+		settingsView.changeSetting('keyword', 'light'); 
+	}
+	else if (currentKeywordStyle == 'light') { 
+		settingsView.changeSetting('keyword', 'bright'); 
+	}
+	else if (currentKeywordStyle == 'bright') { 
+		settingsView.changeSetting('keyword', 'off'); 
+	}
+}
+
 function setupKeyListeners() {
 	let wpmDisplay = $("#speedContainer");
 	jdoc.on("keydown", function(evt) {
@@ -413,6 +441,9 @@ function setupKeyListeners() {
 				break;
 			case 'ShiftRight':
 				persistentHighlight();
+				break;
+			case 'Slash':
+				toggleKeywordSettings();
 				break;
 			default:
                 break;

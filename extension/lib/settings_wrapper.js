@@ -31,14 +31,11 @@ const settingKey = {
 };
 
 const trackerSettingKey = {
-	KEYWORD: "keyword",
-	HIGHLIGHTER: "highlighter",
-	SHADOW: "shadow"
+	KEYWORD: "keyword"
 }
 const trackerSettingValue = {
-	GREEN: "green",
-	YELLOW: "yellow",
-	BLUE: "blue",
+	LIGHT: "light",
+	BRIGHT: "bright",
 	OFF: "off"
 }
 
