@@ -513,9 +513,9 @@ function oneTimeSetup(cb) {
 		// }
 		tracker = new Tracker(doc);
 		speed = settings.getSpeed(); 
-		
+		cb();
 	});
-	cb();
+	
 }
 /*
 Render all the UI elements.
@@ -557,7 +557,6 @@ function toggleExtensionVisibility() {
 }
 
 function setupKeyListenerForOnOff() {
-	console.log(settings);
 	let appStatus = settings.getAppStatus(); 
 	if (appStatus) {
 		toggleExtensionVisibility();
