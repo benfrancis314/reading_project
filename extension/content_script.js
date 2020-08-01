@@ -539,14 +539,12 @@ function oneTimeSetup(cb) {
 	settings = new window.Settings(function() {
 		let readableDomEls = window.parseDocument();
 		doc = new Doc(readableDomEls, settings);
+		if (doc.getNumSentences() === 0) {
+		 	console.log("Page is not readable. Not running app.");
+		  	return;
+		}
 		persistentHighlightSentenceIds = settings.getHighlights(
 			window.location.href, doc.getNumSentences());
-		// TODO: Refactor/move this, it currently can't run bc doc isn't ready
-		// If page is not readable, stop setting up the rest of the app.
-		// if (doc.sentences.length === 0) {
-		// 	debug("Stopping app init because page is not readable");
-		// 	return;
-		// }
 		tracker = new Tracker(doc);
 		speed = settings.getSpeed(); 
 		// Check app status, tells if should start ON or OFF
