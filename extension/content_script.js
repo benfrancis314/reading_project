@@ -11,7 +11,7 @@ if (window[namespace] === true) {
 
 // If true, all debugging statements would show.
 // TODO: Use a proper logging library.
-window.DEBUG = false;
+window.DEBUG = true;
 window.debug = function(str) {
 	if (DEBUG) {
 		console.log("DEBUG: " + str);
@@ -49,8 +49,8 @@ var doc = null;
 var timer = null;
 // This will be read once from persistent settings during initialization. 
 let speed = null; // WPM, Base speed, not accounting for sentence length; adjustable w/ D/S
-// Persistent settings.
-let settings = window.settings;
+// Persistent settings of type Settings. Initialized in oneTimeSetup()
+let settings = null;
 // Current animation state, to ensure we are not doing multiple animations at once.
 var animationState = animationEnum.NONE;
 
@@ -64,6 +64,10 @@ let jdoc = $(document);
 // Thix extra variable is so we don't have to do an extra jquery dom traversal
 // based on css class name.
 let highlightedSentenceId = null;
+
+// set<int> of sentence ids that are persistently highlighted.
+// See oneTimeSetup()
+let persistentHighlightSentenceIds = null;
 // Class for sentence tracker style, when ON
 const sentenceStyleOn = "sentenceStyleOn";
 // Class for sentence tracker style, when OFF
@@ -235,9 +239,14 @@ function scrollToTracker(cb) {
 	let scrollThreshold = 200;
 	// Autoscroll if tracker is above top of page.
 	// Number of pixels from top of window to top of current container.
-	let markedTopAbsoluteOffset = doc.getSentenceEls(tracker.getSentenceId()).offset().top;
-	let markedTopRelativeOffset = markedTopAbsoluteOffset - $(window).scrollTop();
-	if (markedTopRelativeOffset < 0
+	let sentenceId = tracker.getSentenceId();
+	let markedTopAbsoluteOffset = doc.getSentenceEls(sentenceId).offset().top;
+	let windowOffset = $(window).scrollTop();
+	let markedTopRelativeOffset = markedTopAbsoluteOffset - windowOffset;
+	if (!windowOffset && !sentenceId) {
+		cb();
+	}
+	else if (markedTopRelativeOffset < 0
 		|| markedTopRelativeOffset > scrollThreshold) {
 		animationState = animationEnum.SCROLL;
 		$('html, body').animate(
@@ -298,12 +307,37 @@ function highlight(sentenceId) {
 	highlightedSentenceId = sentenceId;
 };
 
-// Toggles the persistent highlight on the currently tracked sentence
-function persistentHighlight() {
-	if (!tracker.isTracking()) { return; }
-	let sentenceId = tracker.getSentenceId();
+// Persistent highlight functions that both draw and save to settings.
+function drawPersistentHighlight(sentenceId) {
+	if (!persistentHighlightSentenceIds.has(sentenceId)) {
+		persistentHighlightSentenceIds.add(sentenceId);
+		settings.setHighlights(window.location.href, persistentHighlightSentenceIds);
+	}
 	var el = doc.getSentenceEls(sentenceId);
-	el.toggleClass(persistentHighlightClass)
+	el.addClass(persistentHighlightClass);
+}
+
+function removePersistentHighlight(sentenceId) {
+	if (persistentHighlightSentenceIds.has(sentenceId)) {
+		persistentHighlightSentenceIds.delete(sentenceId);
+		settings.setHighlights(window.location.href, persistentHighlightSentenceIds);
+	}
+	var el = doc.getSentenceEls(sentenceId);
+	el.removeClass(persistentHighlightClass);
+}
+
+// Toggles the persistent highlight on the currently tracked sentence
+// This draws the UI and also update the saved settings.
+function togglePersistentHighlight() {
+	if (!tracker.isTracking()) {
+		return;
+	}
+	let sentenceId = tracker.getSentenceId();
+	if (persistentHighlightSentenceIds.has(sentenceId)) {
+		removePersistentHighlight(sentenceId);
+	} else {
+		drawPersistentHighlight(sentenceId);
+	}
 }
 
 /*
@@ -397,13 +431,16 @@ function toggleKeywordSettings() {
 
 function setupKeyListeners() {
 	let wpmDisplay = $("#speedContainer");
-	jdoc.on("keydown", function(evt) {
+	/* This creates an event namespace so that only these events
+		are removed when off() is called in removeUI. 
+		See: https://api.jquery.com/on/ , section "Event names and namespaces" */
+	jdoc.on("keydown.running", function(evt) {
 		if (!document.hasFocus()) {
 		  return true;
 		}
 
 		// Disable browser's default behavior of page-downing on space.
-		if (evt.code == 'Space' && evt.target == document.body) {
+		if (evt.target == document.body && ['ArrowDown', 'ArrowUp', 'Space'].includes(evt.code)) {
 		    evt.preventDefault();
 		}
 
@@ -417,10 +454,10 @@ function setupKeyListeners() {
 				stopMove();
                 moveOneDebounced(direction.FORWARD);
 				break;
-			case 'KeyD':	// Increase velocity
+			case 'ArrowUp':	// Increase velocity
 				adjustSpeed(40, wpmDisplay);			
 				break;
-			case 'KeyS':	// Slow velocity
+			case 'ArrowDown':	// Slow velocity
 				adjustSpeed(-40, wpmDisplay);			
 				break;
 			case 'Space': // Switch to auto mode
@@ -435,7 +472,10 @@ function setupKeyListeners() {
 				}
 				break;
 			case 'ShiftRight':
-				persistentHighlight();
+				togglePersistentHighlight();
+				break;
+			case 'ShiftLeft':
+				togglePersistentHighlight();
 				break;
 			case 'Slash':
 				toggleKeywordSettings();
@@ -459,18 +499,22 @@ function initializeTracker() {
 }
 
 function updateDisplaySettings() {
-	settings.getCustomizations(function(settingsCustomizations) {
-		initializeTracker(settingsCustomizations)
-	});
+	initializeTracker(settings.getCustomizations());
 }
 
-  
 /*
 Undo setupKeyListeners()
 */
 function removeKeyListeners() {
-	jdoc.off('keydown');
+	// Remove all keydown events in namespace "running"
+	jdoc.off('keydown.running');
 	jdoc.off('keyup');
+}
+
+function drawAllPersistentHighlights() {
+	persistentHighlightSentenceIds.forEach(function(sentenceId) {
+		drawPersistentHighlight(sentenceId);
+	});
 }
 
 /********************************************************************
@@ -488,30 +532,28 @@ In the INACTIVE state, the widgets are not visible, and no event handlers are at
 ********************************************************************/
 
 // One time setup per page.
-function oneTimeSetup() {
-	let readableDomEls = window.parseDocument();
-	doc = new Doc(readableDomEls);
-	// TODO: Refactor/move this, it currently can't run bc doc isn't ready
-	// If page is not readable, stop setting up the rest of the app.
-	// if (doc.sentences.length === 0) {
-	// 	debug("Stopping app init because page is not readable");
-	// 	return;
-	// }
-	tracker = new Tracker(doc);
+function oneTimeSetup(cb) {
 	// TODO: Refactor using promise logic so this is more readable.
 	// Load all the persistent settings, then render the UI.
-	settings.getSpeed(function(settingsSpeed) {
-		speed = settingsSpeed;
-		// Listen for background.js toggle pings.
-		chrome.runtime.onMessage.addListener(
-			function(request, sender, sendResponse) {
-				if (request.command === "toggleUI") {
-					toggleExtensionVisibility();
-				}
-			}
-		);
-	});
 
+	settings = new window.Settings(function() {
+		let readableDomEls = window.parseDocument();
+		doc = new Doc(readableDomEls, settings);
+		persistentHighlightSentenceIds = settings.getHighlights(
+			window.location.href, doc.getNumSentences());
+		// TODO: Refactor/move this, it currently can't run bc doc isn't ready
+		// If page is not readable, stop setting up the rest of the app.
+		// if (doc.sentences.length === 0) {
+		// 	debug("Stopping app init because page is not readable");
+		// 	return;
+		// }
+		tracker = new Tracker(doc);
+		speed = settings.getSpeed(); 
+		// Check app status, tells if should start ON or OFF
+		if (settings.getAppStatus()) { toggleExtensionVisibility(); }
+		setupKeyListenerForOnOff()
+	});
+	
 }
 /*
 Render all the UI elements.
@@ -520,13 +562,13 @@ function setupUI() {
 	timeTrackerView = new TimeTrackerView(doc, speed);
 	trackerStyle = new TrackerStyle(); // 
 	window.trackerStyle = trackerStyle; // Expose to global
-	settingsView = new SettingsView();
+	settingsView = new SettingsView(settings);
 	
+	drawAllPersistentHighlights();
 	updateDisplaySettings();
   
 	setupSentenceClickListeners();
 	setupKeyListeners();
-  
 }
 /*
 Turn down all the UI elements.
@@ -545,11 +587,32 @@ function removeUI() {
 
 function toggleExtensionVisibility() {
 	if (timeTrackerView === null) {
+		settings.setAppStatus(true); 
 		setupUI();
 	} else {
 		removeUI();
+		settings.setAppStatus(false); 
 	}
 }
+
+function setupKeyListenerForOnOff() {
+	jdoc.on("keydown", function(evt) {
+		if (!document.hasFocus()) {
+		  return true;
+		}
+		/* Make sure the user isn't trying to type anything
+			If there are exceptions to this it should hopefully come up during testing
+			There probably will be exceptions, so the key is WHAT are the exceptions
+		*/
+		let focuses = $(":focus");
+		if (focuses.is("input") || focuses.is("form") || focuses.is("textarea")) { return }
+
+		if (evt.code == 'KeyR') { 
+			toggleExtensionVisibility();
+			return true;
+		}
+	})
+};
 
 oneTimeSetup();
 })(); // End of namespace
