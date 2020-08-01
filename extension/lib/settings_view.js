@@ -112,7 +112,7 @@ class SettingsView {
     setHtmlListeners() {
         let optionsButton = $("#optionsButton");
         if (optionsButton) {
-            optionsButton.addEventListener("click", this.toggleUI.bind(this));
+            optionsButton.on("click", this.toggleUI.bind(this));
         }
     }
 
@@ -130,7 +130,7 @@ class SettingsView {
         } else {
             // Load UI display
             let optionsButton = $("#optionsButton");
-            optionsButton.insertAdjacentHTML("afterend", this.uiHtml);
+            $(this.uiHtml).insertAfter(optionsButton);
 
             // Load background images
             $("#instructionsGraphicAutoRead").css('background-image', "url("+chrome.runtime.getURL('/images/instructionAutoRead.svg')+")");
@@ -144,7 +144,7 @@ class SettingsView {
 
             // Setup exit button
             let closeButton = $("#closeButton");
-            closeButton.addEventListener("click", this.toggleUI.bind(this));
+            closeButton.on("click", this.toggleUI.bind(this));
 
             // Setup click listeners for all setting buttons.
             for (const [k1, settingKeyStr] of Object.entries(trackerSettingKey)) {
