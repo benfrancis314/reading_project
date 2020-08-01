@@ -123,7 +123,6 @@ class Settings {
 			if (settings === null) {
 				settings = {};
 			}
-			console.log(settings);
 			that.settings = settings;
 			cb();
 		});
