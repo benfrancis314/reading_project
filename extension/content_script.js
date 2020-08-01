@@ -608,7 +608,7 @@ function setupKeyListenerForOnOff() {
 			There probably will be exceptions, so the key is WHAT are the exceptions
 			TODO: StackOverflow/Google to try to find more comprehensive solution for edge cases*/
 		let focuses = $(":focus");
-		if (focuses.is("input") || focuses.is("form") || focuses.is("textarea")) { console.log("input"); return }
+		if (focuses.is("input") || focuses.is("form") || focuses.is("textarea")) { return }
 
 		if (evt.code == 'KeyR') { 
 			toggleExtensionVisibility();

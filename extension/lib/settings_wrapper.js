@@ -273,7 +273,7 @@ class Settings {
 		let key = settingKey.APP_STATUS;
 		if (!(key in this.settings)) {
 			// Default app status.
-			this.settings[key] = "off";
+			this.settings[key] = false;
 		}
 		return this.settings[key];
 	}
