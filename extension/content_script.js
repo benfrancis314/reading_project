@@ -566,9 +566,10 @@ function setupKeyListenerForOnOff() {
 		if (!document.hasFocus()) {
 		  return true;
 		}
-		// Make sure the user isn't trying to type anything
-		// If there are exceptions to this it should hopefully come up during testing
-		// There probably will be exceptions, so the key is WHAT are the exceptions
+		/* Make sure the user isn't trying to type anything
+			If there are exceptions to this it should hopefully come up during testing
+			There probably will be exceptions, so the key is WHAT are the exceptions
+			TODO: StackOverflow/Google to try to find more comprehensive solution for edge cases*/
 		let focuses = $(":focus");
 		if (focuses.is("input") || focuses.is("form") || focuses.is("textarea")) { console.log("input"); return }
 
