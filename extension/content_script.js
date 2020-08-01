@@ -235,9 +235,14 @@ function scrollToTracker(cb) {
 	let scrollThreshold = 200;
 	// Autoscroll if tracker is above top of page.
 	// Number of pixels from top of window to top of current container.
-	let markedTopAbsoluteOffset = doc.getSentenceEls(tracker.getSentenceId()).offset().top;
-	let markedTopRelativeOffset = markedTopAbsoluteOffset - $(window).scrollTop();
-	if (markedTopRelativeOffset < 0
+	let sentenceId = tracker.getSentenceId();
+	let markedTopAbsoluteOffset = doc.getSentenceEls(sentenceId).offset().top;
+	let windowOffset = $(window).scrollTop();
+	let markedTopRelativeOffset = markedTopAbsoluteOffset - windowOffset;
+	if (!windowOffset && !sentenceId) {
+		cb();
+	}
+	else if (markedTopRelativeOffset < 0
 		|| markedTopRelativeOffset > scrollThreshold) {
 		animationState = animationEnum.SCROLL;
 		$('html, body').animate(
