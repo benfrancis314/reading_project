@@ -150,10 +150,10 @@ readerease-sentence {
 	border-radius: 15px;
 }
 #closeButton:hover {
-	transform: scale(1.1);
-	opacity: 1;
+	transform: rotate(90deg);
+	opacity: 0.75;
 	cursor: pointer;
-	box-shadow: 0 0 2pt 1pt black;
+	/* box-shadow: 0 0 2pt 1pt black; */
 }
 #uiSections {
 	display: flex;
@@ -301,9 +301,10 @@ readerease-sentence {
 #loadingIcon {
 	position: fixed; 
 	top: 2%;
-	left: 47.5%;
-	width: 5%;
-	height: 5%;
+	left: 50%;
+	right: 50%;
+	width: 25px;
+	height: 25px;
 	opacity: 0;
 	transition: all 0.1s ease;
 	z-index: 1000;
