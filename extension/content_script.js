@@ -263,9 +263,13 @@ function scrollToTracker(cb) {
 		cb();
 		return;
 	}
-	let verticalMargin = 100;
+	const verticalMargin = 100;
 	// The viewing band is from top of the page (0) down to scrollThreshold away
-	let scrollThreshold = 200;
+	const scrollThreshold = 200;
+	// At top of page, shouldn't scroll as soon as reader leaves reading band; can happen in first line
+	// and that can be jarring. Be a little forgiving, let them "walk into" the reading band, like
+	// first level in Mario: https://www.youtube.com/watch?v=K-NBcP0YUQI. Experiment w value
+	const topPageForgiveness = 50;
 	// Autoscroll if tracker is above top of page.
 	// Number of pixels from top of window to top of current container.
 	let sentenceId = tracker.getSentenceId();
@@ -274,7 +278,7 @@ function scrollToTracker(cb) {
 	let markedTopRelativeOffset = getSentenceOffsetFromTop(sentenceId);
 
 	// If still at the top of the page and first sentence, don't immediately autoscroll
-	if (!windowOffset && !sentenceId) {
+	if (!windowOffset && (markedTopAbsoluteOffset - topPageForgiveness < scrollThreshold)) {
 		cb();
 	}
 	else if (markedTopRelativeOffset < 0
@@ -384,6 +388,9 @@ function fadeTracker(fadeMs) {
 Stop all animations related to fading.
 */
 function stopFadeTracker() {
+	if (!tracker.isTracking()) {
+		return false;
+	}
 	// TODO: Fix transition animations.
 	let sentence_els = doc.getSentenceEls(tracker.getSentenceId());
 	sentence_els.stop();
@@ -619,32 +626,23 @@ function toggleExtensionVisibility() {
 	}
 }
 
-function setupKeyListenerForOnOff() {
-	jdoc.on("keydown", function(evt) {
-		if (!document.hasFocus()) {
-		  return true;
-		}
-		/* Make sure the user isn't trying to type anything
-			If there are exceptions to this it should hopefully come up during testing
-			There probably will be exceptions, so the key is WHAT are the exceptions
-		*/
-		let focuses = $(":focus");
-		if (focuses.is("input") || focuses.is("form") || focuses.is("textarea")) { return }
-
-		if (evt.code == 'KeyR') {
-			if (doc === null) {
-				preprocessPage();
-			}
-			toggleExtensionVisibility();
-			return true;
-		}
-	})
+function setupListenerForOnOff() {
+	chrome.runtime.onMessage.addListener(	
+		function(request, sender, sendResponse) {	
+			if (request.command === "toggleUI") {		
+				if (doc === null) {
+					preprocessPage();
+				}
+				toggleExtensionVisibility();
+			}	
+		}	
+	);
 };
 
 // Load settings first, because we might want to auto-load everything
 // before user even inputs anything.
 settings = new window.Settings(function() {
-	setupKeyListenerForOnOff();
+	setupListenerForOnOff();
 	// If auto-on, pretend as if user clicks r immediately.
 	if (settings.getAppStatus()) {
 		preprocessPage();
