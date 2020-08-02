@@ -74,6 +74,9 @@ const sentenceStyleOn = "sentenceStyleOn";
 const sentenceStyleOff = "sentenceStyleOff";
 // Class for persistent highlighter
 const persistentHighlightClass = "persistentHighlight";
+// URL for loading icon SVG
+let loadIconUrl = chrome.runtime.getURL('/images/loadingIcon.svg');
+
 
 // Possible reading directions.
 const direction = {
@@ -574,8 +577,8 @@ function preprocessPage() {
 	let readableDomEls = window.parseDocument();
 	doc = new Doc(readableDomEls, settings);
 	if (doc.getNumSentences() === 0) {
-	 	console.log("Page is not readable. Not running app.");
-	  	return;
+			console.log("Page is not readable. Not running app.");
+			return;
 	}
 	persistentHighlightSentenceIds = settings.getHighlights(
 		window.location.href, doc.getNumSentences());
@@ -596,6 +599,8 @@ function setupUI() {
   
 	setupSentenceClickListeners();
 	setupKeyListeners();
+	// Remove load icon
+	removeLoadIcon();
 }
 /*
 Turn down all the UI elements.
@@ -631,22 +636,41 @@ function setupListenerForOnOff() {
 		function(request, sender, sendResponse) {	
 			if (request.command === "toggleUI") {		
 				if (doc === null) {
-					preprocessPage();
+					// Make sure these load after animation
+					$("#loadingIcon").show(100, function() {
+						preprocessPage();
+						toggleExtensionVisibility();
+					});	
 				}
-				toggleExtensionVisibility();
+				else { toggleExtensionVisibility(); }
 			}	
 		}	
 	);
 };
 
+function setupLoadIcon(cb) {
+	$(`<div id="loadingIcon"></div>`).insertAfter($("body").children().first());
+	$("#loadingIcon").css("background-image", "url("+loadIconUrl+")");
+}
+function removeLoadIcon() {
+	if ($("#loadingIcon").length) {
+		$("#loadingIcon").hide();
+	}
+}
+
+// Setup load icon beforetime, so only have to change opacity
+setupLoadIcon();
+
 // Load settings first, because we might want to auto-load everything
-// before user even inputs anything.
+// before user even inputs anything
 settings = new window.Settings(function() {
 	setupListenerForOnOff();
 	// If auto-on, pretend as if user clicks r immediately.
 	if (settings.getAppStatus()) {
-		preprocessPage();
-		toggleExtensionVisibility();
+		$("#loadingIcon").show(100, function() {
+			preprocessPage();
+			toggleExtensionVisibility();
+		});
 	}
 });
 })(); // End of namespace
