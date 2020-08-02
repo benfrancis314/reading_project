@@ -308,6 +308,7 @@ readerease-sentence {
 	opacity: 0;
 	transition: all 0.1s ease;
 	z-index: 1000;
+	display: none;
 	background-position: center center;
 	background-size: contain;
 	background-repeat: no-repeat;
