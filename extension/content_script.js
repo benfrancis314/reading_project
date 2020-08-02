@@ -74,6 +74,9 @@ const sentenceStyleOn = "sentenceStyleOn";
 const sentenceStyleOff = "sentenceStyleOff";
 // Class for persistent highlighter
 const persistentHighlightClass = "persistentHighlight";
+// URL for loading icon SVG
+let loadIconUrl = chrome.runtime.getURL('/images/loadingIcon.svg');
+
 
 // Possible reading directions.
 const direction = {
@@ -634,7 +637,7 @@ function setupListenerForOnOff() {
 			if (request.command === "toggleUI") {		
 				if (doc === null) {
 					// Make sure these load after animation
-					$("#loadingIcon").animate({opacity: "1"}, 100, function() {
+					$("#loadingIcon").show(100, function() {
 						preprocessPage();
 						toggleExtensionVisibility();
 					});	
@@ -651,22 +654,20 @@ function setupLoadIcon(cb) {
 }
 function removeLoadIcon() {
 	if ($("#loadingIcon").length) {
-		$("#loadingIcon").remove();
+		$("#loadingIcon").hide();
 	}
 }
 
-// Load settings first, because we might want to auto-load everything
-// before user even inputs anything.
-
-let loadIconUrl = chrome.runtime.getURL('/images/loadingIcon.svg');
-
+// Setup load icon beforetime, so only have to change opacity
 setupLoadIcon();
 
+// Load settings first, because we might want to auto-load everything
+// before user even inputs anything
 settings = new window.Settings(function() {
 	setupListenerForOnOff();
 	// If auto-on, pretend as if user clicks r immediately.
 	if (settings.getAppStatus()) {
-		$("#loadingIcon").animate({opacity: "1"}, 100, function() {
+		$("#loadingIcon").show(100, function() {
 			preprocessPage();
 			toggleExtensionVisibility();
 		});
