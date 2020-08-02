@@ -354,6 +354,12 @@ class Settings {
 		}
 		return count;
 	}
+
+	// Debugging tool to clear all settings.
+	clearSettings() {
+		chrome.storage.local.clear();
+		debug("cleared settings!");
+	}
 }
 
 // Expose to global.
