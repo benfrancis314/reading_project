@@ -637,7 +637,8 @@ function setupListenerForOnOff() {
 			if (request.command === "toggleUI") {		
 				if (doc === null) {
 					// Make sure these load after animation
-					$("#loadingIcon").show(100, function() {
+					$("#loadingIcon").show(500, function() {
+						console.log("test");
 						preprocessPage();
 						toggleExtensionVisibility();
 					});	
