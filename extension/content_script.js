@@ -272,7 +272,7 @@ function scrollToTracker(cb) {
 	let windowOffset = $(window).scrollTop();
 	let markedTopAbsoluteOffset = doc.getSentenceEls(sentenceId).offset().top;
 	let markedTopRelativeOffset = getSentenceOffsetFromTop(sentenceId);
-r
+
 	// If still at the top of the page and first sentence, don't immediately autoscroll
 	if (!windowOffset && !sentenceId) {
 		cb();
