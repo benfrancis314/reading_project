@@ -562,27 +562,18 @@ In the INACTIVE state, the widgets are not visible, and no event handlers are at
    E.g. unique ids to all els.
 ********************************************************************/
 
-// One time setup per page.
-function oneTimeSetup(cb) {
-	// TODO: Refactor using promise logic so this is more readable.
-	// Load all the persistent settings, then render the UI.
-
-	settings = new window.Settings(function() {
-		let readableDomEls = window.parseDocument();
-		doc = new Doc(readableDomEls, settings);
-		if (doc.getNumSentences() === 0) {
-		 	console.log("Page is not readable. Not running app.");
-		  	return;
-		}
-		persistentHighlightSentenceIds = settings.getHighlights(
-			window.location.href, doc.getNumSentences());
-		tracker = new Tracker(doc);
-		speed = settings.getSpeed(); 
-		// Check app status, tells if should start ON or OFF
-		if (settings.getAppStatus()) { toggleExtensionVisibility(); }
-		setupKeyListenerForOnOff()
-	});
-	
+// One time heavy preprocessing of the page. No UI changes.
+function preprocessPage() {
+	let readableDomEls = window.parseDocument();
+	doc = new Doc(readableDomEls, settings);
+	if (doc.getNumSentences() === 0) {
+	 	console.log("Page is not readable. Not running app.");
+	  	return;
+	}
+	persistentHighlightSentenceIds = settings.getHighlights(
+		window.location.href, doc.getNumSentences());
+	tracker = new Tracker(doc);
+	speed = settings.getSpeed(); 
 }
 /*
 Render all the UI elements.
@@ -636,12 +627,24 @@ function setupKeyListenerForOnOff() {
 		let focuses = $(":focus");
 		if (focuses.is("input") || focuses.is("form") || focuses.is("textarea")) { return }
 
-		if (evt.code == 'KeyR') { 
+		if (evt.code == 'KeyR') {
+			if (doc === null) {
+				preprocessPage();
+			}
 			toggleExtensionVisibility();
 			return true;
 		}
 	})
 };
 
-oneTimeSetup();
+// Load settings first, because we might want to auto-load everything
+// before user even inputs anything.
+settings = new window.Settings(function() {
+	setupKeyListenerForOnOff();
+	// If auto-on, pretend as if user clicks r immediately.
+	if (settings.getAppStatus()) {
+		preprocessPage();
+		toggleExtensionVisibility();
+	}
+});
 })(); // End of namespace
