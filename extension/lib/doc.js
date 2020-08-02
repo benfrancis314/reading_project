@@ -126,7 +126,6 @@ class Doc {
                 let sentenceBoundary = sentenceBoundaries[i];
                 let start = sentenceBoundary.index;
                 let end = start + sentenceBoundary.offset;
-                this.sentences.push(new SentencePointer(container_id, start, end));
                 let sentenceId = this.sentences.length - 1;
                 let sentenceClassName = "sentence"+sentenceId;
                 // Give each sentence a unique class
@@ -137,7 +136,25 @@ class Doc {
                     className: sentenceClassName,
                     element: "readerease-sentence"
                 });
-                this.sentenceEls.push($("." + sentenceClassName));
+
+                // Filter out sentence elements that have <math> parents
+                let sentenceEls = $("." + sentenceClassName);
+                let filteredSentenceEls = []
+                for (let i = 0; i < sentenceEls.length; i++) {
+                    let el = $(sentenceEls[i]);
+                    if (el.parents('math').length) {
+                        el.removeClass(sentenceClassName);
+                    } else {
+                        filteredSentenceEls.push(el[0]);
+                    }  
+                }
+
+                if (filteredSentenceEls.length == 0) {
+                    continue;
+                }
+
+                this.sentences.push(new SentencePointer(container_id, start, end));
+                this.sentenceEls.push($(filteredSentenceEls));
                 // Set keywords and score for each sentence
                 this.setSentenceKeywordsAndScore(container, containerText, start, end, sentenceId);
             }
@@ -312,7 +329,7 @@ class Doc {
         // This debug is for monitoring the total word count as I go, to see how it progresses
         debug("Number of words in document frequency dictionary: "+Object.keys(documentFreq).length);
         this.termFreq = termFreq; // Set class attribute "termFreq"
-        this.total_words = total_words; // Set total words for use elsewhere (like Display)  
+        this.total_words = total_words; // Set total words for use elsewhere (like Display)
     };
         
 
