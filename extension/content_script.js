@@ -539,7 +539,6 @@ Undo setupKeyListeners()
 function removeKeyListeners() {
 	// Remove all keydown events in namespace "running"
 	jdoc.off('keydown.running');
-	jdoc.off('keyup');
 }
 
 function drawAllPersistentHighlights() {
@@ -620,25 +619,19 @@ function toggleExtensionVisibility() {
 }
 
 function setupKeyListenerForOnOff() {
-	jdoc.on("keydown", function(evt) {
+	jdoc.on('keydown', function(evt) {
 		if (!document.hasFocus()) {
 		  return true;
 		}
-		/* Make sure the user isn't trying to type anything
-			If there are exceptions to this it should hopefully come up during testing
-			There probably will be exceptions, so the key is WHAT are the exceptions
-		*/
-		let focuses = $(":focus");
-		if (focuses.is("input") || focuses.is("form") || focuses.is("textarea")) { return }
 
-		if (evt.code == 'KeyR') {
+		if (evt.altKey && evt.ctrlKey && evt.code == 'KeyR') {
 			if (doc === null) {
 				preprocessPage();
 			}
 			toggleExtensionVisibility();
 			return true;
 		}
-	})
+	});
 };
 
 // Load settings first, because we might want to auto-load everything
