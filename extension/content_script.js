@@ -263,9 +263,13 @@ function scrollToTracker(cb) {
 		cb();
 		return;
 	}
-	let verticalMargin = 100;
+	const verticalMargin = 100;
 	// The viewing band is from top of the page (0) down to scrollThreshold away
-	let scrollThreshold = 200;
+	const scrollThreshold = 200;
+	// At top of page, shouldn't scroll as soon as reader leaves reading band; can happen in first line
+	// and that can be jarring. Be a little forgiving, let them "walk into" the reading band, like
+	// first level in Mario: https://www.youtube.com/watch?v=K-NBcP0YUQI. Experiment w value
+	const topPageForgiveness = 50;
 	// Autoscroll if tracker is above top of page.
 	// Number of pixels from top of window to top of current container.
 	let sentenceId = tracker.getSentenceId();
@@ -274,7 +278,7 @@ function scrollToTracker(cb) {
 	let markedTopRelativeOffset = getSentenceOffsetFromTop(sentenceId);
 
 	// If still at the top of the page and first sentence, don't immediately autoscroll
-	if (!windowOffset && !sentenceId) {
+	if (!windowOffset && (markedTopAbsoluteOffset - topPageForgiveness < scrollThreshold)) {
 		cb();
 	}
 	else if (markedTopRelativeOffset < 0
