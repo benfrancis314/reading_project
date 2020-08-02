@@ -34,8 +34,10 @@ const settingKey = {
 	// Each chrome setting value (a single doc's highlights) is int[], the highlighted sentence IDs. 
 	HIGHLIGHTS: "highlights", 
 
-	// If user wants app ON or OFF. If ON, when they go to a new page, automatically open UI. If not, don't. 
-	APP_STATUS: "app_status"
+	// Hostnames for which the app automaticaly turns on.
+	// Format is a map from string hostname (E.g. "www.wikipedia.org") to int ms since epoch 
+	// of when the site last had this app turned on.
+	WHITELISTED_SITES: "whitelisted_sites"
 };
 
 const trackerSettingKey = {
@@ -140,18 +142,47 @@ class Settings {
 		});
 	}
 
-	// See APP_STATUS
-	// Saves whether app is ON or OFF; used to determine if should open app on new page
+	// See WHITELISTED_SITES
+	// Saves whether app should be ON by default for this host.
 	// Param: bool -> true is ON, false is OFF
 	setAppStatus(app_status) {
-		let key = settingKey.APP_STATUS;
-		this.settings[key] = app_status;
-		chrome.storage.local.set({[key]: app_status}, function() {
-			if (chrome.runtime.lastError) {
-				console.log("Failed to save app_status: " + chrome.runtime.lastError);
-				return;
+		const MAX_WHITELISTED_SITES = 10;
+		let hostname = window.location.host;
+		let key = settingKey.WHITELISTED_SITES;
+		let hasChanged = false;
+		let hostToLastAccessed = this.settings[key];
+		if (app_status) {
+			hostToLastAccessed[hostname] = new Date().getTime();
+			// Keep only the MAX_WHITELISTED_SITES most recently accessed.
+			while (Object.keys(hostToLastAccessed).length > MAX_WHITELISTED_SITES) {
+				let minLastAccessed = null;
+				let minHostname = null;
+				for (const [hostname, lastAccessed] of Object.entries(hostToLastAccessed)) {
+					if (minLastAccessed === null || lastAccessed < minLastAccessed) {
+						minLastAccessed = lastAccessed;
+						minHostname = hostname;
+					}
+				}
+				delete hostToLastAccessed[minHostname]; 
 			}
-		});
+			hasChanged = true;
+		} else {
+			// Should be off.
+			if (hostname in hostToLastAccessed) {
+				delete hostToLastAccessed[hostname];
+				hasChanged = true;
+			}
+		}
+
+		if (hasChanged) {
+			this.settings[key] = hostToLastAccessed;
+			chrome.storage.local.set({[key]: this.settings[key]}, function() {
+				if (chrome.runtime.lastError) {
+					console.log("Failed to save whitelist settings: " + chrome.runtime.lastError);
+					return;
+				}
+			});
+		}
 	}
 
 	// See TRACKER_CUSTOM
@@ -258,7 +289,6 @@ class Settings {
 		});
 	}
 
-
 	// See SPEED
 	getSpeed(cb) {
 		let key = settingKey.SPEED;
@@ -269,15 +299,14 @@ class Settings {
 		return this.settings[key];
 	}
 
-	// See APP_STATUS
+	// See WHITELISTED_SITES
 	// Returns: bool -> true is ON, false is OFF
 	getAppStatus(cb) {
-		let key = settingKey.APP_STATUS;
+		let key = settingKey.WHITELISTED_SITES;
 		if (!(key in this.settings)) {
-			// Default app status.
-			this.settings[key] = false;
+			this.settings[key] = {};
 		}
-		return this.settings[key];
+		return window.location.host in this.settings[key];
 	}
 
 	// See TRACKER_CUSTOM
