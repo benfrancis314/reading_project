@@ -606,6 +606,10 @@ function removeUI() {
 }
 
 function toggleExtensionVisibility() {
+	// Doc is not readable.
+	if (doc.getNumSentences() === 0) {
+		return;
+	}
 	if (timeTrackerView === null) {
 		settings.setAppStatus(true); 
 		setupUI();
