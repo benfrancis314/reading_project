@@ -328,7 +328,10 @@ class Settings {
 		let key = settingKey.DOCUMENT_FREQ;
 		if (!(key in this.settings)) {
 			// Default document freq.
-			this.settings[key] = {};
+			// TODO: Refactor/do this in a better way; modules?
+			// Get baseline DF dictionary from df_baseline.js
+			let df_baseline = window.Df_baseline;
+			this.settings[key] = df_baseline;
 		}
 		return this.settings[key];
 	}
