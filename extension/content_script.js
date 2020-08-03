@@ -711,9 +711,6 @@ function removeLoadIcon() {
 setupLoadIcon();
 setupTutorial();
 
-console.log("test");
-
-
 // Load settings first, because we might want to auto-load everything
 // before user even inputs anything
 settings = new window.Settings(function() {
