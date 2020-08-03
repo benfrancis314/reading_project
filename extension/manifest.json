@@ -29,6 +29,7 @@
             "content.css"	
           ],
           "js":[
+            "log/df_baseline.js",
             "third_party/lodash-4.17.15.js",
             "third_party/jquery-3.5.1.min.js",
             "third_party/jquery.mark-8.11.1.min.js",
