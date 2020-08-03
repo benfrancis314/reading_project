@@ -620,6 +620,8 @@ function removeUI() {
 function toggleExtensionVisibility() {
 	// Doc is not readable.
 	if (doc.getNumSentences() === 0) {
+		// Remove load icon
+		removeLoadIcon();
 		return;
 	}
 	if (timeTrackerView === null) {
