@@ -302,7 +302,6 @@ class Settings {
 			// TODO: Refactor/do this in a better way; modules?
 			// Get baseline DF dictionary from df_baseline.js
 			let df_baseline = window.Df_baseline;
-			console.log(df_baseline)
 			this.settings[key] = df_baseline;
 		}
 		return this.settings[key];

@@ -305,7 +305,6 @@ readerease-sentence {
 	right: 50%;
 	width: 25px;
 	height: 25px;
-	z-index: 1000;
 	display: none;
 	background-position: center center;
 	background-size: contain;
