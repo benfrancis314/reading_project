@@ -30,6 +30,7 @@
             "content.css"	
           ],
           "js":[
+            "log/gearLogo.js",
             "log/df_baseline.js",
             "third_party/lodash-4.17.15.js",
             "third_party/jquery-3.5.1.min.js",
@@ -51,7 +52,6 @@
     "web_accessible_resources": [
         "images/checkMark.svg",
         "images/closeButton.svg",
-        "images/gear.svg",
         "images/instructionAutoRead.svg",
         "images/instructionHighlight.svg",
         "images/instructionKeywordToggle.svg",
@@ -59,8 +59,7 @@
         "images/instructionOnOff.svg",
         "images/instructionSentenceHop.svg",
         "images/instructionSpeed.svg", 
-        "images/loadingIcon.svg",
-        "images/puzzlePiece.svg"
+        "images/loadingIcon.svg"
     ],
     "icons": { 
         "16": "images/logo16.png",

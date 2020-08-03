@@ -46,11 +46,10 @@ chrome.runtime.onInstalled.addListener(function() {
         You have to build a condition in there, except we cannot look for the URL, bc then it would happen every time we visit that url. 
         And so on. This works for now:
         */
-       alert("o");
-        // setTimeout(function() {
-        //     chrome.tabs.sendMessage(tab.id, {command: "toggleUI"}, function(response) {});
-        //         chrome.tabs.sendMessage(tab.id, {command: "startTutorial"}, function(response) {});
-        // }, 3000);      
+        setTimeout(function() {
+                chrome.tabs.sendMessage(tab.id, {command: "startTutorial"}, function(response) {});
+                chrome.tabs.sendMessage(tab.id, {command: "toggleUI"}, function(response) {});
+        }, 3000);      
     
 	});
 });

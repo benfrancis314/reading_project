@@ -76,10 +76,6 @@ const sentenceStyleOff = "sentenceStyleOff";
 const persistentHighlightClass = "persistentHighlight";
 // URL for loading icon SVG
 let loadIconUrl = chrome.runtime.getURL('/images/loadingIcon.svg');
-// URL for loading pin popup puzzle piece SVG
-let pinPopupPuzzlePieceUrl = chrome.runtime.getURL('/images/puzzlePiece.svg');
-// URL for loading tutorial popup gear SVG
-let tutorialPopupGearUrl = chrome.runtime.getURL('/images/gear.svg');
 // URL for loading popup checkmark SVG
 let popupCheckmarkUrl = chrome.runtime.getURL('/images/checkMark.svg');
 
@@ -643,7 +639,8 @@ function toggleExtensionVisibility() {
 function setupListenerForOnOff() {
 	chrome.runtime.onMessage.addListener(	
 		function(request, sender, sendResponse) {
-			if (request.command === "toggleUI") {		
+			if (request.command === "toggleUI") {
+				console.log("how many times");	
 				if (doc === null) {
 					// Make sure these load after animation
 					$("#loadingIcon").show(500, function() {
@@ -662,30 +659,25 @@ function setupListenerForOnOff() {
 
 function setupTutorial() {
 	// TODO: Move these into separate file
-	let pinPopupHtml = `
-		<div id="pinPopupContainer">
-			<div class="popupText">Click on<img id="popupImgPuzzle"></img>to pin</div>
-			<div class="popupCheckmark"></div>
-		</div>
-
-	`;
 	let tutorialPopupHtml = `
 		<div id="tutorialPopupContainer">
-			<div class="popupText">Click on<img id="popupImgGear"></img>for instructions</div>
-			<div class="popupCheckmark">s</div>
+			<div class="popupText">Click the<span id="optionsButtonTutorial">${window.gearLogo}</span>for instructions</div>
+			<div class="popupCheckmark"></div>
 		</div>
 	`;
 	chrome.runtime.onMessage.addListener(	
 		function(request, sender, sendResponse) {	
 			if (request.command === "startTutorial") {		
 				// Start tutorials
-				$(pinPopupHtml).insertBefore($("body").children().first());
-				$(tutorialPopupHtml).insertBefore($("body").children().first());
-				$('#popupImgPuzzle').attr('src', pinPopupPuzzlePieceUrl);
-				$("#popupImgGear").attr('src', tutorialPopupGearUrl);
+				$(tutorialPopupHtml).insertAfter($("body").children().first());
 				$(".popupCheckmark").css("background-image", "url("+popupCheckmarkUrl+")").click(function() {
+					$("#optionsButton").click();
 					$(this).parent().remove();
 				});
+				$("#optionsButtonTutorial").click(function() {
+					$("#optionsButton").click();
+					$("#tutorialPopupContainer").remove();
+				})
 			}	
 		}	
 	);
@@ -719,7 +711,9 @@ settings = new window.Settings(function() {
 	if (settings.getAppStatus()) {
 		$("#loadingIcon").show(500, function() {
 			preprocessPage();
+			if (doc === null) { // No longer guaranteed to be first thing; may get triggered by tutorial
 			toggleExtensionVisibility();
+			}
 		});
 	}
 });
