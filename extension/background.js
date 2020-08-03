@@ -1,6 +1,9 @@
 function toggleUI(tab) {
 	chrome.tabs.sendMessage(tab.id, {command: "toggleUI"}, function(response) {});
 }
+function startTutorial(tab) {
+    chrome.tabs.sendMessage(tab.id, {command: "startTutorial"}, function(response) {});
+}
 
 chrome.browserAction.onClicked.addListener(toggleUI);
 
@@ -16,39 +19,38 @@ chrome.runtime.onInstalled.addListener(function() {
 });
 
 chrome.contextMenus.onClicked.addListener(function(info, tab) {
-	toggleUI(tab);
+    toggleUI(tab);
 })
 
+chrome.runtime.onInstalled.addListener(toggleUI);
+chrome.runtime.onInstalled.addListener(startTutorial);
 chrome.runtime.onInstalled.addListener(function() {
 
-	// Redirect user to a demo page, and auto-start the app there.
-	// TODO: Is this a good page for users to play around w/ the app?
-	let demoUrl = 'https://en.wikipedia.org/wiki/Language';
+    // Redirect user to a demo page, and auto-start the app there.
+	let demoUrl = 'https://en.wikipedia.org/wiki/Reading';
 	chrome.tabs.create({
 	    url: demoUrl,
 	    active: true
 	}, function(tab) {
-		chrome.tabs.sendMessage(tab.id, {command: "toggleUI"}, function(response) {});
+        alert("aa");
+        // Have to wait for new tab to load; see: https://stackoverflow.com/questions/5816373/chrome-tab-create-and-tab-getselected
+            // setInterval(addTutorial, 1000);
+            // function addTutorial() {
+            //     alert("xs");
+            //     // alert(tab.status);
+            //     if (tab.status === "complete") {
+            //         alert("true");
+            //         chrome.tabs.sendMessage(tab.id, {command: "toggleUI"}, function(response) {});
+            //         chrome.tabs.sendMessage(tab.id, {command: "startTutorial"}, function(response) {});
+            //         shouldRepeat = false;
+            //         clearInterval();
+            //     }
+            //     return;
+            // }
+        // })
+        
 	});
-
-	// Creates a new window tutorial window.
-	// TODO: Fill welcome_popup.html with pretty content. 
-	chrome.tabs.create({
-        url: chrome.extension.getURL('welcome_popup.html'),
-        active: false
-    }, function(tab) {
-        // After the tab has been created, open a window to inject the tab
-        // For options documentation, please see
-        // https://developer.chrome.com/extensions/windows#method-create
-        chrome.windows.create({
-            tabId: tab.id,
-            type: 'popup',
-            focused: true,
-            left: 1000,
-            top: 100,
-            width: 400,
-            height: 300,
-            type: "popup"
-        });
-    });
 });
+
+// Take user to survey after uninstall
+chrome.runtime.setUninstallURL("https://www.readerease.com/uninstall");

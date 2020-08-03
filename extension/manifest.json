@@ -4,6 +4,7 @@
     "description": "Read online with ease.",
     "permissions": [
         "activeTab", 
+        "tabs", 
         "contextMenus",
         "storage"
     ],
@@ -48,7 +49,9 @@
         }	
     ],
     "web_accessible_resources": [
+        "images/checkMark.svg",
         "images/closeButton.svg",
+        "images/gear.svg",
         "images/instructionAutoRead.svg",
         "images/instructionHighlight.svg",
         "images/instructionKeywordToggle.svg",
@@ -56,7 +59,8 @@
         "images/instructionOnOff.svg",
         "images/instructionSentenceHop.svg",
         "images/instructionSpeed.svg", 
-        "images/loadingIcon.svg"
+        "images/loadingIcon.svg",
+        "images/puzzlePiece.svg"
     ],
     "icons": { 
         "16": "images/logo16.png",
