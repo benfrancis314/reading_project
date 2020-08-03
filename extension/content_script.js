@@ -637,8 +637,7 @@ function setupListenerForOnOff() {
 			if (request.command === "toggleUI") {		
 				if (doc === null) {
 					// Make sure these load after animation
-					$("#loadingIcon").show(500, function() {
-						console.log("test");
+					$("#loadingIcon").show(100, function() {
 						preprocessPage();
 						toggleExtensionVisibility();
 					});	
@@ -668,7 +667,7 @@ settings = new window.Settings(function() {
 	setupListenerForOnOff();
 	// If auto-on, pretend as if user clicks r immediately.
 	if (settings.getAppStatus()) {
-		$("#loadingIcon").show(500, function() {
+		$("#loadingIcon").show(100, function() {
 			preprocessPage();
 			toggleExtensionVisibility();
 		});
