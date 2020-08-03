@@ -1,9 +1,6 @@
 function toggleUI(tab) {
 	chrome.tabs.sendMessage(tab.id, {command: "toggleUI"}, function(response) {});
 }
-function startTutorial(tab) {
-    chrome.tabs.sendMessage(tab.id, {command: "startTutorial"}, function(response) {});
-}
 
 chrome.browserAction.onClicked.addListener(toggleUI);
 
@@ -22,8 +19,6 @@ chrome.contextMenus.onClicked.addListener(function(info, tab) {
     toggleUI(tab);
 })
 
-chrome.runtime.onInstalled.addListener(toggleUI);
-chrome.runtime.onInstalled.addListener(startTutorial);
 chrome.runtime.onInstalled.addListener(function() {
 
     // Redirect user to a demo page, and auto-start the app there.
@@ -44,11 +39,12 @@ chrome.runtime.onInstalled.addListener(function() {
         - tab.pendingUrl is always equal to the demoUrl, so we cannot use it to see if we are succesfully at that tab yet. 
         The stack overflow recommends using onUpdated, but this results in a listener that gets called for every tab update. 
         You have to build a condition in there, except we cannot look for the URL, bc then it would happen every time we visit that url. 
-        And so on. This works for now:
+        And so on. This works for now, though it incurs an unwanted delay:
         */
         setTimeout(function() {
-                chrome.tabs.sendMessage(tab.id, {command: "startTutorial"}, function(response) {});
-                chrome.tabs.sendMessage(tab.id, {command: "toggleUI"}, function(response) {});
+                chrome.tabs.sendMessage(tab.id, {command: "startTutorial"}, function(response) {
+                    chrome.tabs.sendMessage(tab.id, {command: "toggleUITutorial"}, function(response) {})
+                });
         }, 3000);      
     
 	});

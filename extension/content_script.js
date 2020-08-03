@@ -275,6 +275,8 @@ function scrollToTracker(cb) {
 	// and that can be jarring. Be a little forgiving, let them "walk into" the reading band, like
 	// first level in Mario: https://www.youtube.com/watch?v=K-NBcP0YUQI. Experiment w value
 	const topPageForgiveness = 50;
+	// Above this is the reading timer; when scrolling up, don't let tracker get above this
+	const upperLimit = 35;
 	// Autoscroll if tracker is above top of page.
 	// Number of pixels from top of window to top of current container.
 	let sentenceId = tracker.getSentenceId();
@@ -286,7 +288,7 @@ function scrollToTracker(cb) {
 	if (!windowOffset && (markedTopAbsoluteOffset - topPageForgiveness < scrollThreshold)) {
 		cb();
 	}
-	else if (markedTopRelativeOffset < 0
+	else if (markedTopRelativeOffset < upperLimit
 		|| markedTopRelativeOffset > scrollThreshold) {
 		animationState = animationEnum.SCROLL;
 		$('html, body').animate(
@@ -639,8 +641,7 @@ function toggleExtensionVisibility() {
 function setupListenerForOnOff() {
 	chrome.runtime.onMessage.addListener(	
 		function(request, sender, sendResponse) {
-			if (request.command === "toggleUI") {
-				console.log("how many times");	
+			function toggleApp() {
 				if (doc === null) {
 					// Make sure these load after animation
 					$("#loadingIcon").show(500, function() {
@@ -648,14 +649,22 @@ function setupListenerForOnOff() {
 						toggleExtensionVisibility();
 					});	
 				}
-				else { 
-					toggleExtensionVisibility(); 
-				}
+				else { toggleExtensionVisibility(); }
+			}			
+			if (request.command === "toggleUI") {
+				toggleApp();
 			}	
+			// TODO: This can be perhaps refactored. For now, it's an easy fir
+			else if (request.command === "toggleUITutorial") {
+				if (settings.getAppStatus()) {
+					return; // If app status is on, do nothing
+				} 
+				toggleApp();
+			}	
+			
 		}	
 	);
 };
-
 
 function setupTutorial() {
 	// TODO: Move these into separate file
@@ -667,16 +676,16 @@ function setupTutorial() {
 	`;
 	chrome.runtime.onMessage.addListener(	
 		function(request, sender, sendResponse) {	
-			if (request.command === "startTutorial") {		
-				// Start tutorials
+			if (request.command === "startTutorial") {	
 				$(tutorialPopupHtml).insertAfter($("body").children().first());
+				let tutorialPopup = $("#tutorialPopupContainer");
 				$(".popupCheckmark").css("background-image", "url("+popupCheckmarkUrl+")").click(function() {
 					$("#optionsButton").click();
-					$(this).parent().remove();
+					tutorialPopup.remove()
 				});
 				$("#optionsButtonTutorial").click(function() {
 					$("#optionsButton").click();
-					$("#tutorialPopupContainer").remove();
+					tutorialPopup.remove();
 				})
 			}	
 		}	
@@ -706,15 +715,13 @@ setupTutorial();
 // Load settings first, because we might want to auto-load everything
 // before user even inputs anything
 settings = new window.Settings(function() {
-	setupListenerForOnOff();
-	// If auto-on, pretend as if user clicks r immediately.
-	if (settings.getAppStatus()) {
-		$("#loadingIcon").show(500, function() {
-			preprocessPage();
-			if (doc === null) { // No longer guaranteed to be first thing; may get triggered by tutorial
-			toggleExtensionVisibility();
-			}
-		});
-	}
+		setupListenerForOnOff();
+		// If auto-on, pretend as if user clicks r immediately.
+		if (settings.getAppStatus()) {
+			$("#loadingIcon").show(500, function() {
+				preprocessPage();
+				toggleExtensionVisibility();
+			});
+		}
 });
 })(); // End of namespace
