@@ -40,6 +40,8 @@ chrome.runtime.onInstalled.addListener(function() {
         The stack overflow recommends using onUpdated, but this results in a listener that gets called for every tab update. 
         You have to build a condition in there, except we cannot look for the URL, bc then it would happen every time we visit that url. 
         And so on. This works for now, though it incurs an unwanted delay:
+        - Other options: (1) end a message back from content script to background to see when loaded (maybe works; good avenue to try)
+                         (2) create a tutorial architecture in the settings to keep track of current place in tutorial
         */
         setTimeout(function() {
                 chrome.tabs.sendMessage(tab.id, {command: "startTutorial"}, function(response) {

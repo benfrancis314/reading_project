@@ -687,6 +687,7 @@ function setupTutorial() {
 					$("#optionsButton").click();
 					tutorialPopup.remove();
 				})
+				// TODO: Also remove tutorial if click normal gear icon. 
 			}	
 		}	
 	);
