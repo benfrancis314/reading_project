@@ -76,6 +76,8 @@ const sentenceStyleOff = "sentenceStyleOff";
 const persistentHighlightClass = "persistentHighlight";
 // URL for loading icon SVG
 let loadIconUrl = chrome.runtime.getURL('/images/loadingIcon.svg');
+// URL for loading popup checkmark SVG
+let popupCheckmarkUrl = chrome.runtime.getURL('/images/checkMark.svg');
 
 
 // Possible reading directions.
@@ -273,6 +275,8 @@ function scrollToTracker(cb) {
 	// and that can be jarring. Be a little forgiving, let them "walk into" the reading band, like
 	// first level in Mario: https://www.youtube.com/watch?v=K-NBcP0YUQI. Experiment w value
 	const topPageForgiveness = 50;
+	// Above this is the reading timer; when scrolling up, don't let tracker get above this
+	const upperLimit = 35;
 	// Autoscroll if tracker is above top of page.
 	// Number of pixels from top of window to top of current container.
 	let sentenceId = tracker.getSentenceId();
@@ -284,7 +288,7 @@ function scrollToTracker(cb) {
 	if (!windowOffset && (markedTopAbsoluteOffset - topPageForgiveness < scrollThreshold)) {
 		cb();
 	}
-	else if (markedTopRelativeOffset < 0
+	else if (markedTopRelativeOffset < upperLimit
 		|| markedTopRelativeOffset > scrollThreshold) {
 		animationState = animationEnum.SCROLL;
 		$('html, body').animate(
@@ -611,6 +615,7 @@ function removeUI() {
 	removeClickListeners();
 	stopMove();
 	unhighlightEverything();
+	removeTutorial();
 	tracker.reset();
 	timeTrackerView.turnDownUI();
 	timeTrackerView = null;
@@ -635,20 +640,64 @@ function toggleExtensionVisibility() {
 
 function setupListenerForOnOff() {
 	chrome.runtime.onMessage.addListener(	
-		function(request, sender, sendResponse) {	
-			if (request.command === "toggleUI") {		
+		function(request, sender, sendResponse) {
+			function toggleApp() {
 				if (doc === null) {
 					// Make sure these load after animation
-					$("#loadingIcon").show(100, function() {
+					$("#loadingIcon").show(500, function() {
 						preprocessPage();
 						toggleExtensionVisibility();
 					});	
 				}
 				else { toggleExtensionVisibility(); }
+			}			
+			if (request.command === "toggleUI") {
+				toggleApp();
 			}	
+			// TODO: This can be perhaps refactored. For now, it's an easy fir
+			else if (request.command === "toggleUITutorial") {
+				if (settings.getAppStatus()) {
+					return; // If app status is on, do nothing
+				} 
+				toggleApp();
+			}	
+			
 		}	
 	);
 };
+
+function setupTutorial() {
+	// TODO: Move these into separate file
+	let tutorialPopupHtml = `
+		<div id="tutorialPopupContainer">
+			<div class="popupText">Click the<span id="optionsButtonTutorial">${window.gearLogo}</span>for instructions</div>
+			<div class="popupCheckmark"></div>
+		</div>
+	`;
+	chrome.runtime.onMessage.addListener(	
+		function(request, sender, sendResponse) {	
+			if (request.command === "startTutorial") {	
+				$(tutorialPopupHtml).insertAfter($("body").children().first());
+				let tutorialPopup = $("#tutorialPopupContainer");
+				$(".popupCheckmark").css("background-image", "url("+popupCheckmarkUrl+")").click(function() {
+					$("#optionsButton").click();
+					tutorialPopup.remove()
+				});
+				$("#optionsButtonTutorial").click(function() {
+					$("#optionsButton").click();
+					tutorialPopup.remove();
+				})
+				// TODO: Also remove tutorial if click normal gear icon. 
+			}	
+		}	
+	);
+}
+function removeTutorial() {
+	let pinPopup = $("#pinPopupContainer");
+	let tutorialPopup = $("#tutorialPopupContainer");
+	if (pinPopup) { pinPopup.remove() }
+	if (tutorialPopup) { tutorialPopup.remove() }
+}
 
 function setupLoadIcon(cb) {
 	$(`<div id="loadingIcon"></div>`).insertAfter($("body").children().first());
@@ -662,6 +711,7 @@ function removeLoadIcon() {
 
 // Setup load icon beforetime, so only have to change opacity
 setupLoadIcon();
+setupTutorial();
 
 // Load settings first, because we might want to auto-load everything
 // before user even inputs anything
@@ -669,7 +719,7 @@ settings = new window.Settings(function() {
 	setupListenerForOnOff();
 	// If auto-on, pretend as if user clicks r immediately.
 	if (settings.getAppStatus()) {
-		$("#loadingIcon").show(100, function() {
+		$("#loadingIcon").show(500, function() {
 			preprocessPage();
 			toggleExtensionVisibility();
 		});

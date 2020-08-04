@@ -123,9 +123,10 @@ It's okay to be obnoxiously high because user can always deactivate the extensio
 	transition: all 0.5s ease;
 	stroke: #77a3eb; /* "HTML Link Blue" */
 	stroke-width: 5px;
+	color: #666666;
 }
 #gear {
-	fill: rgb(128, 128, 128) !important; /* Gray */
+	fill: #808080 !important; /* Gray */
 	transition: all 0.5s ease;
 	stroke-width: 0px;
 }
@@ -315,6 +316,7 @@ It's okay to be obnoxiously high because user can always deactivate the extensio
 	right: 50%;
 	width: 25px;
 	height: 25px;
+	z-index: 1000;
 	display: none;
 	background-position: center center;
 	background-size: contain;
@@ -324,6 +326,92 @@ It's okay to be obnoxiously high because user can always deactivate the extensio
 @keyframes infiniteRotate {
 	0%   {transform: rotate(0deg)}
 	100% {transform: rotate(360deg)}
+}
+
+/* TUTORIAL */
+
+#tutorialPopupContainer {
+	position: fixed;
+	box-shadow: 0px 2px 3pt 2px rgb(0, 0, 0, 0.5);  /* Transparent black */
+	border-radius: 10px;
+	font-size: 1em;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	z-index: 1000;
+	height: 40px;
+	background-color: rgba(255, 255, 255, 0.925);
+}
+#tutorialPopupContainer {
+	top: 6%;
+	left: 48.1%;
+	width: 24.5%;
+}
+.popupText {
+	width: 80%;
+	height: 20px;
+	text-align: center;
+	padding: 11px 0px 8px 15px;
+	font-family: "Montserrat";
+	border-radius: 10px 0px 0px 10px;
+}
+#popupImgGear {
+	width: 25px;
+	height: 25px;
+	background-position: center center;
+	background-size: contain;
+	background-repeat: no-repeat;
+	text-align: center;
+	margin-top: 0;
+	margin-bottom: 0;
+	padding: 0px 7px 5px 7px;
+
+}
+.popupCheckmark {
+	transition: all 0.5s ease;
+	background-position: center center;
+	background-size: 20%;
+	background-repeat: no-repeat;
+	padding: 10px 35px 10px 0px;
+	width: 10%;
+	height: 20px;
+	border: 1px solid rgba(156, 156, 156, 0.527);
+	border-width: 0px 0px 0px 1px;
+	border-radius: 0px 10px 10px 0px;
+	background-color: rgb(255, 248, 185);
+}
+.popupCheckmark:hover {
+	width: 15%;
+	background-color: #fee517;
+	cursor: pointer;
+}
+.popupCheckmark:active {
+	transform: scale(1.2);
+}
+#optionsButtonTutorial {	
+  	background-repeat: no-repeat !important; 
+	margin-top: 0;
+	margin-bottom: 0;
+	padding: 0px 7px 0px 7px;
+	text-align: center;
+	vertical-align: middle;
+}
+#optionsButtonTutorial svg {
+	width: 18px;
+	height: 18px;
+	transition: all 2s ease;
+}
+#optionsButtonTutorial:hover svg {
+	cursor: pointer !important;
+	transform: rotate(180deg);
+}
+#optionsButtonTutorial:hover svg g g #gear {
+	fill: #77a3eb !important; /* "HTML Link Blue" */
+	transition: all 0.5s ease;
+	stroke: #77a3eb; /* "HTML Link Blue" */
+	stroke-width: 5px;
+	color: #666666;
+	margin: 0 auto;
 }
 
 
