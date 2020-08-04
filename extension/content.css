@@ -5,10 +5,13 @@ readerease-sentence {
 /* Make these containers be on top of any other element, because some websites
 have headers with high z-indices.
 It's okay to be obnoxiously high because user can always deactivate the extension.
-For where the magic value came from, see
-https://stackoverflow.com/questions/491052/minimum-and-maximum-value-of-z-index/25461690#25461690
  */
 #readingDisplayContainer, #optionsButton, #uiContainer {
+	/*
+ 	Max z-index for Chrome.
+ 	See
+ 	https://stackoverflow.com/questions/491052/minimum-and-maximum-value-of-z-index/25461690#25461690
+	*/
 	z-index: 16777271;
 }
 
