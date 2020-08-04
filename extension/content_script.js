@@ -470,6 +470,9 @@ function toggleKeywordSettings() {
 		settingsView.changeSetting('keyword', 'bright'); 
 	}
 	else if (currentKeywordStyle == 'bright') { 
+		settingsView.changeSetting('keyword', 'gentle'); 
+	}
+	else if (currentKeywordStyle == 'gentle') { 
 		settingsView.changeSetting('keyword', 'off'); 
 	}
 }

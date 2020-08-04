@@ -46,6 +46,7 @@ const trackerSettingKey = {
 const trackerSettingValue = {
 	LIGHT: "light",
 	BRIGHT: "bright",
+	GENTLE: "gentle",
 	OFF: "off"
 };
 
