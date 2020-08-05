@@ -147,6 +147,7 @@ class SettingsView {
             $("#instructionsGraphicHighlight").css('background-image', "url("+chrome.runtime.getURL('/images/instructionHighlight.svg')+")");
             $("#instructionsGraphicMove").css('background-image', "url("+chrome.runtime.getURL('/images/instructionMove.svg')+")");
             $("#instructionsGraphicOnOff").css('background-image', "url("+chrome.runtime.getURL('/images/instructionOnOff.svg')+")");
+            $("#instructionsGraphicOnOffLogo").css('background-image', "url("+chrome.runtime.getURL('/images/logoWithBackground.svg')+")");
             $("#instructionsGraphicSentenceHop").css('background-image', "url("+chrome.runtime.getURL('/images/instructionSentenceHop.svg')+")");
             $("#instructionsGraphicSpeed").css('background-image', "url("+chrome.runtime.getURL('/images/instructionSpeed.svg')+")");
             $("#closeUIButton").css('background-image', "url("+chrome.runtime.getURL('/images/closeButton.svg')+")");
@@ -197,6 +198,7 @@ class SettingsView {
                         <div id="instructionGroupOne">
                             <div class="instructionsComponent">
                                 <div class="instructionsName">ON/OFF</div>
+                                <div id="instructionsGraphicOnOffLogo"></div>
                                 <div id="instructionsGraphicOnOff"></div>
                             </div>
                         </div>
@@ -212,7 +214,7 @@ class SettingsView {
                         </div>
                         <div id="instructionGroupThree">
                             <div class="instructionsComponent">
-                                <div class="instructionsName">TOGGLE AUTO-READ</div>
+                                <div class="instructionsName">TOGGLE AUTO-SCROLL</div>
                                 <div id="instructionsGraphicAutoRead"></div>
                             </div>
                             <div class="instructionsComponentTwo">

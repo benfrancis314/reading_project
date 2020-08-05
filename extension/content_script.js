@@ -76,8 +76,6 @@ const sentenceStyleOff = "sentenceStyleOff";
 const persistentHighlightClass = "persistentHighlight";
 // URL for loading icon SVG
 let loadIconUrl = chrome.runtime.getURL('/images/loadingIcon.svg');
-// URL for loading popup checkmark SVG
-let popupCheckmarkUrl = chrome.runtime.getURL('/images/checkMark.svg');
 
 
 // Possible reading directions.
@@ -670,31 +668,16 @@ function setupListenerForOnOff() {
 };
 
 function setupTutorial() {
-	// TODO: Move these into separate file
-	let tutorialPopupHtml = `
-		<div id="tutorialPopupContainer">
-			<div class="popupText">Click the<span id="optionsButtonTutorial">${window.gearLogo}</span>for instructions</div>
-			<div class="popupCheckmark"></div>
-		</div>
-	`;
 	chrome.runtime.onMessage.addListener(	
 		function(request, sender, sendResponse) {	
 			if (request.command === "startTutorial") {	
-				$(tutorialPopupHtml).insertAfter($("body").children().first());
-				let tutorialPopup = $("#tutorialPopupContainer");
-				$(".popupCheckmark").css("background-image", "url("+popupCheckmarkUrl+")").click(function() {
-					$("#optionsButton").click();
-					tutorialPopup.remove()
-				});
-				$("#optionsButtonTutorial").click(function() {
-					$("#optionsButton").click();
-					tutorialPopup.remove();
-				})
-				// TODO: Also remove tutorial if click normal gear icon. 
+				// Starts tutorial; if don't end up using, delete binding & just call constructor
+				let tutorial = new window.Tutorial;
 			}	
 		}	
 	);
 }
+
 function removeTutorial() {
 	let pinPopup = $("#pinPopupContainer");
 	let tutorialPopup = $("#tutorialPopupContainer");

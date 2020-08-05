@@ -43,6 +43,7 @@
             "lib/document_parser.js",
             "lib/tracker.js",
             "lib/time_tracker_view.js",
+            "lib/tutorial.js",
             "lib/doc.js",
             "lib/settings_view.js",
             "content_script.js"
@@ -59,7 +60,8 @@
         "images/instructionOnOff.svg",
         "images/instructionSentenceHop.svg",
         "images/instructionSpeed.svg", 
-        "images/loadingIcon.svg"
+        "images/loadingIcon.svg",
+        "images/logoWithBackground.svg"
     ],
     "icons": { 
         "16": "images/logo16.png",
