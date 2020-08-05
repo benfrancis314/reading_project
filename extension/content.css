@@ -343,7 +343,7 @@ It's okay to be obnoxiously high because user can always deactivate the extensio
 	transition: all 0.5s ease;
 }
 #instructionsGraphicOnOffLogo {
-	margin-bottom: 10px;
+	margin-top: 3px;
 	margin-bottom: 10px;
 	height: 28px;
 	width: 100px;
@@ -430,8 +430,8 @@ It's okay to be obnoxiously high because user can always deactivate the extensio
 	width: 24.5%;
 }
 #tutorialMoveContainer {
-	top: 10%;
-	left: 48.1%;
+	bottom: 10%;
+	left: 5%;
 	width: 24.5%;
 }
 #tutorialAutoContainer {

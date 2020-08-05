@@ -7,12 +7,18 @@ if (window[namespace] === true) {
     window[namespace] = true;
 }
 
-// URL for checkmark logo
+// URLs for various images; putting here for readability
 let popupCheckmarkUrl = chrome.runtime.getURL('/images/checkMark.svg');
-// URL for down arrow
 let downArrow = chrome.runtime.getURL('/images/downArrow.svg');
-// URL for up arrow
 let upArrow = chrome.runtime.getURL('/images/upArrow.svg');
+let rightArrowKey = chrome.runtime.getURL('/images/rightArrow.svg');
+let spaceBar = chrome.runtime.getURL('/images/instructionAutoRead.svg');
+let shiftButton = chrome.runtime.getURL('/images/instructionHighlight.svg');
+let alt_r = chrome.runtime.getURL('/images/instructionOnOff.svg');
+let logo = chrome.runtime.getURL('/images/logoWithBackground.svg');
+let puzzleIcon = chrome.runtime.getURL('/images/puzzlePiece.svg');
+let pinIcon = chrome.runtime.getURL('/images/pin.svg');
+
 
 /*
 Represents the tutorial objects
@@ -64,7 +70,7 @@ class Tutorial {
             <div id="tutorialMoveContainer">
                 <div class="popupText">Press the <span id="tutorialMoveLogo"></span>key to move forward</div>
                 <div class="popupCheckmark"></div>
-                <div id="tutorialStepTwoDownArrow"></div>
+                <div id="tutorialStepFourDownArrow"></div>
             </div>`;
         this.autoHtml = `
             <div id="tutorialAutoContainer">
@@ -92,7 +98,7 @@ class Tutorial {
             </div>`;
     }
     
-    
+    // Welcome
     startTutorial() {
         let self = this;
         $(this.startHtml).insertAfter($("body").children().first());
@@ -108,7 +114,7 @@ class Tutorial {
 
         // TODO: Also remove tutorial if click normal gear icon. 
     }
-
+    // Estimated time
     tutorialStepTwo() {
         let self = this;
         let estimatedTimeHtml = self.estimatedTimeHtml;
@@ -121,6 +127,7 @@ class Tutorial {
             tutorialPopup.fadeOut(250);
         });
     }
+    // Instructions
     tutorialStepThree() {
         let self = this;
         let instructionsHtml = self.instructionsHtml;
@@ -139,11 +146,14 @@ class Tutorial {
             tutorialPopup.fadeOut(250);
         });
     }
+    // Move
     tutorialStepFour() {
         let self = this;
         let moveHtml = self.moveHtml;
         
         $(moveHtml).insertAfter($("body").children().first());
+        $("#tutorialMoveLogo").css('background-image', "url("+rightArrowKey+")");
+        $("#tutorialStepFourDownArrow").css('background-image', "url("+downArrow+")");
         let tutorialPopup = $("#tutorialMoveContainer");
         $(".popupCheckmark").css("background-image", "url("+popupCheckmarkUrl+")").click(function() {
             $("#optionsButton").click();
@@ -156,11 +166,13 @@ class Tutorial {
             tutorialPopup.fadeOut(250);
         });
     }
+    // Auto mode
     tutorialStepFive() {
         let self = this;
         let autoHtml = self.autoHtml;
         
         $(autoHtml).insertAfter($("body").children().first());
+        $("#tutorialSpaceLogo").css('background-image', "url("+spaceBar+")");
         let tutorialPopup = $("#tutorialAutoContainer");
         $(".popupCheckmark").css("background-image", "url("+popupCheckmarkUrl+")").click(function() {
             $("#optionsButton").click();
@@ -173,6 +185,7 @@ class Tutorial {
             tutorialPopup.fadeOut(250);
         })
     }
+    // Speed
     tutorialStepSix() {
         let self = this;
         let speedHtml= self.speedHtml;
@@ -190,6 +203,25 @@ class Tutorial {
             tutorialPopup.fadeOut(250);
         })
     }
+    // Speed
+    tutorialStepSix() {
+        let self = this;
+        let speedHtml= self.speedHtml;
+        
+        $(speedHtml).insertAfter($("body").children().first());
+        let tutorialPopup = $("#tutorialSpeedContainer");
+        $(".popupCheckmark").css("background-image", "url("+popupCheckmarkUrl+")").click(function() {
+            $("#optionsButton").click();
+            self.tutorialStepSeven();
+            tutorialPopup.fadeOut(250);
+        });
+        $("#optionsButtonTutorial").click(function() {
+            $("#optionsButton").click();
+            self.tutorialStepSeven();
+            tutorialPopup.fadeOut(250);
+        })
+    }
+    // Highlight
     tutorialStepSeven() {
         let self = this;
         let highlightHtml = self.highlightHtml;
@@ -205,6 +237,23 @@ class Tutorial {
             tutorialPopup.fadeOut(250);
         })
     }
+    // Highlight
+    tutorialStepSeven() {
+        let self = this;
+        let highlightHtml = self.highlightHtml;
+        
+        $(highlightHtml).insertAfter($("body").children().first());
+        let tutorialPopup = $("#tutorialHighlightContainer");
+        $(".popupCheckmark").css("background-image", "url("+popupCheckmarkUrl+")").click(function() {
+            $("#optionsButton").click();
+            tutorialPopup.fadeOut(250);
+        });
+        $("#optionsButtonTutorial").click(function() {
+            $("#optionsButton").click();
+            tutorialPopup.fadeOut(250);
+        })
+    }
+    // On/Off
     tutorialStepEight() {
         let self = this;
         let onOffHtml = self.onOffHtml;
