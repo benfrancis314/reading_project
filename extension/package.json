@@ -1,0 +1,35 @@
+{
+  "name": "reading_project",
+  "version": "1.0.0",
+  "description": "Project to use technology to help improve the reading process!",
+  "main:": "content_script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/benfrancis314/reading_project.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/benfrancis314/reading_project/issues"
+  },
+  "homepage": "https://github.com/benfrancis314/reading_project#readme",
+  "devDependencies": {
+    "webpack": "^4.44.1",
+    "webpack-cli": "^3.3.12"
+  },
+  "dependencies": {
+    "@babel/core": "^7.11.1",
+    "@babel/preset-env": "^7.11.0",
+    "babel-loader": "^8.1.0",
+    "eslint": "^7.6.0",
+    "eslint-loader": "^4.0.2",
+    "jquery": "^3.5.1",
+    "jquery-ui": "^1.12.1",
+    "lodash": "^4.17.19",
+    "mark.js": "^8.11.1"
+  }
+}

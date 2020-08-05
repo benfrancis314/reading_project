@@ -1,14 +1,5 @@
 // Prevent the usage of undeclared variables.
 "use strict";
-
-(function(){
-var namespace = "lib/settings_wrapper.js";
-if (window[namespace] === true) {
-	return;
-} else {
-	window[namespace] = true;
-}
-
 // List of chrome storage keys.
 const settingKey = {
 	// WPM. If not set yet, default value of 260.
@@ -38,16 +29,6 @@ const settingKey = {
 	// Format is a map from string hostname (E.g. "www.wikipedia.org") to int ms since epoch 
 	// of when the site last had this app turned on.
 	WHITELISTED_SITES: "whitelisted_sites"
-};
-
-const trackerSettingKey = {
-	KEYWORD: "keyword"
-};
-const trackerSettingValue = {
-	LIGHT: "light",
-	BRIGHT: "bright",
-	GENTLE: "gentle",
-	OFF: "off"
 };
 
 // See https://docs.google.com/document/d/122o4vYiK3RLmYCoT_tL3bzmPzPUb0Q8DMIu2BgaT07U/edit
@@ -86,6 +67,17 @@ function getHighlightKey(docUrl) {
 	return HIGHLIGHT_KEY_PREFIX + hash;
 }
 
+export const trackerSettingKey = {
+	KEYWORD: "keyword"
+};
+
+export const trackerSettingValue = {
+	LIGHT: "light",
+	BRIGHT: "bright",
+	GENTLE: "gentle",
+	OFF: "off"
+};
+
 /*
 Wrapper for persistent storage of user's settings.
 Please see https://docs.google.com/document/d/122o4vYiK3RLmYCoT_tL3bzmPzPUb0Q8DMIu2BgaT07U/edit#
@@ -113,7 +105,7 @@ All the settings' values format are documented in the settingKey enums, and omit
 and get() if there is no change.
 
 */
-class Settings {
+export class Settings {
 	// Load all settings from storage asynchronously, and call cb when done.
 	constructor(cb) {
     	let that = this;
@@ -394,10 +386,3 @@ class Settings {
 		debug("cleared settings!");
 	}
 }
-
-// Expose to global.
-window.Settings = Settings;
-window.trackerSettingKey = trackerSettingKey;
-window.trackerSettingValue = trackerSettingValue;
-
-})(); // End of namespace

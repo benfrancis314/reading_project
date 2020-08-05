@@ -1,18 +1,13 @@
 // Prevent the usage of undeclared variables.
 "use strict";
 
-(function(){
-var namespace = "content_script.js";
-if (window[namespace] === true) {
-	return;
-} else {
-	window[namespace] = true;
-}
+import _ from 'lodash';
+import $ from 'jquery';
+import {Settings, trackerSettingKey, trackerSettingValue} from './lib/settings_wrapper';
 
 // If true, all debugging statements would show.
 // TODO: Use a proper logging library.
-window.DEBUG = true;
-window.debug = function(str) {
+function debug(str) {
 	if (DEBUG) {
 		console.log("DEBUG: " + str);
 	}
@@ -708,7 +703,7 @@ setupTutorial();
 
 // Load settings first, because we might want to auto-load everything
 // before user even inputs anything
-settings = new window.Settings(function() {
+settings = new Settings(function() {
 	setupListenerForOnOff();
 	// If auto-on, pretend as if user clicks r immediately.
 	if (settings.getAppStatus()) {
@@ -718,4 +713,3 @@ settings = new window.Settings(function() {
 		});
 	}
 });
-})(); // End of namespace

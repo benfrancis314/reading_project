@@ -3,3 +3,4 @@
 **/.zip
 
 extension.zip
+**/node_modules/**
