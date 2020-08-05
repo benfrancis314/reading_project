@@ -343,7 +343,8 @@ It's okay to be obnoxiously high because user can always deactivate the extensio
 	transition: all 0.5s ease;
 }
 #instructionsGraphicOnOffLogo {
-	margin-top: 10px;
+	margin-bottom: 10px;
+	margin-bottom: 10px;
 	height: 28px;
 	width: 100px;
 }
@@ -403,7 +404,7 @@ It's okay to be obnoxiously high because user can always deactivate the extensio
 
 /* TUTORIAL */
 
-#tutorialInstructionsContainer, #tutorialTimeEstimateContainer, 
+#tutorialInstructionsContainer, #tutorialEstimatedTimeContainer, 
 #tutorialInstructionsContainer, #tutorialMoveContainer, 
 #tutorialAutoContainer, #tutorialSpeedContainer, 
 #tutorialHighlightContainer, #tutorialOnOffContainer {
@@ -418,14 +419,14 @@ It's okay to be obnoxiously high because user can always deactivate the extensio
 	height: 40px;
 	background-color: rgba(255, 255, 255, 0.925);
 }
-#tutorialTimeEstimateContainer {
-	bottom: 6%;
-	left: 48.1%;
+#tutorialEstimatedTimeContainer {
+	bottom: 14%;
+	left: 35%;
 	width: 24.5%;
 }
 #tutorialInstructionsContainer {
-	top: 8%;
-	left: 48.1%;
+	bottom: 14%;
+	left: 45%;
 	width: 24.5%;
 }
 #tutorialMoveContainer {
@@ -452,6 +453,45 @@ It's okay to be obnoxiously high because user can always deactivate the extensio
 	top: 18%;
 	left: 48.1%;
 	width: 24.5%;
+}
+#tutorialStepTwoDownArrow, #tutorialStepThreeDownArrow, #tutorialStepFourDownArrow, 
+#tutorialStepFiveDownArrow, #tutorialStepSixDownArrow, #tutorialStepSevenDownArrow, 
+#tutorialStepEightDownArrow {
+	position: fixed;
+	width: 15px;
+	height: 15px;
+	background-position: center center;
+	background-size: contain;
+	background-repeat: no-repeat;
+	opacity: 0.35;
+}
+#tutorialStepTwoDownArrow {
+	bottom: 11%;
+	left: 49.5%;
+}
+#tutorialStepThreeDownArrow {
+	bottom: 11%;
+	left: 56%;
+}
+#tutorialStepFourDownArrow {
+	bottom: 11%;
+	left: 50%;
+}
+#tutorialStepFiveDownArrow {
+	bottom: 11%;
+	left: 50%;
+}
+#tutorialStepSixDownArrow {
+	bottom: 11%;
+	left: 50%;
+}
+#tutorialStepSevenDownArrow {
+	bottom: 11%;
+	left: 50%;
+}
+#tutorialStepEightDownArrow {
+	bottom: 11%;
+	left: 50%;
 }
 .popupText {
 	width: 80%;
@@ -535,18 +575,23 @@ It's okay to be obnoxiously high because user can always deactivate the extensio
 	top: 25%;
 	width: 50%;
 	opacity: 0;
+	padding: 0px 0px 10px 0px;
 }
 #tutorialStartWelcome {
 	font-family: "Montserrat";
 	color: rgb(0, 0, 0, 0.75);
 	margin: 0 auto;
 	text-align: center;
+	border: 1px solid #55555570;
+	border-width: 0px 0px 1px 0px;
+	width: 20%;
 }
 #tutorialStartTitle {
 	font-family: "Montserrat";
 	font-size: 200%;
 	color: black;
 	text-align: center;
+	/* box-shadow: 0px 2px 2pt 1px rgb(0, 0, 0, 0.5);  Transparent black */
 }
 #highlightText {
 	background-color: #fee517;
@@ -555,9 +600,11 @@ It's okay to be obnoxiously high because user can always deactivate the extensio
 	font-family: "Montserrat";
 	/* font-weight: 700; */
 	text-align: center;
-	padding: 8px 0px;
+	padding: 0px 0px;
 	margin: 0 auto;
 	color: black;
+	/* box-shadow: 0px 2px 2pt 1px rgb(0, 0, 0, 0.5);  Transparent black */
+	width: 100%;
 }
 #tutorialStartButtonsContainer {
 	width: 100%;
@@ -573,6 +620,7 @@ It's okay to be obnoxiously high because user can always deactivate the extensio
 	text-align: center;
 	border-radius: 15px;
 	box-shadow: 2px 2px 3pt 2px rgb(0, 0, 0, 0.5);  /* Transparent black */
+	font-family: "Montserrat";
 }
 #tutorialStartSkipButton {
 	background-color: white;

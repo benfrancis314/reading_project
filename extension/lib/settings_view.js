@@ -120,7 +120,10 @@ class SettingsView {
     // Also defines the eventListeners for the buttons on the UI display. 
     toggleUI() {
         var self = this; 
-
+        let tutorialPopup = $("#tutorialInstructionsContainer");
+        if (tutorialPopup) {
+            $("#tutorialInstructionsContainer").fadeOut(250);
+        }
 
 
         if (this.uiStatus) {
@@ -168,7 +171,6 @@ class SettingsView {
                 }
             }
             
-
             this.loadSettings();
             // Set UI status to true
             this.uiStatus = true;

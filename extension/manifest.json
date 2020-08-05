@@ -53,6 +53,7 @@
     "web_accessible_resources": [
         "images/checkMark.svg",
         "images/closeButton.svg",
+        "images/downArrow.svg",
         "images/instructionAutoRead.svg",
         "images/instructionHighlight.svg",
         "images/instructionKeywordToggle.svg",
@@ -60,8 +61,11 @@
         "images/instructionOnOff.svg",
         "images/instructionSentenceHop.svg",
         "images/instructionSpeed.svg", 
+        "images/leftArrow.svg",
         "images/loadingIcon.svg",
-        "images/logoWithBackground.svg"
+        "images/logoWithBackground.svg",
+        "images/rightArrow",
+        "images/upArrow.svg"
     ],
     "icons": { 
         "16": "images/logo16.png",
