@@ -124,27 +124,36 @@ class SettingsView {
 
 
         if (this.uiStatus) {
+            $("#bottomOfPageUI").animate({"height":"30%"}, 500);
             let uiContainer = $("#uiContainer");
-            uiContainer.remove();
+            $(uiContainer).animate({"bottom": "-50%", "opacity": "0"}, 500, function() {
+                uiContainer.remove();
+            });
+            $("#persistentUIDisplay").animate({"bottom": "10%"}, 500);
             this.uiStatus = false;
         } else {
             // Load UI display
             let optionsButton = $("#optionsButton");
+            $("#bottomOfPageUI").animate({"height":"50%"}, 500);
+
+            $("#persistentUIDisplay").animate({"bottom": "37%"}, 500);
             $(this.uiHtml).insertAfter(optionsButton);
+            $("#uiContainer").animate({"bottom": "-2%", "opacity": "1"}, 500);
+            
 
             // Load background images
+            $("#keywordsToggleGraphic").css('background-image', "url("+chrome.runtime.getURL('/images/instructionKeywordToggle.svg')+")");
             $("#instructionsGraphicAutoRead").css('background-image', "url("+chrome.runtime.getURL('/images/instructionAutoRead.svg')+")");
             $("#instructionsGraphicHighlight").css('background-image', "url("+chrome.runtime.getURL('/images/instructionHighlight.svg')+")");
-            $("#instructionsGraphicKeywordToggle").css('background-image', "url("+chrome.runtime.getURL('/images/instructionKeywordToggle.svg')+")");
             $("#instructionsGraphicMove").css('background-image', "url("+chrome.runtime.getURL('/images/instructionMove.svg')+")");
             $("#instructionsGraphicOnOff").css('background-image', "url("+chrome.runtime.getURL('/images/instructionOnOff.svg')+")");
             $("#instructionsGraphicSentenceHop").css('background-image', "url("+chrome.runtime.getURL('/images/instructionSentenceHop.svg')+")");
             $("#instructionsGraphicSpeed").css('background-image', "url("+chrome.runtime.getURL('/images/instructionSpeed.svg')+")");
-            $("#closeButton").css('background-image', "url("+chrome.runtime.getURL('/images/closeButton.svg')+")");
+            $("#closeUIButton").css('background-image', "url("+chrome.runtime.getURL('/images/closeButton.svg')+")");
 
             // Setup exit button
-            let closeButton = $("#closeButton");
-            closeButton.on("click", this.toggleUI.bind(this));
+            let closeUIButton = $("#closeUIButton");
+            closeUIButton.on("click", this.toggleUI.bind(this));
 
             // Setup click listeners for all setting buttons.
             for (const [k1, settingKeyStr] of Object.entries(trackerSettingKey)) {
@@ -168,15 +177,17 @@ class SettingsView {
     defineUiHtml() {
         this.uiHtml = this.uiHtml = `
         <div id="uiContainer">
-            <div id="closeButton"></div>
+            <div id="closeUIButton"></div>
             <div id="uiSections">
                 <div id="customizeContainer">
                         <div id="keywordsTitle">
                             KEYWORDS
-                        </div>
+                        </div> 
+                        <div id="toggleWordKeywords">TOGGLE </div><div id="keywordsToggleGraphic"></div>
                         <div id="keywordsOptions">
                             <div class="keywordsButton" id="buttonKeywordLight">LIGHT</div>
                             <div class="keywordsButton" id="buttonKeywordBright">BRIGHT</div>
+                            <div class="keywordsButton" id="buttonKeywordGentle">GENTLE</div>
                             <div class="keywordsButton" id="buttonKeywordOff">OFF</div>
                         </div>
                 </div>
@@ -194,17 +205,17 @@ class SettingsView {
                                 <div class="instructionsName">MOVE</div>
                                 <div id="instructionsGraphicMove"></div>
                             </div>
-                            <div class="instructionsComponent">
+                            <div class="instructionsComponentTwo">
                                 <div class="instructionsName">SENTENCE HOP</div>
                                 <div id="instructionsGraphicSentenceHop"></div>
                             </div>
                         </div>
                         <div id="instructionGroupThree">
                             <div class="instructionsComponent">
-                                <div class="instructionsName">AUTO - READ</div>
+                                <div class="instructionsName">TOGGLE AUTO-READ</div>
                                 <div id="instructionsGraphicAutoRead"></div>
                             </div>
-                            <div class="instructionsComponent">
+                            <div class="instructionsComponentTwo">
                                 <div class="instructionsName">SPEED</div>
                                 <div id="instructionsGraphicSpeed"></div>
                             </div>
@@ -213,10 +224,6 @@ class SettingsView {
                             <div class="instructionsComponent">
                                 <div class="instructionsName">HIGHLIGHT</div>
                                 <div id="instructionsGraphicHighlight"></div>
-                            </div>
-                            <div class="instructionsComponent">
-                                <div class="instructionsName">TOGGLE KEYWORDS</div>
-                                <div id="instructionsGraphicKeywordToggle"></div>
                             </div>
                         </div>
                     </div>
@@ -227,12 +234,20 @@ class SettingsView {
     }
 }
 
+{/* <div class="instructionsComponent">
+<div class="instructionsName">TOGGLE KEYWORDS</div>
+<div id="instructionsGraphicKeywordToggle"></div>
+</div> */}
+
+
+
 // TODO: Support all combinations after refacotring is complete.
 // Supported values for each setting key.
 var SUPPORTED_SETTINGS = {
     [trackerSettingKey.KEYWORD]: new Set([
         trackerSettingValue.LIGHT,
         trackerSettingValue.BRIGHT,
+        trackerSettingValue.GENTLE,
         trackerSettingValue.OFF
         ])
 };

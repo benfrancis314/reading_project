@@ -462,16 +462,9 @@ function adjustSpeed(speedDelta, wpmDisplay) {
 Used to cycle keywords through the three different keyword setting options. 
 */
 function toggleKeywordSettings() {
-	let currentKeywordStyle = settingsView.trackerSetting['keyword'];
-	if (currentKeywordStyle == 'off') { 
-		settingsView.changeSetting('keyword', 'light'); 
-	}
-	else if (currentKeywordStyle == 'light') { 
-		settingsView.changeSetting('keyword', 'bright'); 
-	}
-	else if (currentKeywordStyle == 'bright') { 
-		settingsView.changeSetting('keyword', 'off'); 
-	}
+	// let currentKeywordStyle = settingsView.trackerSetting['keyword'];
+	keywordStyleOrders = ['off', 'light', 'bright', 'gentle']
+	nextStyle = keywordStyleOrders[(keywordStyleOrders.indexOf(currentStyle) + 1) % keywordStyleOrders.length]
 }
 
 function setupKeyListeners() {

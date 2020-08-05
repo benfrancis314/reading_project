@@ -115,28 +115,32 @@ class TimeTrackerView {
     */
     defineDisplayHtml() {
         this.displayHtml = `
-            <div id="readingDisplayContainer">
-                <div id="timerContainer">
-                    <div id="timerInsideContainer">
-                        <span id="timerNumber">Calculating...</span> min
+            <div id="bottomOfPageUI"></div>
+                <div id="persistentUIDisplay">
+                    <div id="readingDisplayContainer">
+                        <div id="speedContainer">
+                            <div id="speedInsideContainer">
+                                <span id="speedNumber">${this.reading_speed}</span> WPM
+                            </div>
+                        </div>
+                        <div id="timerContainer">
+                            <div id="timerInsideContainer">
+                                <span id="timerNumber">Calculating...</span> min
+                            </div>
+                        </div>
+                    </div>
+                    <div id="optionsButton">
+                        ${window.gearLogo}
                     </div>
                 </div>
-                <div id="speedContainer">
-                    <div id="speedInsideContainer">
-                        <span id="speedNumber">${this.reading_speed}</span> WPM
-                    </div>
-                </div>
-            </div>
-            <div id="optionsButton">
-                ${window.gearLogo}
-            </div>
+            
             `;    
     }
 
     // Remove the widget UI elements from DOM.
 
     turnDownUI() {
-        $("#readingDisplayContainer").remove();
+        $("#bottomOfPageUI").remove();
         $('#optionsButton').remove();
         $('#uiContainer').remove();
     }
