@@ -131,8 +131,7 @@ class Tutorial {
         });
     }
     // Instructions
-    // TODO: Change these names to descriptive instead of numbers. 
-    // Having them as numbers makes it significantly harder to add or remove steps
+    // TODO: These are all very similar, so there is a lot of redundancy. Refactor
     tutorialInstructions() {
         let self = this;
         let instructionsHtml = self.instructionsHtml;
@@ -172,9 +171,8 @@ class Tutorial {
         let topPos = elToPointAt.offset().top;
         let halfWidthOfTarget = elToPointAt.width() / 2;
         let halfWidthOfPopup = tutorialPopup.width() / 2;
-        // SHOULD need this; if doesn't work on different screen heights, bc haven't incorporated this. 
         let heightOfPopup = tutorialPopup.height();
-        tutorialPopup.css({"left":(leftPos+halfWidthOfTarget-halfWidthOfPopup), "top":(topPos-window.innerHeight*0.5-heightOfPopup-35)}); // 0.86 bc it gets .top of MOVE before instructions get moved up
+        tutorialPopup.css({"left":(leftPos+halfWidthOfTarget-halfWidthOfPopup), "top":(topPos-window.innerHeight*0.5-heightOfPopup-35)}); // 0.5 bc it gets .top of MOVE before instructions get moved up; it is 50% below window to start
         $(tutorialPopup).delay(1500).animate({"opacity": "1"}, 500);
         $("#tutorialMoveForwardLogo").css('background-image', "url("+rightArrowKey+")");
         $("#tutorialMoveBackwardLogo").css('background-image', "url("+leftArrowKey+")");
