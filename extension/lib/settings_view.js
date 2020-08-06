@@ -168,6 +168,8 @@ class SettingsView {
             this.loadSettings();
             // Set UI status to true
             this.uiStatus = true;
+
+            $("#uiContainer").draggable();
         };
     }
 

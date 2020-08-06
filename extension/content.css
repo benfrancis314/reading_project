@@ -447,8 +447,8 @@ It's okay to be obnoxiously high because user can always deactivate the extensio
 	right: 1%;
 	width: 24.5%;
 }
-#tutorialStepTwoDownArrow, #tutorialStepThreeDownArrow, #tutorialStepFourLeftArrow, 
-#tutorialStepFiveUpArrow, #tutorialStepSixRightArrow, #tutorialStepSevenUpArrow {
+#tutorialInstructionsDownArrow, #tutorialMoveDownArrow, #tutorialAutoLeftArrow, 
+#tutorialKeywordsUpArrow, #tutorialHighlightRightArrow, #tutorialOnOffUpArrow {
 	position: absolute;
 	width: 15px;
 	height: 15px;
@@ -463,33 +463,33 @@ It's okay to be obnoxiously high because user can always deactivate the extensio
 	50% {transform: scale(1.3)}
 	100% {transform: scale(1)}
 }
-#tutorialStepTwoDownArrow {
+#tutorialInstructionsDownArrow {
 	bottom: -50%;
 	left: 48%;
 }
-#tutorialStepThreeDownArrow {
+#tutorialMoveDownArrow {
 	bottom: -30%;
 	left: 48%;
 }
-#tutorialStepFourLeftArrow {
+#tutorialAutoLeftArrow {
 	bottom: 42%;
 	left: -8%;
 	width: 23px;
 	height: 23px;
 }
-#tutorialStepFiveUpArrow {
+#tutorialKeywordsUpArrow {
 	top: -35%;
 	left: 46%;
 	width: 23px;
 	height: 23px;
 }
-#tutorialStepSixRightArrow {
+#tutorialHighlightRightArrow {
 	bottom: 37%;
 	right: -8%;
 	width: 23px;
 	height: 23px;
 }
-#tutorialStepSevenUpArrow {
+#tutorialOnOffUpArrow {
 	top: -16%;
 	right: 32%;
 	width: 23px;
@@ -525,7 +525,7 @@ It's okay to be obnoxiously high because user can always deactivate the extensio
 #tutorialPinLogo  { 
 	width: 15px;
 }
-#tutorialTextTwo, #tutorialTextThree, #tutorialTextFive, #tutorialTextSix {
+#tutorialTextInstructions, #tutorialTextMove, #tutorialTextKeywords, #tutorialTextInstructions {
 	width: 80%;
 	text-align: center;
 	padding: 10px 0px 10px 15px;
@@ -533,20 +533,20 @@ It's okay to be obnoxiously high because user can always deactivate the extensio
 	font-family: "Montserrat";
 	border-radius: 10px 0px 0px 10px;
 }
-#tutorialTextTwo {
+#tutorialTextInstructions {
 	line-height: 1.5;
 	padding: 10px 0px 10px 15px;
 }
-#tutorialTextThree {
+#tutorialTextMove {
 	line-height: 1.5;
 	padding: 10px 0px 10px 15px;
 	height: 50px;
 }
-#tutorialTextFive {
+#tutorialTextKeywords {
 	line-height: 1.5;
 	padding: 12px 0px 8px 15px;
 }
-#tutorialTextSix {
+#tutorialTextHighlight {
 	line-height: 1.5;
 	padding: 12px 0px 8px 15px;
 }
@@ -567,7 +567,7 @@ It's okay to be obnoxiously high because user can always deactivate the extensio
 #tutorialTextOneLiner {
 	padding: 13px 8px 7px 8px !important;
 }
-#tutorialTextFourContainer, #tutorialTextSevenContainer {
+#tutorialTextAutoContainer, #tutorialTextOnOffContainer {
 	width: 80%;
 	display: flex;
 	flex-direction: column;
@@ -575,10 +575,7 @@ It's okay to be obnoxiously high because user can always deactivate the extensio
 	justify-content: space-around;
 	font-family: "Montserrat";
 	border-radius: 10px 0px 0px 10px;
-	padding: 10px 0px 10px 0px;
 	height: 120px;
-}
-#tutorialTextFourContainer, #tutorialTextSevenContainer {
 	padding: 12px 0px 10px 8px;
 }
 #tutorialEndPartOne {
