@@ -76,8 +76,6 @@ const sentenceStyleOff = "sentenceStyleOff";
 const persistentHighlightClass = "persistentHighlight";
 // URL for loading icon SVG
 let loadIconUrl = chrome.runtime.getURL('/images/loadingIcon.svg');
-// URL for loading popup checkmark SVG
-let popupCheckmarkUrl = chrome.runtime.getURL('/images/checkMark.svg');
 
 
 // Possible reading directions.
@@ -462,9 +460,10 @@ function adjustSpeed(speedDelta, wpmDisplay) {
 Used to cycle keywords through the three different keyword setting options. 
 */
 function toggleKeywordSettings() {
-	// let currentKeywordStyle = settingsView.trackerSetting['keyword'];
-	keywordStyleOrders = ['off', 'light', 'bright', 'gentle']
-	nextStyle = keywordStyleOrders[(keywordStyleOrders.indexOf(currentStyle) + 1) % keywordStyleOrders.length]
+	let currentStyle = settingsView.trackerSetting['keyword'];
+	let keywordStyleOrders = ['off', 'light', 'bright', 'gentle'];
+	let nextStyle = keywordStyleOrders[(keywordStyleOrders.indexOf(currentStyle) + 1) % keywordStyleOrders.length]
+	settingsView.changeSetting('keyword', nextStyle); 
 }
 
 function setupKeyListeners() {
@@ -660,35 +659,19 @@ function setupListenerForOnOff() {
 };
 
 function setupTutorial() {
-	// TODO: Move these into separate file
-	let tutorialPopupHtml = `
-		<div id="tutorialPopupContainer">
-			<div class="popupText">Click the<span id="optionsButtonTutorial">${window.gearLogo}</span>for instructions</div>
-			<div class="popupCheckmark"></div>
-		</div>
-	`;
 	chrome.runtime.onMessage.addListener(	
 		function(request, sender, sendResponse) {	
 			if (request.command === "startTutorial") {	
-				$(tutorialPopupHtml).insertAfter($("body").children().first());
-				let tutorialPopup = $("#tutorialPopupContainer");
-				$(".popupCheckmark").css("background-image", "url("+popupCheckmarkUrl+")").click(function() {
-					$("#optionsButton").click();
-					tutorialPopup.remove()
-				});
-				$("#optionsButtonTutorial").click(function() {
-					$("#optionsButton").click();
-					tutorialPopup.remove();
-				})
-				// TODO: Also remove tutorial if click normal gear icon. 
+				// Starts tutorial
+				let tutorial = new window.Tutorial;
+				window.tutorial = tutorial;
 			}	
 		}	
 	);
 }
+
 function removeTutorial() {
-	let pinPopup = $("#pinPopupContainer");
-	let tutorialPopup = $("#tutorialPopupContainer");
-	if (pinPopup) { pinPopup.remove() }
+	let tutorialPopup = $(".tutorialContainer");
 	if (tutorialPopup) { tutorialPopup.remove() }
 }
 

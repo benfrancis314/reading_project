@@ -43,6 +43,7 @@
             "lib/document_parser.js",
             "lib/tracker.js",
             "lib/time_tracker_view.js",
+            "lib/tutorial.js",
             "lib/doc.js",
             "lib/settings_view.js",
             "content_script.js"
@@ -52,14 +53,26 @@
     "web_accessible_resources": [
         "images/checkMark.svg",
         "images/closeButton.svg",
+        "images/downArrow.svg",
+        "images/downArrowKey.svg",
         "images/instructionAutoRead.svg",
         "images/instructionHighlight.svg",
         "images/instructionKeywordToggle.svg",
         "images/instructionMove.svg",
         "images/instructionOnOff.svg",
+        "images/instructionOnOffSmaller.svg",
         "images/instructionSentenceHop.svg",
         "images/instructionSpeed.svg", 
-        "images/loadingIcon.svg"
+        "images/leftArrow.svg",
+        "images/leftArrowKey.svg",
+        "images/loadingIcon.svg",
+        "images/logoWithBackground.svg",
+        "images/pin.svg",
+        "images/puzzlePiece.svg",
+        "images/rightArrow.svg",
+        "images/rightArrowKey.svg",
+        "images/upArrow.svg",
+        "images/upArrowKey.svg"
     ],
     "icons": { 
         "16": "images/logo16.png",
