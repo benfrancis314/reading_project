@@ -25,7 +25,6 @@ let logo = chrome.runtime.getURL('/images/logoWithBackground.svg');
 let puzzle = chrome.runtime.getURL('/images/puzzlePiece.svg');
 let pin = chrome.runtime.getURL('/images/pin.svg');
 
-
 /*
 Represents the tutorial objects
 */
@@ -49,6 +48,7 @@ class Tutorial {
         this.startTutorial();
     }
 
+    // Define the different HTML blocks
     setHtmlElements() {
         this.startHtml = `
             <div id="tutorialStartContainer" class="tutorialContainer">
@@ -131,6 +131,8 @@ class Tutorial {
         });
     }
     // Instructions
+    // TODO: Change these names to descriptive instead of numbers. 
+    // Having them as numbers makes it significantly harder to add or remove steps
     tutorialStepTwo() {
         let self = this;
         let instructionsHtml = self.instructionsHtml;
@@ -148,16 +150,6 @@ class Tutorial {
             $("#optionsButton").click();
         });
     }
-
-
-    // let tutorialPopup = $("#tutorialInstructionsContainer");
-    // if (tutorialPopup) {
-    //     // To do: Determine if want to handle this a different/better way
-    //     let tutorial = window.tutorial;
-    //     tutorial.;
-    //     
-    // }
-
 
     // Move
     tutorialStepThree() {
