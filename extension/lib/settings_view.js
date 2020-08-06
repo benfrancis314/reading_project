@@ -121,22 +121,22 @@ class SettingsView {
     toggleUI() {
         var self = this; 
 
-        if (this.uiStatus) {
+        if (this.uiStatus) { // Take instructions down
             $("#bottomOfPageUI").animate({"height":"30%"}, 500);
             let uiContainer = $("#uiContainer");
-            $(uiContainer).animate({"bottom": "-50%", "opacity": "0"}, 500, function() {
+            $(uiContainer).animate({"top": "150%", "opacity": "0"}, 500, function() {
                 uiContainer.remove();
             });
             $("#persistentUIDisplay").animate({"bottom": "10%"}, 500);
             this.uiStatus = false;
-        } else {
+        } else { // Bring instructions up
             // Load UI display
             let optionsButton = $("#optionsButton");
             $("#bottomOfPageUI").animate({"height":"50%"}, 500);
 
             $("#persistentUIDisplay").animate({"bottom": "37%"}, 500);
             $(this.uiHtml).insertAfter(optionsButton);
-            $("#uiContainer").animate({"bottom": "-2%", "opacity": "1"}, 500);
+            $("#uiContainer").animate({"top": "67%", "opacity": "1"}, 500);
             
 
             // Load background images
