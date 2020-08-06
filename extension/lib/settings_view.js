@@ -134,10 +134,9 @@ class SettingsView {
             let optionsButton = $("#optionsButton");
             $("#bottomOfPageUI").animate({"height":"50%"}, 500);
 
-            $("#persistentUIDisplay").animate({"bottom": "37%"}, 500);
+            $("#persistentUIDisplay").animate({"bottom": "40%"}, 500);
             $(this.uiHtml).insertAfter(optionsButton);
-            $("#uiContainer").animate({"top": "67%", "opacity": "1"}, 500);
-            
+            $("#uiContainer").animate({"top": "64%", "bottom": "0%", "opacity": "1"}, 500);            
 
             // Load background images
             $("#keywordsToggleGraphic").css('background-image', "url("+chrome.runtime.getURL('/images/instructionKeywordToggle.svg')+")");
