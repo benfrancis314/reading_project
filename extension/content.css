@@ -403,11 +403,9 @@ It's okay to be obnoxiously high because user can always deactivate the extensio
 }
 
 /* TUTORIAL */
-
-#tutorialInstructionsContainer, #tutorialEstimatedTimeContainer, 
 #tutorialInstructionsContainer, #tutorialMoveContainer, 
-#tutorialAutoContainer, #tutorialSpeedContainer, 
-#tutorialHighlightContainer, #tutorialOnOffContainer {
+#tutorialAutoContainer, #tutorialHighlightContainer, 
+#tutorialOnOffContainer {
 	position: fixed;
 	box-shadow: 0px 2px 3pt 2px rgb(0, 0, 0, 0.5);  /* Transparent black */
 	border-radius: 10px;
@@ -415,91 +413,202 @@ It's okay to be obnoxiously high because user can always deactivate the extensio
 	display: flex;
 	flex-direction: row;
 	justify-content: space-between;
-	z-index: 1000;
-	height: 40px;
-	background-color: rgba(255, 255, 255, 0.925);
-}
-#tutorialEstimatedTimeContainer {
-	bottom: 14%;
-	left: 35%;
-	width: 24.5%;
+	z-index: 10000;
+	/* height: 40px; */
+	background-color: rgba(255, 255, 255, 0.95);
+	opacity: 0; /* So it can fade in */
 }
 #tutorialInstructionsContainer {
 	bottom: 14%;
-	left: 45%;
+	left: 44.3%;
 	width: 24.5%;
 }
 #tutorialMoveContainer {
-	bottom: 10%;
-	left: 5%;
+	bottom: 21.5%;
+	left: 31.5%;
 	width: 24.5%;
 }
 #tutorialAutoContainer {
-	top: 12%;
-	left: 48.1%;
-	width: 24.5%;
-}
-#tutorialSpeedContainer {
-	top: 14%;
-	left: 48.1%;
+	bottom: 2.7%;
+	right: 12%;
 	width: 24.5%;
 }
 #tutorialHighlightContainer {
-	top: 16%;
-	left: 48.1%;
+	bottom: 5%;
+	left: 38%;
 	width: 24.5%;
 }
 #tutorialOnOffContainer {
-	top: 18%;
-	left: 48.1%;
+	top: 3%;
+	right: 1%;
 	width: 24.5%;
 }
-#tutorialStepTwoDownArrow, #tutorialStepThreeDownArrow, #tutorialStepFourDownArrow, 
-#tutorialStepFiveDownArrow, #tutorialStepSixDownArrow, #tutorialStepSevenDownArrow, 
-#tutorialStepEightDownArrow {
-	position: fixed;
+#tutorialStepTwoDownArrow, #tutorialStepThreeDownArrow, #tutorialStepFourLeftArrow, 
+#tutorialStepFiveUpArrow, #tutorialStepFiveRightArrow, #tutorialStepSixUpArrow {
+	position: absolute;
 	width: 15px;
 	height: 15px;
 	background-position: center center;
 	background-size: contain;
 	background-repeat: no-repeat;
-	opacity: 0.35;
+	/* opacity: 0.45; */
+	z-index: 1000;
+	animation: pulseArrows 2s linear infinite;
+}
+@keyframes pulseArrows {
+	0%   {transform: scale(1)}
+	50% {transform: scale(1.1)}
+	100% {transform: scale(1)}
 }
 #tutorialStepTwoDownArrow {
-	bottom: 11%;
-	left: 49.5%;
+	bottom: -50%;
+	left: 48%;
 }
 #tutorialStepThreeDownArrow {
-	bottom: 11%;
-	left: 56%;
+	bottom: -30%;
+	left: 48%;
 }
-#tutorialStepFourDownArrow {
-	bottom: 11%;
-	left: 50%;
+#tutorialStepFourLeftArrow {
+	bottom: 42%;
+	left: -8%;
+	width: 23px;
+	height: 23px;
 }
-#tutorialStepFiveDownArrow {
-	bottom: 11%;
-	left: 50%;
+#tutorialStepFiveUpArrow {
+	/* bottom: 22.5%; */
+	top: -17%;
+	left: 46%;
+	width: 23px;
+	height: 23px;
 }
-#tutorialStepSixDownArrow {
-	bottom: 11%;
-	left: 50%;
+#tutorialStepFiveRightArrow {
+	bottom: 40%;
+	right: -8%;
+	width: 23px;
+	height: 23px;
 }
-#tutorialStepSevenDownArrow {
-	bottom: 11%;
-	left: 50%;
+#tutorialStepSixUpArrow {
+	top: -16%;
+	right: 32%;
+	width: 23px;
+	height: 23px;
 }
-#tutorialStepEightDownArrow {
-	bottom: 11%;
-	left: 50%;
-}
-.popupText {
-	width: 80%;
-	height: 20px;
+#tutorialMoveForwardLogo, #tutorialMoveBackwardLogo, #tutorialSpaceLogo,
+#tutorialSlowLogo, #tutorialFastLogo, #tutorialSlashLogo, #tutorialShiftLogo, 
+#tutorialIconLogo, #tutorialAltRLogo, #tutorialPuzzleLogo, #tutorialPinLogo  { 
+	display: inline-block;
+	width: 25px;
+	height: 25px;
+	background-position: center center;
+	background-size: contain;
+	background-repeat: no-repeat;
 	text-align: center;
-	padding: 11px 0px 8px 15px;
+	vertical-align: middle;
+}
+#tutorialMoveForwardLogo {
+}
+#tutorialMoveBackwardLogo {
+}
+#tutorialSpaceLogo {
+	width: 80px;
+}
+#tutorialSlowLogo {
+}
+#tutorialFastLogo {
+}
+#tutorialSlashLogo {
+}
+#tutorialShiftLogo {
+	width: 50px;
+}
+#tutorialIconLogo {
+	width: 30px;
+}
+#tutorialAltRLogo {
+	width: 80px;
+}
+#tutorialPuzzleLogo {
+	margin-bottom: 5px;
+	/* padding-bottom: 10px; */
+}
+#tutorialPinLogo  { 
+	width: 15px;
+}
+#tutorialTextTwo, #tutorialTextThree {
+	width: 80%;
+	/* height: 20px; */
+	text-align: center;
+	padding: 10px 0px 10px 15px;
+	height: 20px;
 	font-family: "Montserrat";
 	border-radius: 10px 0px 0px 10px;
+}
+#tutorialTextTwo {
+	line-height: 1.5;
+	padding: 10px 0px 10px 15px;
+}
+#tutorialTextThree {
+	line-height: 1.5;
+	padding: 10px 0px 10px 15px;
+	height: 50px;
+}
+.tutorialTextPartOne, .tutorialTextPartTwo {
+	line-height: 1.5;
+	padding: 0px 8px 0px 8px;
+	height: 50%;
+	width: 100%;
+}
+.tutorialTextPartOne {
+	/* Separate part 1 & 2 with a line */
+	border: 1px solid #55555533;
+	width: 100%;
+	border-width: 0px 0px 1px 0px;
+	padding-bottom: 10px;
+	margin-bottom: 10px;
+}
+#tutorialTextOneLiner {
+	padding: 13px 8px 7px 8px !important;
+}
+#tutorialTextFourContainer, #tutorialTextFiveContainer, 
+#tutorialTextSixContainer {
+	width: 80%;
+	display: flex;
+	flex-direction: column;
+	text-align: center;
+	justify-content: space-around;
+	font-family: "Montserrat";
+	border-radius: 10px 0px 0px 10px;
+	padding: 10px 0px 10px 0px;
+	height: 120px;
+}
+#tutorialTextFourContainer, #tutorialTextFiveContainer {
+	padding: 12px 0px 10px 8px;
+}
+#tutorialEndPartOne {
+	width: 70%;
+	padding: 10px 0px;
+	text-align: center;
+	line-height: 1.5;
+	font-family: "Montserrat";
+	margin: 0 auto;
+}
+#tutorialEndPartTwo {
+	padding: 10px 0px 20px 0px;
+	font-size: 700;
+	text-align: center;
+	border: 1px solid #55555533;
+	border-width: 0px 0px 1px 0px;
+	width: 100%;
+	font-family: "Montserrat";
+
+}
+#tutorialEndPartThree {
+	color: #555555;
+	width: 70%;
+	line-height: 1.5;
+	font-family: "Montserrat";
+	text-align: center;
+	margin: 0 auto;
 }
 #popupImgGear {
 	width: 25px;
@@ -511,7 +620,6 @@ It's okay to be obnoxiously high because user can always deactivate the extensio
 	margin-top: 0;
 	margin-bottom: 0;
 	padding: 0px 7px 5px 7px;
-
 }
 .popupCheckmark {
 	transition: all 0.5s ease;
@@ -519,19 +627,45 @@ It's okay to be obnoxiously high because user can always deactivate the extensio
 	background-size: 20%;
 	background-repeat: no-repeat;
 	padding: 10px 35px 10px 0px;
-	width: 10%;
+	width: 20%;
 	height: 20px;
 	border: 1px solid rgba(156, 156, 156, 0.527);
 	border-width: 0px 0px 0px 1px;
 	border-radius: 0px 10px 10px 0px;
 	background-color: rgb(255, 248, 185);
 }
+#popupCheckmarkTwoLiner {
+	height: 50px;
+}
+#popupCheckmarkFourLiner {
+	height: 122px;
+}
 .popupCheckmark:hover {
-	width: 15%;
+	width: 25%;
 	background-color: #fee517;
 	cursor: pointer;
 }
 .popupCheckmark:active {
+	transform: scale(1.2);
+}
+#endTutorialButton {
+	padding: 10px 18px 10px 18px;
+	height: 122px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+#endTutorialButtonText {
+	font-family: "Montserrat";
+	text-align: center;
+	font-weight: 700;
+}
+#endOfTutorialButton:hover {
+	cursor: pointer;
+	background-color: #fee157;
+	height: 20%;
+}
+#endOfTutorialButton:active {
 	transform: scale(1.2);
 }
 #tutorialSettingsButton {	
@@ -546,18 +680,6 @@ It's okay to be obnoxiously high because user can always deactivate the extensio
 	width: 18px;
 	height: 18px;
 	transition: all 2s ease;
-}
-#tutorialSettingsButton:hover svg {
-	cursor: pointer !important;
-	transform: rotate(180deg);
-}
-#tutorialSettingsButton:hover svg g g #gear {
-	fill: #77a3eb !important; /* "HTML Link Blue" */
-	transition: all 0.5s ease;
-	stroke: #77a3eb; /* "HTML Link Blue" */
-	stroke-width: 5px;
-	color: #666666;
-	margin: 0 auto;
 }
 
 #tutorialStartContainer {
@@ -593,8 +715,12 @@ It's okay to be obnoxiously high because user can always deactivate the extensio
 	text-align: center;
 	/* box-shadow: 0px 2px 2pt 1px rgb(0, 0, 0, 0.5);  Transparent black */
 }
-#highlightText {
+.highlightText {
 	background-color: #fee517;
+}
+.highlightTextItalic {
+	background-color: #fee517;
+	font-style: italic;
 }
 #tutorialStartSlogan {
 	font-family: "Montserrat";
@@ -647,7 +773,18 @@ It's okay to be obnoxiously high because user can always deactivate the extensio
 
 
 
+/* General styling */
 
+.bold {
+	font-weight: 700;
+}
+.noLineHeight {
+	line-height: 1;
+}
+.softText {
+	color: rgb(90, 90, 90);
+	font-style: italic;
+}
 
 
 
@@ -655,6 +792,17 @@ It's okay to be obnoxiously high because user can always deactivate the extensio
 
 /* CSS FONTS */
 
+/* === MONTSERRAT === */
+/* Normal */
+@font-face {
+	font-family: 'Montserrat';
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: local('Montserrat Regular'), local('Montserrat-Regular'), url(https://fonts.gstatic.com/s/montserrat/v14/JTUSjIg1_i6t8kCHKm459WlhyyTh89Y.woff2) format('woff2');
+	unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* Bold */
 @font-face {
 	font-family: 'Montserrat';
 	font-style: normal;
@@ -663,11 +811,12 @@ It's okay to be obnoxiously high because user can always deactivate the extensio
 	src: local('Montserrat Bold'), local('Montserrat-Bold'), url(https://fonts.gstatic.com/s/montserrat/v14/JTURjIg1_i6t8kCHKm45_dJE3gnD_vx3rCs.woff2) format('woff2');
 	unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
+/* Italic */
 @font-face {
 	font-family: 'Montserrat';
-	font-style: normal;
+	font-style: italic;
 	font-weight: 400;
 	font-display: swap;
-	src: local('Montserrat Regular'), local('Montserrat-Regular'), url(https://fonts.gstatic.com/s/montserrat/v14/JTUSjIg1_i6t8kCHKm459WlhyyTh89Y.woff2) format('woff2');
+	src: local('Montserrat Italic'), local('Montserrat-Italic'), url(https://fonts.gstatic.com/s/montserrat/v14/JTUQjIg1_i6t8kCHKm459WxRyS7m0dR9pA.woff2) format('woff2');
 	unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }

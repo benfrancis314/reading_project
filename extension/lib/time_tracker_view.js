@@ -116,23 +116,23 @@ class TimeTrackerView {
     defineDisplayHtml() {
         this.displayHtml = `
             <div id="bottomOfPageUI"></div>
-                <div id="persistentUIDisplay">
-                    <div id="readingDisplayContainer">
-                        <div id="speedContainer">
-                            <div id="speedInsideContainer">
-                                <span id="speedNumber">${this.reading_speed}</span> WPM
-                            </div>
-                        </div>
-                        <div id="timerContainer">
-                            <div id="timerInsideContainer">
-                                <span id="timerNumber">Calculating...</span> min
-                            </div>
+            <div id="persistentUIDisplay">
+                <div id="readingDisplayContainer">
+                    <div id="speedContainer">
+                        <div id="speedInsideContainer">
+                            <span id="speedNumber">${this.reading_speed}</span> WPM
                         </div>
                     </div>
-                    <div id="optionsButton">
-                        ${window.gearLogo}
+                    <div id="timerContainer">
+                        <div id="timerInsideContainer">
+                            <span id="timerNumber">Calculating...</span> min
+                        </div>
                     </div>
                 </div>
+                <div id="optionsButton">
+                    ${window.gearLogo}
+                </div>
+            </div>
             
             `;    
     }
@@ -141,6 +141,7 @@ class TimeTrackerView {
 
     turnDownUI() {
         $("#bottomOfPageUI").remove();
+        $("#persistentUIDisplay").remove();
         $('#optionsButton').remove();
         $('#uiContainer').remove();
     }

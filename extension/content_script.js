@@ -673,15 +673,14 @@ function setupTutorial() {
 			if (request.command === "startTutorial") {	
 				// Starts tutorial; if don't end up using, delete binding & just call constructor
 				let tutorial = new window.Tutorial;
+				window.tutorial = tutorial;
 			}	
 		}	
 	);
 }
 
 function removeTutorial() {
-	let pinPopup = $("#pinPopupContainer");
-	let tutorialPopup = $("#tutorialPopupContainer");
-	if (pinPopup) { pinPopup.remove() }
+	let tutorialPopup = $(".tutorialContainer");
 	if (tutorialPopup) { tutorialPopup.remove() }
 }
 
