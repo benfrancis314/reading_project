@@ -1,3 +1,12 @@
+(function(){
+var namespace = "log/gearLogo.js";
+if (window[namespace] === true) {
+    return;
+} else {
+    window[namespace] = true;
+}
+
+
 let gearLogo = 
 `<svg width="0%" height="0%" viewBox="0 0 83 83" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
     <g transform="matrix(1,0,0,1,-7.85366,-10.4515)">
@@ -7,3 +16,5 @@ let gearLogo =
     </g>
 </svg>`
 window.gearLogo = gearLogo;
+
+})();

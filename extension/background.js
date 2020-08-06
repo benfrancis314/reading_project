@@ -1,8 +1,77 @@
-function toggleUI(tab) {
-	chrome.tabs.sendMessage(tab.id, {command: "toggleUI"}, function(response) {});
-}
+// Async load multiple scripts on executeScript 
+// Taken from https://stackoverflow.com/a/34456163/4143394  
+(function() {   
+    function ScriptExecution(tabId) {   
+        this.tabId = tabId; 
+    }   
 
-chrome.browserAction.onClicked.addListener(toggleUI);
+    ScriptExecution.prototype.executeScripts = function(fileArray) {    
+        fileArray = Array.prototype.slice.call(arguments); // ES6: Array.from(arguments)    
+        return Promise.all(fileArray.map(file => exeScript(this.tabId, file))).then(() => this); // 'this' will be use at next chain    
+    };  
+
+    ScriptExecution.prototype.executeCodes = function(fileArray) {  
+        fileArray = Array.prototype.slice.call(arguments);  
+        return Promise.all(fileArray.map(code => exeCodes(this.tabId, code))).then(() => this); 
+    };  
+
+    ScriptExecution.prototype.injectCss = function(fileArray) { 
+        fileArray = Array.prototype.slice.call(arguments);  
+        return Promise.all(fileArray.map(file => exeCss(this.tabId, file))).then(() => this);   
+    };  
+
+    function promiseTo(fn, tabId, info) {   
+        return new Promise(resolve => { 
+            fn.call(chrome.tabs, tabId, info, x => resolve());  
+        }); 
+    }   
+
+    function exeScript(tabId, path) {   
+        let info = { file : path, runAt: 'document_end' };  
+        return promiseTo(chrome.tabs.executeScript, tabId, info);   
+    }   
+
+    function exeCodes(tabId, code) {    
+        let info = { code : code, runAt: 'document_end' };  
+        return promiseTo(chrome.tabs.executeScript, tabId, info);   
+    }   
+
+    function exeCss(tabId, path) {  
+        let info = { file : path, runAt: 'document_end' };  
+        return promiseTo(chrome.tabs.insertCSS, tabId, info);   
+    }   
+
+    window.ScriptExecution = ScriptExecution;   
+})();   
+
+
+// Inject content scripts (this is idempotent), then toggle UI.
+function toggleUI(tab) {
+    return new ScriptExecution(tab.id) 
+        .executeScripts(    
+            "log/gearLogo.js",
+            "log/df_baseline.js",
+            "third_party/lodash-4.17.15.js",
+            "third_party/jquery-3.5.1.min.js",
+            "third_party/jquery.mark-8.11.1.min.js",
+            "third_party/jquery-ui.1.12.1.min.js",
+            "third_party/readability-1.7.1.js",
+            "third_party/tokenize-text.js",
+            "third_party/tokenize-english.js",
+            "lib/settings_wrapper.js",
+            "lib/document_parser.js",
+            "lib/tracker.js",
+            "lib/time_tracker_view.js",
+            "lib/tutorial.js",
+            "lib/doc.js",
+            "lib/settings_view.js",
+            "content_script.js"
+        )   
+        .then(s => s.injectCss("content.css"))  
+        .then(s => {
+            chrome.tabs.sendMessage(tab.id, {command: "toggleUI"}, function(response) {});
+        }); 
+}
 
 // For guide, see https://stackoverflow.com/a/61038472/4143394
 chrome.runtime.onInstalled.addListener(function() {
@@ -19,10 +88,13 @@ chrome.contextMenus.onClicked.addListener(function(info, tab) {
     toggleUI(tab);
 })
 
+chrome.browserAction.onClicked.addListener(toggleUI);
+
 chrome.runtime.onInstalled.addListener(function() {
 
     // Redirect user to a demo page, and auto-start the app there.
 	let demoUrl = 'https://en.wikipedia.org/wiki/Reading';
+
 	chrome.tabs.create({
 	    url: demoUrl,
 	    active: true
@@ -43,14 +115,17 @@ chrome.runtime.onInstalled.addListener(function() {
         - Other options: (1) end a message back from content script to background to see when loaded (maybe works; good avenue to try)
                          (2) create a tutorial architecture in the settings to keep track of current place in tutorial, etc.
         */
-        setTimeout(function() {
-                chrome.tabs.sendMessage(tab.id, {command: "startTutorial"}, function(response) {
-                    chrome.tabs.sendMessage(tab.id, {command: "toggleUITutorial"}, function(response) {})
-                });
-        }, 3000);      
-    
+        // TODO(sjoe): 
+        toggleUI(tab).then(function() {
+            setTimeout(function() {
+                    chrome.tabs.sendMessage(tab.id, {command: "startTutorial"}, function(response) {
+                        chrome.tabs.sendMessage(tab.id, {command: "toggleUITutorial"}, function(response) {})
+                    });
+            }, 3000); 
+        });
 	});
 });
 
 // Take user to survey after uninstall
 chrome.runtime.setUninstallURL("https://www.readerease.com/uninstall");
+
