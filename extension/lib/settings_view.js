@@ -121,7 +121,11 @@ class SettingsView {
     toggleUI() {
         var self = this; 
 
+<<<<<<< HEAD
         if (this.uiStatus) { // Take instructions down
+=======
+        if (this.uiStatus) {
+>>>>>>> 1c8b768d602f9e4fe293f6d16c1c843f830faafc
             $("#bottomOfPageUI").animate({"height":"30%"}, 500);
             let uiContainer = $("#uiContainer");
             $(uiContainer).animate({"top": "150%", "opacity": "0"}, 500, function() {
