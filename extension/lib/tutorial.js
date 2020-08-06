@@ -41,6 +41,7 @@ class Tutorial {
         this.instructionsHtml = null;
         this.moveHtml = null;
         this.autoHtml = null;
+        this.keywordsHtml = null;
         this.highlightHtml = null;
         this.onOffHtml = null;
 
@@ -84,23 +85,25 @@ class Tutorial {
                 <div class="popupCheckmark" id="popupCheckmarkFourLiner"></div>
                 <div id="tutorialStepFourLeftArrow"></div>
             </div>`;
+        this.keywordsHtml = `
+            <div id="tutorialKeywordsContainer" class="tutorialContainer">
+                <div id="tutorialTextFive">
+                    Try different <span class="bold">keyword</span><br/>colors using <span id="tutorialSlashLogo"></span>
+                </div>
+                <div class="popupCheckmark" id="popupCheckmarkTwoLiner"></div>
+                <div id="tutorialStepFiveUpArrow"></div>
+            </div>`;
         this.highlightHtml = `
             <div id="tutorialHighlightContainer" class="tutorialContainer">
-                <div id="tutorialTextFiveContainer">
-                    <div class="tutorialTextPartOne">
-                        Try different <span class="bold">keyword</span><br/>styles using <span id="tutorialSlashLogo"></span>
-                    </div>
-                    <div class="tutorialTextPartTwo">
-                        <span class="bold">Highlight</span> a sentence<br/>for later using <span id="tutorialShiftLogo"></span>
-                    </div>
+                <div id="tutorialTextSix">
+                    <span class="bold">Highlight</span> a sentence<br/>for later using <span id="tutorialShiftLogo"></span>
                 </div>
-                <div class="popupCheckmark" id="popupCheckmarkFourLiner"></div>                
-                <div id="tutorialStepFiveUpArrow"></div>
-                <div id="tutorialStepFiveRightArrow"></div>
+                <div class="popupCheckmark" id="popupCheckmarkTwoLiner"></div>
+                <div id="tutorialStepSixRightArrow"></div>
             </div>`;
         this.onOffHtml = `
             <div id="tutorialOnOffContainer" class="tutorialContainer">
-                <div id="tutorialTextSixContainer">
+                <div id="tutorialTextSevenContainer">
                     <div class="tutorialTextPartOne" id="tutorialTextOneLiner">
                         Click <span id="tutorialIconLogo"></span> to turn <span class="bold">ON/OFF</span>
                     </div>
@@ -109,7 +112,7 @@ class Tutorial {
                     </div>
                 </div>
                 <div class="popupCheckmark" id="endTutorialButton"><div id="endTutorialButtonText">END</div></div>                
-                <div id="tutorialStepSixUpArrow"></div>
+                <div id="tutorialStepSevenUpArrow"></div>
             </div>`;
     }
     
@@ -192,15 +195,13 @@ class Tutorial {
     // Keywords and Highlight
     tutorialStepFive() {
         let self = this;
-        let highlightHtml = self.highlightHtml;
+        let keywordsHtml = self.keywordsHtml;
         $("#customizeContainer").delay(500).animate({"transform": "1.05"}, 500);
-        $(highlightHtml).insertAfter($("body").children().first());
-        let tutorialPopup = $("#tutorialHighlightContainer");
+        $(keywordsHtml).insertAfter($("body").children().first());
+        let tutorialPopup = $("#tutorialKeywordsContainer");
         $(tutorialPopup).delay(500).animate({"opacity": "1"}, 500);
         $("#tutorialSlashLogo").css('background-image', "url("+slashKey+")");
-        $("#tutorialShiftLogo").css('background-image', "url("+shiftButton+")");
         $("#tutorialStepFiveUpArrow").css('background-image', "url("+upArrow+")");
-        $("#tutorialStepFiveRightArrow").css('background-image', "url("+rightArrow+")");
         $(".popupCheckmark").css("background-image", "url("+popupCheckmarkUrl+")").click(function() {
             self.tutorialStepSix();
             tutorialPopup.fadeOut(250);
@@ -208,8 +209,25 @@ class Tutorial {
         });
 
     }
-    // On/Off
+    // Keywords and Highlight
     tutorialStepSix() {
+        let self = this;
+        let highlightHtml = self.highlightHtml;
+        $("#customizeContainer").delay(500).animate({"transform": "1.05"}, 500);
+        $(highlightHtml).insertAfter($("body").children().first());
+        let tutorialPopup = $("#tutorialHighlightContainer");
+        $(tutorialPopup).delay(500).animate({"opacity": "1"}, 500);
+        $("#tutorialShiftLogo").css('background-image', "url("+shiftButton+")");
+        $("#tutorialStepSixRightArrow").css('background-image', "url("+rightArrow+")");
+        $(".popupCheckmark").css("background-image", "url("+popupCheckmarkUrl+")").click(function() {
+            self.tutorialStepSeven();
+            tutorialPopup.fadeOut(250);
+            $("#customizeContainer").animate({"transform": "1"}, 250);
+        });
+
+    }
+    // On/Off
+    tutorialStepSeven() {
         let self = this;
         let onOffHtml = self.onOffHtml;
         $(onOffHtml).insertAfter($("body").children().first());
@@ -219,7 +237,7 @@ class Tutorial {
         $("#tutorialAltRLogo").css('background-image', "url("+alt_r+")");
         $("#tutorialPuzzleLogo").css('background-image', "url("+puzzle+")");
         $("#tutorialPinLogo").css('background-image', "url("+pin+")");
-        $("#tutorialStepSixUpArrow").css('background-image', "url("+upArrow+")");
+        $("#tutorialStepSevenUpArrow").css('background-image', "url("+upArrow+")");
         $(".popupCheckmark").click(function() {
             tutorialPopup.fadeOut(250);
         });
