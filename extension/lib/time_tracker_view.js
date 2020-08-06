@@ -59,7 +59,7 @@ class TimeTrackerView {
         $(this.displayHtml).insertBefore($("body").children().first());
         document.getElementById("readingDisplayContainer").style.opacity = 1; // For smoother transition
         document.getElementById("optionsButton").style.opacity = 1; // For smoother transition
-        $("#uiContainer").draggable();
+        $("#persistentUIDisplay").draggable();
     }
 
     // Is user in auto mode? (bool)
