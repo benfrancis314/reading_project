@@ -21,18 +21,15 @@ module.exports = {
         }
 	 }]
   },
-  mode: process.env.NODE_ENV || 'development',
   optimization: {
     minimize: true,
     minimizer: [new TerserPlugin({
-      sourceMap: true,
       terserOptions: {
         mangle: true,
         output: {
           comments: false,
         },
       },
-      extractComments: false,
     }),]
   }
 };
