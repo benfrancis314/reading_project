@@ -67,7 +67,7 @@ It's okay to be obnoxiously high because user can always deactivate the extensio
 	z-index: 3000;
 	width: 100%;
 	position: fixed; 
-	bottom: 10%;
+	bottom: 7.5%;
 	/* transition: all 0.5s ease 0s; */
 }
 #readingDisplayContainer {
@@ -166,6 +166,7 @@ It's okay to be obnoxiously high because user can always deactivate the extensio
 	position: fixed;
 	z-index: 10002;
 	bottom: -50%;
+	/* bottom: 2%; */
 	opacity: 0;
 	left: 25%;
 	display: flex;
@@ -301,7 +302,6 @@ It's okay to be obnoxiously high because user can always deactivate the extensio
 	width: 100%;
 	background-color: rgba(252, 252, 252, 0.95); /* Transparent white */
 	border-radius: 15px;
-	margin-bottom: 5%;
 	box-shadow: 0px 2px 3pt 2px rgb(0, 0, 0, 0.5);  /* Transparent black */
 }
 #instructionsTitle {
@@ -409,43 +409,18 @@ It's okay to be obnoxiously high because user can always deactivate the extensio
 	position: fixed;
 	box-shadow: 0px 2px 3pt 2px rgb(0, 0, 0, 0.5);  /* Transparent black */
 	border-radius: 10px;
-	font-size: 1em;
 	display: flex;
 	flex-direction: row;
 	justify-content: space-between;
+	align-items: stretch;
 	z-index: 10000;
 	background-color: rgba(255, 255, 255, 0.95);
 	opacity: 0; /* So it can fade in */
-}
-#tutorialInstructionsContainer {
-	bottom: 14%;
-	left: 44.3%;
-	width: 24.5%;
-}
-#tutorialMoveContainer {
-	bottom: 21.5%;
-	left: 31.5%;
-	width: 24.5%;
-}
-#tutorialAutoContainer {
-	bottom: 2.7%;
-	right: 12%;
-	width: 24.5%;
-}
-#tutorialKeywordsContainer {
-	bottom: 15%;
-	left: 38%;
-	width: 24.5%;
-}
-#tutorialHighlightContainer {
-	bottom: 6.5%;
-	left: 38.5%;
 	width: 24.5%;
 }
 #tutorialOnOffContainer {
-	top: 3%;
+	top: 22px;
 	right: 1%;
-	width: 24.5%;
 }
 #tutorialInstructionsDownArrow, #tutorialMoveDownArrow, #tutorialAutoLeftArrow, 
 #tutorialKeywordsUpArrow, #tutorialHighlightRightArrow, #tutorialOnOffUpArrow {
@@ -457,6 +432,11 @@ It's okay to be obnoxiously high because user can always deactivate the extensio
 	background-repeat: no-repeat;
 	z-index: 1000;
 	animation: pulseArrows 1s linear infinite;
+}
+#tutorialAutoLeftArrow, #tutorialKeywordsUpArrow, 
+#tutorialHighlightRightArrow, #tutorialOnOffUpArrow {
+	width: 23px;
+	height: 23px;
 }
 @keyframes pulseArrows {
 	0%   {transform: scale(1)}
@@ -474,26 +454,18 @@ It's okay to be obnoxiously high because user can always deactivate the extensio
 #tutorialAutoLeftArrow {
 	bottom: 42%;
 	left: -8%;
-	width: 23px;
-	height: 23px;
 }
 #tutorialKeywordsUpArrow {
 	top: -35%;
 	left: 46%;
-	width: 23px;
-	height: 23px;
 }
 #tutorialHighlightRightArrow {
 	bottom: 37%;
 	right: -8%;
-	width: 23px;
-	height: 23px;
 }
 #tutorialOnOffUpArrow {
 	top: -16%;
 	right: 32%;
-	width: 23px;
-	height: 23px;
 }
 #tutorialMoveForwardLogo, #tutorialMoveBackwardLogo, #tutorialSpaceLogo,
 #tutorialSlowLogo, #tutorialFastLogo, #tutorialSlashLogo, #tutorialShiftLogo, 
@@ -525,30 +497,13 @@ It's okay to be obnoxiously high because user can always deactivate the extensio
 #tutorialPinLogo  { 
 	width: 15px;
 }
-#tutorialTextInstructions, #tutorialTextMove, #tutorialTextKeywords, #tutorialTextInstructions {
+#tutorialTextInstructions, #tutorialTextMove, #tutorialTextKeywords, #tutorialTextHighlight, #tutorialTextInstructions {
 	width: 80%;
 	text-align: center;
-	padding: 10px 0px 10px 15px;
-	height: 20px;
+	padding: 12px 0px 8px 15px;
 	font-family: "Montserrat";
 	border-radius: 10px 0px 0px 10px;
-}
-#tutorialTextInstructions {
 	line-height: 1.5;
-	padding: 10px 0px 10px 15px;
-}
-#tutorialTextMove {
-	line-height: 1.5;
-	padding: 10px 0px 10px 15px;
-	height: 50px;
-}
-#tutorialTextKeywords {
-	line-height: 1.5;
-	padding: 12px 0px 8px 15px;
-}
-#tutorialTextHighlight {
-	line-height: 1.5;
-	padding: 12px 0px 8px 15px;
 }
 .tutorialTextPartOne, .tutorialTextPartTwo {
 	line-height: 1.5;
@@ -575,7 +530,6 @@ It's okay to be obnoxiously high because user can always deactivate the extensio
 	justify-content: space-around;
 	font-family: "Montserrat";
 	border-radius: 10px 0px 0px 10px;
-	height: 120px;
 	padding: 12px 0px 10px 8px;
 }
 #tutorialEndPartOne {
@@ -621,17 +575,10 @@ It's okay to be obnoxiously high because user can always deactivate the extensio
 	background-repeat: no-repeat;
 	padding: 10px 35px 10px 0px;
 	width: 20%;
-	height: 20px;
 	border: 1px solid rgba(156, 156, 156, 0.527);
 	border-width: 0px 0px 0px 1px;
 	border-radius: 0px 10px 10px 0px;
 	background-color: rgb(255, 248, 185);
-}
-#popupCheckmarkTwoLiner {
-	height: 50px;
-}
-#popupCheckmarkFourLiner {
-	height: 122px;
 }
 .popupCheckmark:hover {
 	width: 25%;
@@ -643,7 +590,6 @@ It's okay to be obnoxiously high because user can always deactivate the extensio
 }
 #endTutorialButton {
 	padding: 10px 18px 10px 18px;
-	height: 122px;
 	display: flex;
 	flex-direction: column;
 	justify-content: center;

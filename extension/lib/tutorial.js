@@ -138,6 +138,14 @@ class Tutorial {
         let instructionsHtml = self.instructionsHtml;
         $(instructionsHtml).insertAfter($("body").children().first());
         let tutorialPopup = $("#tutorialInstructionsContainer");
+        // Determine position based on element to be pointed at
+        let elToPointAt = $("#optionsButton");
+        let leftPos = elToPointAt.offset().left;
+        let topPos = elToPointAt.offset().top;
+        let halfWidthOfTarget = elToPointAt.width() / 2;
+        let halfWidthOfPopup = tutorialPopup.width() / 2;
+        let heightOfPopup = tutorialPopup.height();
+        tutorialPopup.css({"left":(leftPos+halfWidthOfTarget-halfWidthOfPopup-1), "top":(topPos-heightOfPopup-30)}); // 0.86 bc it gets .top of MOVE before instructions get moved up
         $(tutorialPopup).delay(500).animate({"opacity": "1"}, 500);
         $("#tutorialInstructionsDownArrow").css('background-image', "url("+downArrow+")");
         let optionsButton = $("#optionsButton");
@@ -158,12 +166,21 @@ class Tutorial {
         
         $(moveHtml).insertAfter($("body").children().first());
         let tutorialPopup = $("#tutorialMoveContainer");
+        // Determine position based on element to be pointed at
+        let elToPointAt = $("#instructionsNameMove");
+        let leftPos = elToPointAt.offset().left;
+        let topPos = elToPointAt.offset().top;
+        let halfWidthOfTarget = elToPointAt.width() / 2;
+        let halfWidthOfPopup = tutorialPopup.width() / 2;
+        // SHOULD need this; if doesn't work on different screen heights, bc haven't incorporated this. 
+        let heightOfPopup = tutorialPopup.height();
+        tutorialPopup.css({"left":(leftPos+halfWidthOfTarget-halfWidthOfPopup), "top":(topPos-window.innerHeight*0.5-heightOfPopup-35)}); // 0.86 bc it gets .top of MOVE before instructions get moved up
         $(tutorialPopup).delay(1500).animate({"opacity": "1"}, 500);
         $("#tutorialMoveForwardLogo").css('background-image', "url("+rightArrowKey+")");
         $("#tutorialMoveBackwardLogo").css('background-image', "url("+leftArrowKey+")");
         $("#tutorialMoveDownArrow").css('background-image', "url("+downArrow+")");
         $(".popupCheckmark").css("background-image", "url("+popupCheckmarkUrl+")").click(function() {
-            self.tutorialMove();
+            self.tutorialAuto();
             tutorialPopup.fadeOut(250);
         });
     }
@@ -174,13 +191,19 @@ class Tutorial {
         
         $(autoHtml).insertAfter($("body").children().first());
         let tutorialPopup = $("#tutorialAutoContainer");
+        // Determine position based on element to be pointed at
+        let elToPointAt = $("#instructionGroupThree");
+        let leftPos = elToPointAt.offset().left;
+        let topPos = elToPointAt.offset().top;
+        let widthOfTarget = elToPointAt.width();
+        tutorialPopup.css({"left":(leftPos+widthOfTarget+20), "top":topPos});
         $(tutorialPopup).delay(500).animate({"opacity": "1"}, 500);
         $("#tutorialSpaceLogo").css('background-image', "url("+spaceBar+")");
         $("#tutorialSlowLogo").css('background-image', "url("+downArrowKey+")");
         $("#tutorialFastLogo").css('background-image', "url("+upArrowKey+")");
         $("#tutorialAutoLeftArrow").css('background-image', "url("+leftArrow+")");
         $(".popupCheckmark").css("background-image", "url("+popupCheckmarkUrl+")").click(function() {
-            self.tutorialAuto();
+            self.tutorialKeywords();
             tutorialPopup.fadeOut(250);
         });
     }
@@ -188,16 +211,22 @@ class Tutorial {
     tutorialKeywords() {
         let self = this;
         let keywordsHtml = self.keywordsHtml;
-        $("#customizeContainer").delay(500).animate({"transform": "1.05"}, 500);
         $(keywordsHtml).insertAfter($("body").children().first());
         let tutorialPopup = $("#tutorialKeywordsContainer");
+        // Determine position based on element to be pointed at
+        let elToPointAt = $("#customizeContainer");
+        let leftPos = elToPointAt.offset().left;
+        let topPos = elToPointAt.offset().top;
+        let halfWidthOfTarget = elToPointAt.width() / 2;
+        let halfWidthOfPopup = tutorialPopup.width() / 2;
+        let heightOfPopup = tutorialPopup.height();
+        tutorialPopup.css({"left":(leftPos+halfWidthOfTarget-halfWidthOfPopup), "top":topPos+heightOfPopup+15});
         $(tutorialPopup).delay(500).animate({"opacity": "1"}, 500);
         $("#tutorialSlashLogo").css('background-image', "url("+slashKey+")");
         $("#tutorialKeywordsUpArrow").css('background-image', "url("+upArrow+")");
         $(".popupCheckmark").css("background-image", "url("+popupCheckmarkUrl+")").click(function() {
             self.tutorialHighlight();
             tutorialPopup.fadeOut(250);
-            $("#customizeContainer").animate({"transform": "1"}, 250);
         });
 
     }
@@ -205,16 +234,22 @@ class Tutorial {
     tutorialHighlight() {
         let self = this;
         let highlightHtml = self.highlightHtml;
-        $("#customizeContainer").delay(500).animate({"transform": "1.05"}, 500);
         $(highlightHtml).insertAfter($("body").children().first());
         let tutorialPopup = $("#tutorialHighlightContainer");
+        // Determine position based on element to be pointed at
+        let elToPointAt = $("#instructionGroupFour");
+        let leftPos = elToPointAt.offset().left;
+        let topPos = elToPointAt.offset().top;
+        let widthOfPopup = tutorialPopup.width();
+        let halfHeightOfTarget = elToPointAt.height() / 2;
+        let halfHeightOfPopup = tutorialPopup.height() / 2;
+        tutorialPopup.css({"left":(leftPos-widthOfPopup), "top":topPos + halfHeightOfTarget - halfHeightOfPopup + 20});
         $(tutorialPopup).delay(500).animate({"opacity": "1"}, 500);
         $("#tutorialShiftLogo").css('background-image', "url("+shiftButton+")");
         $("#tutorialHighlightRightArrow").css('background-image', "url("+rightArrow+")");
         $(".popupCheckmark").css("background-image", "url("+popupCheckmarkUrl+")").click(function() {
             self.tutorialOnOff();
             tutorialPopup.fadeOut(250);
-            $("#customizeContainer").animate({"transform": "1"}, 250);
         });
 
     }
