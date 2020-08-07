@@ -464,7 +464,7 @@ It's okay to be obnoxiously high because user can always deactivate the extensio
 	right: -8%;
 }
 #tutorialOnOffUpArrow {
-	top: -16%;
+	top: -22px;
 	right: 32%;
 }
 #tutorialMoveForwardLogo, #tutorialMoveBackwardLogo, #tutorialSpaceLogo,
@@ -583,7 +583,6 @@ It's okay to be obnoxiously high because user can always deactivate the extensio
 	background-color: rgb(255, 248, 185);
 }
 .popupCheckmark:hover {
-	/* width: 25%; */
 	background-color: #fee517;
 	cursor: pointer;
 }
