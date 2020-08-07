@@ -129,6 +129,7 @@ class Tutorial {
             startContainer.fadeOut(250, function() {
                 self.tutorialInstructions();
             });
+            $("#persistentUIDisplay").draggable("disable"); // Prevent dragging during tutorial
         });
     }
     // Instructions
@@ -156,6 +157,7 @@ class Tutorial {
         });
         $(".popupCheckmark").css("background-image", "url("+popupCheckmarkUrl+")").one("click", function() {
             $("#optionsButton").click();
+            $("#uiContainer").draggable("disable"); // Prevent dragging during tutorial
         });
     }
 
@@ -271,6 +273,8 @@ class Tutorial {
         $(".popupCheckmark").one("click", function() {
             tutorialPopup.fadeOut(250);
         });
+        $("#uiContainer").draggable("enable");
+        $("#persistentUIDisplay").draggable("enable");
     }
 }
     
