@@ -11,7 +11,7 @@ if (window[namespace] === true) {
 
 // If true, all debugging statements would show.
 // TODO: Use a proper logging library.
-window.DEBUG = true;
+window.DEBUG = false;
 window.debug = function(str) {
 	if (DEBUG) {
 		console.log("DEBUG: " + str);
@@ -701,4 +701,6 @@ settings = new window.Settings(function() {
 		});
 	}
 });
+
+
 })(); // End of namespace
