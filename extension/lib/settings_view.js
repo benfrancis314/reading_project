@@ -120,25 +120,30 @@ class SettingsView {
     // Also defines the eventListeners for the buttons on the UI display. 
     toggleUI() {
         var self = this; 
+        
 
-        if (this.uiStatus) {
-            $("#bottomOfPageUI").animate({"height":"30%"}, 500);
+        if (this.uiStatus) { // Take instructions down
             let uiContainer = $("#uiContainer");
-            $(uiContainer).animate({"bottom": "-50%", "opacity": "0"}, 500, function() {
+            $("#bottomOfPageUI").animate({"height":"30%"}, 500);
+            $(uiContainer).animate({"top": "150%", "opacity": "0"}, 500, function() {
                 uiContainer.remove();
             });
-            $("#persistentUIDisplay").animate({"bottom": "10%"}, 500);
+            $("#persistentUIDisplay").animate({"bottom": "7.5%"}, 500);
             this.uiStatus = false;
-        } else {
+        } else { // Bring instructions up
             // Load UI display
             let optionsButton = $("#optionsButton");
             $("#bottomOfPageUI").animate({"height":"50%"}, 500);
 
-            $("#persistentUIDisplay").animate({"bottom": "37%"}, 500);
             $(this.uiHtml).insertAfter(optionsButton);
-            $("#uiContainer").animate({"bottom": "-2%", "opacity": "1"}, 500);
-            
+            let uiContainer = $("#uiContainer");
 
+            uiContainer.animate({"bottom": "10px", "opacity": "1"}, 500);
+            let uiContainerTop = $("#uiSections").height();
+            let heightOfTimerDisplay = $("#timerInsideContainer").height();
+            let newPersistentUIHeight = uiContainerTop + heightOfTimerDisplay + 20;
+            $("#persistentUIDisplay").animate({"bottom": newPersistentUIHeight}, 500);
+            
             // Load background images
             $("#keywordsToggleGraphic").css('background-image', "url("+chrome.runtime.getURL('/images/instructionKeywordToggle.svg')+")");
             $("#instructionsGraphicAutoRead").css('background-image', "url("+chrome.runtime.getURL('/images/instructionAutoRead.svg')+")");
@@ -169,6 +174,8 @@ class SettingsView {
             this.loadSettings();
             // Set UI status to true
             this.uiStatus = true;
+
+            uiContainer.draggable();
         };
     }
 
@@ -194,34 +201,34 @@ class SettingsView {
                     <div id="instructionsSectionContainer">
                         <div id="instructionGroupOne">
                             <div class="instructionsComponent">
-                                <div class="instructionsName">ON/OFF</div>
+                                <div class="instructionsName" id="instructionsNameOnOff">ON/OFF</div>
                                 <div id="instructionsGraphicOnOffLogo"></div>
                                 <div id="instructionsGraphicOnOff"></div>
                             </div>
                         </div>
                         <div id="instructionGroupTwo">
                             <div class="instructionsComponent">
-                                <div class="instructionsName">MOVE</div>
+                                <div class="instructionsName" id="instructionsNameMove">MOVE</div>
                                 <div id="instructionsGraphicMove"></div>
                             </div>
                             <div class="instructionsComponentTwo">
-                                <div class="instructionsName">SENTENCE HOP</div>
+                                <div class="instructionsName" id="instructionsNameSentenceHop">SENTENCE HOP</div>
                                 <div id="instructionsGraphicSentenceHop"></div>
                             </div>
                         </div>
                         <div id="instructionGroupThree">
                             <div class="instructionsComponent">
-                                <div class="instructionsName">TOGGLE AUTO-SCROLL</div>
+                                <div class="instructionsName" id="instructionsNameAuto">TOGGLE AUTO-SCROLL</div>
                                 <div id="instructionsGraphicAutoRead"></div>
                             </div>
                             <div class="instructionsComponentTwo">
-                                <div class="instructionsName">SPEED</div>
+                                <div class="instructionsName" id="instructionsNameSentenceHop">SPEED</div>
                                 <div id="instructionsGraphicSpeed"></div>
                             </div>
                         </div>
                         <div id="instructionGroupFour">
                             <div class="instructionsComponent">
-                                <div class="instructionsName">HIGHLIGHT</div>
+                                <div class="instructionsName" id="instructionsNameHighlight">HIGHLIGHT</div>
                                 <div id="instructionsGraphicHighlight"></div>
                             </div>
                         </div>

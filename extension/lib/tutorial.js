@@ -62,19 +62,19 @@ class Tutorial {
             </div>`;
         this.instructionsHtml = `
             <div id="tutorialInstructionsContainer" class="tutorialContainer">
-                <div id="tutorialTextTwo">Click<span id="tutorialSettingsButton">${window.gearLogo}</span>for <span class="bold">instructions</span></div>
+                <div id="tutorialTextInstructions">Click<span id="tutorialSettingsButton">${window.gearLogo}</span>for <span class="bold">instructions</span></div>
                 <div class="popupCheckmark"></div>
-                <div id="tutorialStepTwoDownArrow"></div>
+                <div id="tutorialInstructionsDownArrow"></div>
             </div>`;
         this.moveHtml = `
             <div id="tutorialMoveContainer" class="tutorialContainer">
-                <div id="tutorialTextThree">Use <span id="tutorialMoveBackwardLogo"></span>&nbsp;and <span id="tutorialMoveForwardLogo"></span>&nbsp;to <span class="bold">move</span><br/> the current sentence. </div>
+                <div id="tutorialTextMove">Use <span id="tutorialMoveBackwardLogo"></span>&nbsp;and <span id="tutorialMoveForwardLogo"></span>&nbsp;to <span class="bold">move</span><br/> the current sentence. </div>
                 <div class="popupCheckmark" id="popupCheckmarkTwoLiner"></div>
-                <div id="tutorialStepThreeDownArrow"></div>
+                <div id="tutorialMoveDownArrow"></div>
             </div>`;
         this.autoHtml = `
             <div id="tutorialAutoContainer" class="tutorialContainer">
-                <div id="tutorialTextFourContainer">
+                <div id="tutorialTextAutoContainer">
                     <div class="tutorialTextPartOne">
                         Turn <span class="bold">auto-scroll</span> on or off<br/>using <span id="tutorialSpaceLogo"></span>
                     </div>
@@ -83,27 +83,27 @@ class Tutorial {
                     </div>
                 </div>
                 <div class="popupCheckmark" id="popupCheckmarkFourLiner"></div>
-                <div id="tutorialStepFourLeftArrow"></div>
+                <div id="tutorialAutoLeftArrow"></div>
             </div>`;
         this.keywordsHtml = `
             <div id="tutorialKeywordsContainer" class="tutorialContainer">
-                <div id="tutorialTextFive">
+                <div id="tutorialTextKeywords">
                     Try different <span class="bold">keyword</span><br/>colors using <span id="tutorialSlashLogo"></span>
                 </div>
                 <div class="popupCheckmark" id="popupCheckmarkTwoLiner"></div>
-                <div id="tutorialStepFiveUpArrow"></div>
+                <div id="tutorialKeywordsUpArrow"></div>
             </div>`;
         this.highlightHtml = `
             <div id="tutorialHighlightContainer" class="tutorialContainer">
-                <div id="tutorialTextSix">
+                <div id="tutorialTextHighlight">
                     <span class="bold">Highlight</span> a sentence<br/>for later using <span id="tutorialShiftLogo"></span>
                 </div>
                 <div class="popupCheckmark" id="popupCheckmarkTwoLiner"></div>
-                <div id="tutorialStepSixRightArrow"></div>
+                <div id="tutorialHighlightRightArrow"></div>
             </div>`;
         this.onOffHtml = `
             <div id="tutorialOnOffContainer" class="tutorialContainer">
-                <div id="tutorialTextSevenContainer">
+                <div id="tutorialTextOnOffContainer">
                     <div class="tutorialTextPartOne" id="tutorialTextOneLiner">
                         Click <span id="tutorialIconLogo"></span> to turn <span class="bold">ON/OFF</span>
                     </div>
@@ -112,7 +112,7 @@ class Tutorial {
                     </div>
                 </div>
                 <div class="popupCheckmark" id="endTutorialButton"><div id="endTutorialButtonText">END</div></div>                
-                <div id="tutorialStepSevenUpArrow"></div>
+                <div id="tutorialOnOffUpArrow"></div>
             </div>`;
     }
     
@@ -126,23 +126,30 @@ class Tutorial {
             startContainer.fadeOut(250);
         });
         $("#tutorialStartTutorialButton").click(function() {
-            self.tutorialStepTwo();
+            self.tutorialInstructions();
             startContainer.fadeOut(250);
         });
     }
     // Instructions
-    // TODO: Change these names to descriptive instead of numbers. 
-    // Having them as numbers makes it significantly harder to add or remove steps
-    tutorialStepTwo() {
+    // TODO: These are all very similar, so there is a lot of redundancy. Refactor
+    tutorialInstructions() {
         let self = this;
         let instructionsHtml = self.instructionsHtml;
         $(instructionsHtml).insertAfter($("body").children().first());
         let tutorialPopup = $("#tutorialInstructionsContainer");
+        // Determine position based on element to be pointed at
+        let elToPointAt = $("#optionsButton");
+        let leftPos = elToPointAt.offset().left;
+        let topPos = elToPointAt.offset().top;
+        let halfWidthOfTarget = elToPointAt.width() / 2;
+        let halfWidthOfPopup = tutorialPopup.width() / 2;
+        let heightOfPopup = tutorialPopup.height();
+        tutorialPopup.css({"left":(leftPos+halfWidthOfTarget-halfWidthOfPopup-1), "top":(topPos-heightOfPopup-30)}); // 0.86 bc it gets .top of MOVE before instructions get moved up
         $(tutorialPopup).delay(500).animate({"opacity": "1"}, 500);
-        $("#tutorialStepTwoDownArrow").css('background-image', "url("+downArrow+")");
+        $("#tutorialInstructionsDownArrow").css('background-image', "url("+downArrow+")");
         let optionsButton = $("#optionsButton");
         optionsButton.on("click.tutorial", function() {
-            self.tutorialStepThree();
+            self.tutorialMove();
             $("#tutorialInstructionsContainer").fadeOut(250);
             optionsButton.off("click.tutorial");
         });
@@ -152,74 +159,100 @@ class Tutorial {
     }
 
     // Move
-    tutorialStepThree() {
+    tutorialMove() {
         let self = this;
         let moveHtml = self.moveHtml;
         
         $(moveHtml).insertAfter($("body").children().first());
         let tutorialPopup = $("#tutorialMoveContainer");
+        // Determine position based on element to be pointed at
+        let elToPointAt = $("#instructionsNameMove");
+        let leftPos = elToPointAt.offset().left;
+        let topPos = elToPointAt.offset().top;
+        let halfWidthOfTarget = elToPointAt.width() / 2;
+        let halfWidthOfPopup = tutorialPopup.width() / 2;
+        let heightOfPopup = tutorialPopup.height();
+        tutorialPopup.css({"left":(leftPos+halfWidthOfTarget-halfWidthOfPopup), "top":(topPos-window.innerHeight*0.5-heightOfPopup-35)}); // 0.5 bc it gets .top of MOVE before instructions get moved up; it is 50% below window to start
         $(tutorialPopup).delay(1500).animate({"opacity": "1"}, 500);
         $("#tutorialMoveForwardLogo").css('background-image', "url("+rightArrowKey+")");
         $("#tutorialMoveBackwardLogo").css('background-image', "url("+leftArrowKey+")");
-        $("#tutorialStepThreeDownArrow").css('background-image', "url("+downArrow+")");
+        $("#tutorialMoveDownArrow").css('background-image', "url("+downArrow+")");
         $(".popupCheckmark").css("background-image", "url("+popupCheckmarkUrl+")").click(function() {
-            self.tutorialStepFour();
+            self.tutorialAuto();
             tutorialPopup.fadeOut(250);
         });
     }
     // Auto mode and speed
-    tutorialStepFour() {
+    tutorialAuto() {
         let self = this;
         let autoHtml = self.autoHtml;
         
         $(autoHtml).insertAfter($("body").children().first());
         let tutorialPopup = $("#tutorialAutoContainer");
+        // Determine position based on element to be pointed at
+        let elToPointAt = $("#instructionGroupThree");
+        let leftPos = elToPointAt.offset().left;
+        let topPos = elToPointAt.offset().top;
+        let widthOfTarget = elToPointAt.width();
+        tutorialPopup.css({"left":(leftPos+widthOfTarget+20), "top":topPos});
         $(tutorialPopup).delay(500).animate({"opacity": "1"}, 500);
         $("#tutorialSpaceLogo").css('background-image', "url("+spaceBar+")");
         $("#tutorialSlowLogo").css('background-image', "url("+downArrowKey+")");
         $("#tutorialFastLogo").css('background-image', "url("+upArrowKey+")");
-        $("#tutorialStepFourLeftArrow").css('background-image', "url("+leftArrow+")");
+        $("#tutorialAutoLeftArrow").css('background-image', "url("+leftArrow+")");
         $(".popupCheckmark").css("background-image", "url("+popupCheckmarkUrl+")").click(function() {
-            self.tutorialStepFive();
+            self.tutorialKeywords();
             tutorialPopup.fadeOut(250);
         });
     }
-    // Keywords and Highlight
-    tutorialStepFive() {
+    // Keywords
+    tutorialKeywords() {
         let self = this;
         let keywordsHtml = self.keywordsHtml;
-        $("#customizeContainer").delay(500).animate({"transform": "1.05"}, 500);
         $(keywordsHtml).insertAfter($("body").children().first());
         let tutorialPopup = $("#tutorialKeywordsContainer");
+        // Determine position based on element to be pointed at
+        let elToPointAt = $("#customizeContainer");
+        let leftPos = elToPointAt.offset().left;
+        let topPos = elToPointAt.offset().top;
+        let halfWidthOfTarget = elToPointAt.width() / 2;
+        let halfWidthOfPopup = tutorialPopup.width() / 2;
+        let heightOfPopup = tutorialPopup.height();
+        tutorialPopup.css({"left":(leftPos+halfWidthOfTarget-halfWidthOfPopup), "top":topPos+heightOfPopup+15});
         $(tutorialPopup).delay(500).animate({"opacity": "1"}, 500);
         $("#tutorialSlashLogo").css('background-image', "url("+slashKey+")");
-        $("#tutorialStepFiveUpArrow").css('background-image', "url("+upArrow+")");
+        $("#tutorialKeywordsUpArrow").css('background-image', "url("+upArrow+")");
         $(".popupCheckmark").css("background-image", "url("+popupCheckmarkUrl+")").click(function() {
-            self.tutorialStepSix();
+            self.tutorialHighlight();
             tutorialPopup.fadeOut(250);
-            $("#customizeContainer").animate({"transform": "1"}, 250);
         });
 
     }
-    // Keywords and Highlight
-    tutorialStepSix() {
+    // Highlight
+    tutorialHighlight() {
         let self = this;
         let highlightHtml = self.highlightHtml;
-        $("#customizeContainer").delay(500).animate({"transform": "1.05"}, 500);
         $(highlightHtml).insertAfter($("body").children().first());
         let tutorialPopup = $("#tutorialHighlightContainer");
+        // Determine position based on element to be pointed at
+        let elToPointAt = $("#instructionGroupFour");
+        let leftPos = elToPointAt.offset().left;
+        let topPos = elToPointAt.offset().top;
+        let widthOfPopup = tutorialPopup.width();
+        let halfHeightOfTarget = elToPointAt.height() / 2;
+        let halfHeightOfPopup = tutorialPopup.height() / 2;
+        tutorialPopup.css({"left":(leftPos-widthOfPopup), "top":topPos + halfHeightOfTarget - halfHeightOfPopup + 20});
         $(tutorialPopup).delay(500).animate({"opacity": "1"}, 500);
         $("#tutorialShiftLogo").css('background-image', "url("+shiftButton+")");
-        $("#tutorialStepSixRightArrow").css('background-image', "url("+rightArrow+")");
+        $("#tutorialHighlightRightArrow").css('background-image', "url("+rightArrow+")");
         $(".popupCheckmark").css("background-image", "url("+popupCheckmarkUrl+")").click(function() {
-            self.tutorialStepSeven();
+            self.tutorialOnOff();
             tutorialPopup.fadeOut(250);
-            $("#customizeContainer").animate({"transform": "1"}, 250);
         });
 
     }
     // On/Off
-    tutorialStepSeven() {
+    tutorialOnOff() {
         let self = this;
         let onOffHtml = self.onOffHtml;
         $(onOffHtml).insertAfter($("body").children().first());
@@ -229,7 +262,7 @@ class Tutorial {
         $("#tutorialAltRLogo").css('background-image', "url("+alt_r+")");
         $("#tutorialPuzzleLogo").css('background-image', "url("+puzzle+")");
         $("#tutorialPinLogo").css('background-image', "url("+pin+")");
-        $("#tutorialStepSevenUpArrow").css('background-image', "url("+upArrow+")");
+        $("#tutorialOnOffUpArrow").css('background-image', "url("+upArrow+")");
         $(".popupCheckmark").click(function() {
             tutorialPopup.fadeOut(250);
         });
