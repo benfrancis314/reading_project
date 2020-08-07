@@ -27,7 +27,7 @@ It's okay to be obnoxiously high because user can always deactivate the extensio
 .sentenceStyleOn {
 	position: relative;
 	background-color:rgb(255, 255, 255) !important;  /* White */
-	box-shadow: 2pt 2pt 3pt 1pt rgb(0, 0, 0, 0.45); /* Transparent black */
+	box-shadow: 1pt 1pt 2pt 1pt rgb(0, 0, 0, 0.35); /* Transparent black */
 	transition: all 0.5s ease 0s;
 }
 .sentenceStyleOff {
@@ -353,7 +353,7 @@ It's okay to be obnoxiously high because user can always deactivate the extensio
 }
 #instructionGroupOne, #instructionGroupTwo, #instructionGroupThree, #instructionGroupFour {
 	box-shadow: 2pt 0pt 2pt 1pt rgba(0, 0, 0, 0.2); /* Transparent black */
-	padding: 2.5% 0%;
+	padding: 20px 0px;
 	width: 100%;
 	border-width: 0px;
 	display: flex;
@@ -500,7 +500,7 @@ It's okay to be obnoxiously high because user can always deactivate the extensio
 #tutorialTextInstructions, #tutorialTextMove, #tutorialTextKeywords, #tutorialTextHighlight, #tutorialTextInstructions {
 	width: 80%;
 	text-align: center;
-	padding: 12px 0px 8px 15px;
+	padding: 12px 8px 8px 8px;
 	font-family: "Montserrat";
 	border-radius: 10px 0px 0px 10px;
 	line-height: 1.5;
@@ -508,19 +508,18 @@ It's okay to be obnoxiously high because user can always deactivate the extensio
 .tutorialTextPartOne, .tutorialTextPartTwo {
 	line-height: 1.5;
 	padding: 0px 8px 0px 8px;
+	/* padding: 0%  */
 	height: 50%;
-	width: 100%;
+	/* width: 100%; */
 }
 .tutorialTextPartOne {
 	/* Separate part 1 & 2 with a line */
 	border: 1px solid #55555533;
-	width: 100%;
+	/* width: 100%; */
 	border-width: 0px 0px 1px 0px;
+	padding-top: 5px;
 	padding-bottom: 10px;
 	margin-bottom: 10px;
-}
-#tutorialTextOneLiner {
-	padding: 13px 8px 7px 8px !important;
 }
 #tutorialTextAutoContainer, #tutorialTextOnOffContainer {
 	width: 80%;
@@ -530,7 +529,10 @@ It's okay to be obnoxiously high because user can always deactivate the extensio
 	justify-content: space-around;
 	font-family: "Montserrat";
 	border-radius: 10px 0px 0px 10px;
-	padding: 12px 0px 10px 8px;
+	padding: 12px 0px 10px 0px;
+}
+#tutorialTextAutoContainer {
+	padding: 8px 0px 14px 0px;
 }
 #tutorialEndPartOne {
 	width: 70%;
@@ -546,7 +548,7 @@ It's okay to be obnoxiously high because user can always deactivate the extensio
 	text-align: center;
 	border: 1px solid #55555533;
 	border-width: 0px 0px 1px 0px;
-	width: 100%;
+	width: 70%;
 	font-family: "Montserrat";
 }
 #tutorialEndPartThree {
@@ -581,7 +583,7 @@ It's okay to be obnoxiously high because user can always deactivate the extensio
 	background-color: rgb(255, 248, 185);
 }
 .popupCheckmark:hover {
-	width: 25%;
+	/* width: 25%; */
 	background-color: #fee517;
 	cursor: pointer;
 }
