@@ -157,19 +157,20 @@ class Doc {
                 this.sentenceEls.push($(filteredSentenceEls));
                 // Set keywords and score for each sentence
                 this.setSentenceKeywordsAndScore(container, containerText, start, end, sentenceId);
+                if (this.sentences.length > MAX_NUM_SENTENCE) {
+                    alert("Sorry, we don't support big documents yet :(");
+                    this.containers = [];
+                    this.sentences = [];
+                    this.containerIdToFirstSentenceId = [];
+                    break;
+                }
             }
-
+            if (this.sentences.length > MAX_NUM_SENTENCE) {
+                break;
+            }
             this.num_words_per_sentence = this.calcNumWordsPerSentence(this.sentences);
             this.num_words_per_sentence_suffix_sum = suffix_sum(this.num_words_per_sentence);
             this.sentence_scores_suffix_sum = suffix_sum(this.sentenceScores);
-
-            if (this.sentences.length > MAX_NUM_SENTENCE) {
-                alert("Sorry, we don't support big documents yet :(");
-                this.containers = [];
-                this.sentences = [];
-                this.containerIdToFirstSentenceId = [];
-                break;
-            }
         }
         let endTime = new Date();
         let elapsedTimeS =  (endTime - startTime ) / 1000;
