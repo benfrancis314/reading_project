@@ -59,7 +59,8 @@ class TimeTrackerView {
         $(this.displayHtml).insertBefore($("body").children().first());
         document.getElementById("readingDisplayContainer").style.opacity = 1; // For smoother transition
         document.getElementById("optionsButton").style.opacity = 1; // For smoother transition
-        $("#persistentUIDisplay").draggable();
+        $("#persistentUIDisplay").animate({"opacity":"1"}, 500).draggable();
+        $("#bottomOfPageUI").animate({"opacity":"1"}, 500);
     }
 
     // Is user in auto mode? (bool)
@@ -141,9 +142,12 @@ class TimeTrackerView {
     // Remove the widget UI elements from DOM.
 
     turnDownUI() {
-        $("#bottomOfPageUI").remove();
-        $("#persistentUIDisplay").remove();
-        $('#optionsButton').remove();
+        $("#bottomOfPageUI").animate({"opacity":"0"}, 500, function() {
+            $(this).remove();
+        });
+        $("#persistentUIDisplay").animate({"opacity":"0"}, 500, function() {
+            $(this).remove();
+        });
         $('#uiContainer').remove();
     }
 }
