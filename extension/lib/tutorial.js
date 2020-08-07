@@ -104,7 +104,7 @@ class Tutorial {
         this.onOffHtml = `
             <div id="tutorialOnOffContainer" class="tutorialContainer">
                 <div id="tutorialTextOnOffContainer">
-                    <div class="tutorialTextPartOne" id="tutorialTextOneLiner">
+                    <div class="tutorialTextPartOne">
                         Click <span id="tutorialIconLogo"></span> to turn <span class="bold">ON/OFF</span>
                     </div>
                     <div class="tutorialTextPartTwo">
@@ -122,12 +122,13 @@ class Tutorial {
         $(this.startHtml).insertAfter($("body").children().first());
         let startContainer = $("#tutorialStartContainer");
         startContainer.animate({"opacity": "1"}, 500);
-        $("#tutorialStartSkipButton").click(function() {
+        $("#tutorialStartSkipButton").one("click", function() {
             startContainer.fadeOut(250);
         });
-        $("#tutorialStartTutorialButton").click(function() {
-            self.tutorialInstructions();
-            startContainer.fadeOut(250);
+        $("#tutorialStartTutorialButton").one("click", function() {
+            startContainer.fadeOut(250, function() {
+                self.tutorialInstructions();
+            });
         });
     }
     // Instructions
@@ -148,12 +149,12 @@ class Tutorial {
         $(tutorialPopup).delay(500).animate({"opacity": "1"}, 500);
         $("#tutorialInstructionsDownArrow").css('background-image', "url("+downArrow+")");
         let optionsButton = $("#optionsButton");
-        optionsButton.on("click.tutorial", function() {
-            self.tutorialMove();
-            $("#tutorialInstructionsContainer").fadeOut(250);
-            optionsButton.off("click.tutorial");
+        optionsButton.one("click", function() {
+            $("#tutorialInstructionsContainer").fadeOut(250, function() {
+                self.tutorialMove();
+            });
         });
-        $(".popupCheckmark").css("background-image", "url("+popupCheckmarkUrl+")").click(function() {
+        $(".popupCheckmark").css("background-image", "url("+popupCheckmarkUrl+")").one("click", function() {
             $("#optionsButton").click();
         });
     }
@@ -166,20 +167,21 @@ class Tutorial {
         $(moveHtml).insertAfter($("body").children().first());
         let tutorialPopup = $("#tutorialMoveContainer");
         // Determine position based on element to be pointed at
-        let elToPointAt = $("#instructionsNameMove");
+        let elToPointAt = $("#instructionGroupTwo");
         let leftPos = elToPointAt.offset().left;
-        let topPos = elToPointAt.offset().top;
+        let heightOfTarget = elToPointAt.height();
         let halfWidthOfTarget = elToPointAt.width() / 2;
         let halfWidthOfPopup = tutorialPopup.width() / 2;
-        let heightOfPopup = tutorialPopup.height();
-        tutorialPopup.css({"left":(leftPos+halfWidthOfTarget-halfWidthOfPopup), "top":(topPos-window.innerHeight*0.5-heightOfPopup-35)}); // 0.5 bc it gets .top of MOVE before instructions get moved up; it is 50% below window to start
+        let halfHeightOfPopup = tutorialPopup.height() / 2;
+        tutorialPopup.css({"left":(leftPos+halfWidthOfTarget-halfWidthOfPopup), "bottom":(heightOfTarget + halfHeightOfPopup + 25)}); 
         $(tutorialPopup).delay(1500).animate({"opacity": "1"}, 500);
         $("#tutorialMoveForwardLogo").css('background-image', "url("+rightArrowKey+")");
         $("#tutorialMoveBackwardLogo").css('background-image', "url("+leftArrowKey+")");
         $("#tutorialMoveDownArrow").css('background-image', "url("+downArrow+")");
-        $(".popupCheckmark").css("background-image", "url("+popupCheckmarkUrl+")").click(function() {
-            self.tutorialAuto();
-            tutorialPopup.fadeOut(250);
+        $(".popupCheckmark").css("background-image", "url("+popupCheckmarkUrl+")").one("click", function() {
+            tutorialPopup.fadeOut(250, function() {
+                self.tutorialAuto();
+            });
         });
     }
     // Auto mode and speed
@@ -200,9 +202,10 @@ class Tutorial {
         $("#tutorialSlowLogo").css('background-image', "url("+downArrowKey+")");
         $("#tutorialFastLogo").css('background-image', "url("+upArrowKey+")");
         $("#tutorialAutoLeftArrow").css('background-image', "url("+leftArrow+")");
-        $(".popupCheckmark").css("background-image", "url("+popupCheckmarkUrl+")").click(function() {
-            self.tutorialKeywords();
-            tutorialPopup.fadeOut(250);
+        $(".popupCheckmark").css("background-image", "url("+popupCheckmarkUrl+")").one("click", function() {
+            tutorialPopup.fadeOut(250, function() {
+                self.tutorialKeywords();
+            });
         });
     }
     // Keywords
@@ -222,9 +225,10 @@ class Tutorial {
         $(tutorialPopup).delay(500).animate({"opacity": "1"}, 500);
         $("#tutorialSlashLogo").css('background-image', "url("+slashKey+")");
         $("#tutorialKeywordsUpArrow").css('background-image', "url("+upArrow+")");
-        $(".popupCheckmark").css("background-image", "url("+popupCheckmarkUrl+")").click(function() {
-            self.tutorialHighlight();
-            tutorialPopup.fadeOut(250);
+        $(".popupCheckmark").css("background-image", "url("+popupCheckmarkUrl+")").one("click", function() {
+            tutorialPopup.fadeOut(250, function() {
+                self.tutorialHighlight();
+            });
         });
 
     }
@@ -245,9 +249,10 @@ class Tutorial {
         $(tutorialPopup).delay(500).animate({"opacity": "1"}, 500);
         $("#tutorialShiftLogo").css('background-image', "url("+shiftButton+")");
         $("#tutorialHighlightRightArrow").css('background-image', "url("+rightArrow+")");
-        $(".popupCheckmark").css("background-image", "url("+popupCheckmarkUrl+")").click(function() {
-            self.tutorialOnOff();
-            tutorialPopup.fadeOut(250);
+        $(".popupCheckmark").css("background-image", "url("+popupCheckmarkUrl+")").one("click", function() {
+            tutorialPopup.fadeOut(250, function() {
+                self.tutorialOnOff();
+            });
         });
 
     }
@@ -263,7 +268,7 @@ class Tutorial {
         $("#tutorialPuzzleLogo").css('background-image', "url("+puzzle+")");
         $("#tutorialPinLogo").css('background-image', "url("+pin+")");
         $("#tutorialOnOffUpArrow").css('background-image', "url("+upArrow+")");
-        $(".popupCheckmark").click(function() {
+        $(".popupCheckmark").one("click", function() {
             tutorialPopup.fadeOut(250);
         });
     }
