@@ -70,7 +70,6 @@ It's okay to be obnoxiously high because user can always deactivate the extensio
 	position: fixed; 
 	bottom: 7.5%;
 	opacity: 0;
-	/* transition: all 0.5s ease 0s; */
 }
 #readingDisplayContainer {
 	position: absolute; 

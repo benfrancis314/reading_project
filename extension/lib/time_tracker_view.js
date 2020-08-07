@@ -148,7 +148,9 @@ class TimeTrackerView {
         $("#persistentUIDisplay").animate({"opacity":"0"}, 500, function() {
             $(this).remove();
         });
-        $('#uiContainer').remove();
+        $('#uiContainer').animate({"opacity":"0"}, 500, function() {
+            $(this).remove();
+        });
     }
 }
 
