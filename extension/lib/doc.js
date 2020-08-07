@@ -327,7 +327,7 @@ class Doc {
             settings.setVisitedUrls(visitedUrls);
         }
         // For getting dev DF dictionary for updating baseline each version
-        console.log(JSON.stringify(documentFreq));
+        // console.log(JSON.stringify(documentFreq));
         // This debug is for monitoring the total word count as I go, to see how it progresses
         debug("Number of words in document frequency dictionary: "+Object.keys(documentFreq).length);
         this.termFreq = termFreq; // Set class attribute "termFreq"
