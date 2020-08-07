@@ -61,6 +61,7 @@ It's okay to be obnoxiously high because user can always deactivate the extensio
 	width: 100%;
 	background: linear-gradient(to top, rgba(255,255,255,0.99), rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0));
 	z-index: 1000;
+	pointer-events: none;
 	height: 30%;
 	opacity: 0;
 }
