@@ -52,7 +52,7 @@ function parseDocument() {
 		// are re-included as-is, but otherwise are not considered readable text.
 		// Sometimes I see ads being re-included with undefined ids, so it's probably
 		// a good thing to skip these. 
-		let el = $(`#${id}`);
+		let el = $("#" + $.escapeSelector(id));
 		if (id !== undefined && el.is(":visible") && el.text().length > 0) {
 			readableDomEls.push(el);
 		}

@@ -685,22 +685,23 @@ function removeLoadIcon() {
 	}
 }
 
-// Setup load icon beforetime, so only have to change opacity
-setupLoadIcon();
-setupTutorial();
+$(document).ready(function() {
+	// Setup load icon beforetime, so only have to change opacity
+	setupLoadIcon();
+	setupTutorial();
 
-// Load settings first, because we might want to auto-load everything
-// before user even inputs anything
-settings = new window.Settings(function() {
-	setupListenerForOnOff();
-	// If auto-on, pretend as if user clicks r immediately.
-	if (settings.getAppStatus()) {
-		$("#loadingIcon").show(500, function() {
-			preprocessPage();
-			toggleExtensionVisibility();
-		});
-	}
+	// Load settings first, because we might want to auto-load everything
+	// before user even inputs anything
+	settings = new window.Settings(function() {
+		setupListenerForOnOff();
+		// If auto-on, pretend as if user clicks r immediately.
+		if (settings.getAppStatus()) {
+			$("#loadingIcon").show(500, function() {
+				preprocessPage();
+				toggleExtensionVisibility();
+			});
+		}
+	});
 });
-
 
 })(); // End of namespace
