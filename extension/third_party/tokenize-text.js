@@ -1,5 +1,6 @@
 /*
 Taken from https://github.com/GitbookIO/tokenize-text
+Under Apache 2.0 license: https://github.com/GitbookIO/tokenize-text/blob/master/LICENSE
 The changes are just for compatibility. There are no behavior changes.
 - Removed require statements and just dumped all dependency files here.
 */
