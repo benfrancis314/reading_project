@@ -1,5 +1,6 @@
 /*
 Taken from https://github.com/GitbookIO/tokenize-english/blob/master/lib/index.js
+Under Apache 2.0 license: https://github.com/GitbookIO/tokenize-english/blob/master/LICENSE
 Changes:
 - Removed require statements and just dumped all dependency files here.
 - For behavioral changes, Search "EDIT:"
