@@ -405,69 +405,43 @@ It's okay to be obnoxiously high because user can always deactivate the extensio
 }
 
 /* TUTORIAL */
-#tutorialInstructionsContainer, #tutorialMoveContainer, 
-#tutorialAutoContainer, #tutorialKeywordsContainer, 
-#tutorialHighlightContainer, #tutorialOnOffContainer {
+
+.tutorialContainer {
 	position: fixed;
+	display: flex;
+	flex-direction: column;
+	opacity: 0; /* So it can fade in */
+	justify-content: space-between;
+	align-items: stretch;
+	z-index: 10000;
+	width: 24.5%;
+}
+
+.tutorialText {
 	box-shadow: 0px 2px 3pt 2px rgb(0, 0, 0, 0.5);  /* Transparent black */
 	border-radius: 10px;
 	display: flex;
 	flex-direction: row;
 	justify-content: space-between;
 	align-items: stretch;
-	z-index: 10000;
 	background-color: rgba(255, 255, 255, 0.95);
-	opacity: 0; /* So it can fade in */
-	width: 24.5%;
+	margin-bottom: 15px;
 }
-#tutorialOnOffContainer {
-	top: 22px;
-	right: 1%;
-}
-#tutorialInstructionsDownArrow, #tutorialMoveDownArrow, #tutorialAutoLeftArrow, 
-#tutorialKeywordsUpArrow, #tutorialHighlightRightArrow, #tutorialOnOffUpArrow {
-	position: absolute;
-	width: 15px;
-	height: 15px;
+
+.tutorialDownArrow {
+	position: relative;
+	padding: 15px;
 	background-position: center center;
 	background-size: contain;
 	background-repeat: no-repeat;
 	z-index: 1000;
 	animation: pulseArrows 1s linear infinite;
 }
-#tutorialAutoLeftArrow, #tutorialKeywordsUpArrow, 
-#tutorialHighlightRightArrow, #tutorialOnOffUpArrow {
-	width: 23px;
-	height: 23px;
-}
+
 @keyframes pulseArrows {
 	0%   {transform: scale(1)}
 	50% {transform: scale(1.3)}
 	100% {transform: scale(1)}
-}
-#tutorialInstructionsDownArrow {
-	bottom: -50%;
-	left: 48%;
-}
-#tutorialMoveDownArrow {
-	bottom: -30%;
-	left: 48%;
-}
-#tutorialAutoLeftArrow {
-	bottom: 42%;
-	left: -8%;
-}
-#tutorialKeywordsUpArrow {
-	top: -35%;
-	left: 46%;
-}
-#tutorialHighlightRightArrow {
-	bottom: 37%;
-	right: -8%;
-}
-#tutorialOnOffUpArrow {
-	top: -22px;
-	right: 32%;
 }
 #tutorialMoveForwardLogo, #tutorialMoveBackwardLogo, #tutorialSpaceLogo,
 #tutorialSlowLogo, #tutorialFastLogo, #tutorialSlashLogo, #tutorialShiftLogo, 

@@ -9,15 +9,10 @@
         "storage"
     ],
     "background": {
-        "scripts": [
-          "third_party/jquery-3.5.1.min.js", 
-          "third_party/hot-reload.js",
-          "background.js"
-          ], 
-        "persistent": false
+        "service_worker": "background.js"
     },
     "commands":{
-        "_execute_browser_action": {
+        "_execute_action": {
             "suggested_key": {
                 "default": "Alt+R"
             }
@@ -51,35 +46,40 @@
         }	
     ],
     "web_accessible_resources": [
-        "images/checkMark.svg",
-        "images/closeButton.svg",
-        "images/downArrow.svg",
-        "images/downArrowKey.svg",
-        "images/instructionAutoRead.svg",
-        "images/instructionHighlight.svg",
-        "images/instructionKeywordToggle.svg",
-        "images/instructionMove.svg",
-        "images/instructionOnOff.svg",
-        "images/instructionOnOffSmaller.svg",
-        "images/instructionSentenceHop.svg",
-        "images/instructionSpeed.svg", 
-        "images/leftArrow.svg",
-        "images/leftArrowKey.svg",
-        "images/loadingIcon.svg",
-        "images/logoWithBackground.svg",
-        "images/pin.svg",
-        "images/puzzlePiece.svg",
-        "images/rightArrow.svg",
-        "images/rightArrowKey.svg",
-        "images/upArrow.svg",
-        "images/upArrowKey.svg"
+        {
+          "resources": [
+            "images/checkMark.svg",
+            "images/closeButton.svg",
+            "images/downArrow.svg",
+            "images/downArrowKey.svg",
+            "images/instructionAutoRead.svg",
+            "images/instructionHighlight.svg",
+            "images/instructionKeywordToggle.svg",
+            "images/instructionMove.svg",
+            "images/instructionOnOff.svg",
+            "images/instructionOnOffSmaller.svg",
+            "images/instructionSentenceHop.svg",
+            "images/instructionSpeed.svg", 
+            "images/leftArrow.svg",
+            "images/leftArrowKey.svg",
+            "images/loadingIcon.svg",
+            "images/logoWithBackground.svg",
+            "images/pin.svg",
+            "images/puzzlePiece.svg",
+            "images/rightArrow.svg",
+            "images/rightArrowKey.svg",
+            "images/upArrow.svg",
+            "images/upArrowKey.svg"
+          ],
+          "matches": ["<all_urls>"]
+        }
     ],
     "icons": { 
         "16": "images/logo16.png",
         "32": "images/logo32.png",
         "48": "images/logo48.png",
        "128": "images/logo128.png" },
-    "browser_action": {
+    "action": {
         "default_icon": {
             "16": "images/logo16.png",
             "32": "images/logo32.png",
@@ -88,5 +88,5 @@
         },
         "default_title": "ReaderEase"
     },
-    "manifest_version": 2
+    "manifest_version": 3
 }

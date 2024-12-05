@@ -646,7 +646,7 @@ function setupListenerForOnOff() {
 			if (request.command === "toggleUI") {
 				toggleApp();
 			}	
-			// TODO: This can be perhaps refactored. For now, it's an easy fir
+			// TODO: This can be perhaps refactored. For now, it's an easy fix
 			else if (request.command === "toggleUITutorial") {
 				if (settings.getAppStatus()) {
 					return; // If app status is on, do nothing
@@ -702,6 +702,10 @@ $(document).ready(function() {
 			});
 		}
 	});
+
+	// TODO: Enable this only if you want to debug the tutorial page.
+	// let tutorial = new window.Tutorial;
+	// window.tutorial = tutorial;
 });
 
 })(); // End of namespace
