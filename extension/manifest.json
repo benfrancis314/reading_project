@@ -4,7 +4,6 @@
     "description": "Read online with ease.",
     "permissions": [
         "activeTab", 
-        "tabs", 
         "contextMenus",
         "storage"
     ],
