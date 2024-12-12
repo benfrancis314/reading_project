@@ -5,6 +5,7 @@ Changes:
 - Removed require statements and just dumped all dependency files here.
 - For behavioral changes, Search "EDIT:"
   - Handle citation cases like "abcd.[1][2]" for wikipedia.
+- isBoundaryChar. Added chinese period 。
 
 Exports a global function:
   tokenizeSentences(string text), that returns SentenceBoundary[]
@@ -197,7 +198,11 @@ function isConcatenated(word) {
 function isBoundaryChar(word) {
     return word === "." ||
            word === "!" ||
-           word === "?";
+           word === "?" ||
+           // Chinese boundary characters
+           word === "。" ||
+           word === "！" ||
+           word === "？";
 }
 
 // http://tech.grammarly.com/blog/posts/How-to-Split-Sentences.html
@@ -206,7 +211,7 @@ function tokenizeSentences(tokenize, opts) {
         newlineBoundary: true
     });
 
-    var splitRe = /\s/;
+    var splitRe = /[\s。！？]/;
 
     return tokenize.serie(
         // Split into words
@@ -240,7 +245,7 @@ function tokenizeSentences(tokenize, opts) {
             // A dot might indicate the end sentences
             // Exception: The next sentence starts with a word (non abbreviation)
             //            that has a capital letter.
-            if (endsWithChar(word, '.')) {
+            if (endsWithChar(word, '.') || endsWithChar(word, '。')) {
                 // Check if there is a next word
                 if (nextWord) {
                     // This should be improved with machine learning
